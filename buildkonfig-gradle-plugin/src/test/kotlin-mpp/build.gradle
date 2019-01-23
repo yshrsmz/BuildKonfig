@@ -1,0 +1,67 @@
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform'
+    id 'com.codingfeline.buildkonfig'
+}
+
+apply from: '../../../../gradle/dependencies.gradle'
+
+repositories {
+    maven {
+        url "file://${projectDir.absolutePath}/../../../../build/localMaven"
+    }
+    mavenCentral()
+}
+
+buildKonfig {
+    defaultConfigs {
+        buildConfigField 'String', 'test', '"hoge"'
+    }
+    targetConfigs {
+        android {
+            buildConfigField 'String', 'android', 'fuga'
+        }
+        "native" {
+            buildConfigField 'String', 'native', 'fuge'
+        }
+    }
+}
+
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation deps.kotlin.stdlib.common
+            }
+        }
+        jvmMain {
+            dependencies {
+                implementation deps.kotlin.stdlib.jdk7
+            }
+        }
+        jsMain {
+            dependencies {
+                implementation deps.kotlin.stdlib.js
+            }
+        }
+        nativeMain {
+            dependencies {
+            }
+        }
+        nativeTest {}
+    }
+    targets {
+        fromPreset(presets.jvm, 'jvm')
+        fromPreset(presets.js, 'js')
+        fromPreset(presets.iosArm64, 'iosArm64') {
+            compilations.main.outputKinds('FRAMEWORK')
+        }
+        fromPreset(presets.iosX64, 'iosX64') {
+            compilations.main.outputKinds('FRAMEWORK')
+        }
+    }
+
+    configure([targets.iosX64, targets.iosArm64]) {
+        compilations.main.source(sourceSets.nativeMain)
+        compilations.test.source(sourceSets.nativeTest)
+    }
+}

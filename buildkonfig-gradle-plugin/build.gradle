@@ -65,3 +65,5 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+apply from: "$rootDir/gradle/gradle-mvn-push.gradle"
