@@ -1,4 +1,4 @@
-package com.codingfeline.buildkonfig
+package com.codingfeline.buildkonfig.compiler
 
 import java.io.Serializable
 

@@ -1,7 +1,7 @@
 package com.codingfeline.buildkonfig.gradle
 
-import com.codingfeline.buildkonfig.FieldSpec
-import com.codingfeline.buildkonfig.PlatformConfig
+import com.codingfeline.buildkonfig.compiler.FieldSpec
+import com.codingfeline.buildkonfig.compiler.PlatformConfig
 import org.gradle.api.logging.Logger
 import org.gradle.internal.impldep.org.eclipse.jgit.annotations.NonNull
 

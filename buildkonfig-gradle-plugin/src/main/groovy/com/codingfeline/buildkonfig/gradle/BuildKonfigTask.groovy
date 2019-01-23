@@ -1,7 +1,7 @@
 package com.codingfeline.buildkonfig.gradle
 
-import com.codingfeline.buildkonfig.PlatformConfig
 import com.codingfeline.buildkonfig.VersionKt
+import com.codingfeline.buildkonfig.compiler.PlatformConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
