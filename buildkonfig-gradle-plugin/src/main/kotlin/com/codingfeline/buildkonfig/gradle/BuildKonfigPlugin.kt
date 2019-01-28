@@ -4,7 +4,12 @@ package com.codingfeline.buildkonfig.gradle
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.Logging
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
 import java.io.File
 
 open class BuildKonfigPlugin : Plugin<Project> {
@@ -30,8 +35,6 @@ open class BuildKonfigPlugin : Plugin<Project> {
 
         val objectFactory = target.objects
 
-        val outputDirectory = File(target.buildDir, "buildKonfig")
-
         val extension = target.extensions.create("buildKonfig", BuildKonfigExtension::class.java)
 
         val logger = Logging.getLogger(BuildKonfigPlugin::class.java)
@@ -42,15 +45,49 @@ open class BuildKonfigPlugin : Plugin<Project> {
             PlatformConfigFactory(objectFactory, logger)
         )
 
-        val task = target.tasks.create("generateBuildKonfig", BuildKonfigTask::class.java) {
-            it.setExtension(extension)
-            it.outputDirectory = outputDirectory
-            it.group = "buildKonfig"
-            it.description = "Generate BuildKonfig"
-        } as BuildKonfigTask
+        configure(target, extension)
     }
 
-    fun configure(project: Project) {
+    fun configure(project: Project, extension: BuildKonfigExtension) {
+        val outputDirectory = File(project.buildDir, "buildKonfig")
 
+        project.afterEvaluate { p ->
+            //            val task = p.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
+//                it.setExtension(extension)
+//                it.outputDirectory = outputDirectory
+//                it.group = "buildKonfig"
+//                it.description = "Generate BuildKonfig"
+//            }
+
+            p.extensions.getByType(KotlinMultiplatformExtension::class.java).targets.forEach { target ->
+                println("----")
+                println("target: $target")
+                target.compilations.forEach { compilationUnit ->
+                    println("compilation: $compilationUnit, ${compilationUnit::class}")
+                    if (compilationUnit is KotlinNativeCompilation) {
+                        compilationUnit.target.binaries.forEach { binary ->
+                            val taskName = getTaskName(target, compilationUnit, binary)
+                            println("binary: ${binary.buildType}")
+                            println("buildKonfig task: $taskName")
+
+                            val task = p.tasks.register(taskName, BuildKonfigTask::class.java) {
+                                it.setExtension(extension)
+                                it.group = "buildKonfig"
+                                it.description = "Generate BuildKonfig for ${target.name} - ${binary.buildType.name}"
+                            }
+                            binary.linkTask.dependsOn(task)
+                        }
+                    } else if (compilationUnit is KotlinJsCompilation) {
+
+                    } else {
+
+                    }
+                }
+            }
+        }
+    }
+
+    fun getTaskName(target: KotlinTarget, compilation: KotlinNativeCompilation, binary: NativeBinary): String {
+        return "generate${compilation.name.capitalize()}${binary.buildType.name.toLowerCase().capitalize()}${target.name.capitalize()}${binary.outputKind.name.toLowerCase().capitalize()}BuildKonfig"
     }
 }

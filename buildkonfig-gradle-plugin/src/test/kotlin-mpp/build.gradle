@@ -27,6 +27,18 @@ buildKonfig {
 }
 
 kotlin {
+    jvm()
+    js()
+    iosArm64() {
+        binaries {
+            framework()
+        }
+    }
+    iosX64() {
+        binaries {
+            framework()
+        }
+    }
     sourceSets {
         commonMain {
             dependencies {
@@ -48,20 +60,10 @@ kotlin {
             }
         }
         nativeTest {}
-    }
-    targets {
-        fromPreset(presets.jvm, 'jvm')
-        fromPreset(presets.js, 'js')
-        fromPreset(presets.iosArm64, 'iosArm64') {
-            compilations.main.outputKinds('FRAMEWORK')
-        }
-        fromPreset(presets.iosX64, 'iosX64') {
-            compilations.main.outputKinds('FRAMEWORK')
-        }
-    }
 
-    configure([targets.iosX64, targets.iosArm64]) {
-        compilations.main.source(sourceSets.nativeMain)
-        compilations.test.source(sourceSets.nativeTest)
+        [iosX64(), iosArm64()].forEach { t ->
+            t.compilations.main.source(sourceSets.nativeMain)
+            t.compilations.test.source(sourceSets.nativeTest)
+        }
     }
 }
