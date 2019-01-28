@@ -37,7 +37,7 @@ captures/
 *.iml
 *.iws
 *.ipr
-.idea
+.idea/*
 
 # Keystore files
 *.jks
@@ -54,3 +54,4 @@ playground.xcworkspace
 .DS_Store
 
 secret.properties
+!.idea/codeStyles/*
