@@ -1,6 +1,6 @@
 ext.versions = [
         compileSdk   : 28,
-        kotlin       : '1.3.11',
+        kotlin       : '1.3.20',
         serialization: '0.9.1',
         dokka        : '0.9.17',
         moshi        : '1.8.0'
