@@ -5,9 +5,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
 import java.io.File
@@ -66,28 +66,37 @@ open class BuildKonfigPlugin : Plugin<Project> {
                     println("compilation: $compilationUnit, ${compilationUnit::class}")
                     if (compilationUnit is KotlinNativeCompilation) {
                         compilationUnit.target.binaries.forEach { binary ->
-                            val taskName = getTaskName(target, compilationUnit, binary)
+                            val taskName = getNativeTaskName(target, compilationUnit, binary)
                             println("binary: ${binary.buildType}")
                             println("buildKonfig task: $taskName")
 
                             val task = p.tasks.register(taskName, BuildKonfigTask::class.java) {
                                 it.setExtension(extension)
                                 it.group = "buildKonfig"
-                                it.description = "Generate BuildKonfig for ${target.name} - ${binary.buildType.name}"
+                                it.description =
+                                    "Generate BuildKonfig for ${target.name} - ${compilationUnit.name} - ${binary.buildType.name}"
                             }
-                            binary.linkTask.dependsOn(task)
+                            p.tasks.named(binary.linkTaskName).configure { it.dependsOn(task) }
                         }
-                    } else if (compilationUnit is KotlinJsCompilation) {
-
                     } else {
-
+                        val taskName = getTaskName(target, compilationUnit)
+                        val task = p.tasks.register(taskName, BuildKonfigTask::class.java) {
+                            it.setExtension(extension)
+                            it.group = "buildKonfig"
+                            it.description = "Generate BuildKonfig for ${target.name} - ${compilationUnit.name}"
+                        }
+                        p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(task) }
                     }
                 }
             }
         }
     }
 
-    fun getTaskName(target: KotlinTarget, compilation: KotlinNativeCompilation, binary: NativeBinary): String {
+    fun getNativeTaskName(target: KotlinTarget, compilation: KotlinNativeCompilation, binary: NativeBinary): String {
         return "generate${compilation.name.capitalize()}${binary.buildType.name.toLowerCase().capitalize()}${target.name.capitalize()}${binary.outputKind.name.toLowerCase().capitalize()}BuildKonfig"
+    }
+
+    fun getTaskName(target: KotlinTarget, compilation: KotlinCompilation<*>): String {
+        return "generate${compilation.name.capitalize()}${target.name.capitalize()}BuildKonfig"
     }
 }
