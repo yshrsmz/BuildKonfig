@@ -1,7 +1,6 @@
-apply plugin: 'java-gradle-plugin'
-apply plugin: 'groovy'
-apply plugin: "com.gradle.plugin-publish"
 apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'java-gradle-plugin'
+apply plugin: "com.gradle.plugin-publish"
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -13,7 +12,7 @@ pluginBundle {
     tags = ['BuildConfig', 'Kotlin', 'Kotlin Multiplatform']
 
     plugins {
-        kgql {
+        buildKonfig {
             displayName = POM_NAME
         }
     }
@@ -21,7 +20,7 @@ pluginBundle {
 
 gradlePlugin {
     plugins {
-        kgql {
+        buildKonfig {
             id = "com.codingfeline.buildkonfig"
             implementationClass = "com.codingfeline.buildkonfig.gradle.BuildKonfigPlugin"
         }
@@ -41,13 +40,11 @@ tasks.getByName('pluginUnderTestMetadata')
 
 dependencies {
     implementation project(':buildkonfig-compiler')
-//    implementation deps.kotlin.stdlib.jdk8
+    implementation deps.kotlin.stdlib.jdk8
 
     compileOnly gradleApi()
-    implementation localGroovy()
     implementation deps.plugins.kotlin
 
-    testImplementation deps.kotlin.stdlib.jdk8
     testImplementation deps.junit
     testImplementation deps.truth
 
@@ -61,4 +58,8 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
+
+test {
+    dependsOn(":buildkonfig-gradle-plugin:installLocally")
+}
 apply from: "$rootDir/gradle/gradle-mvn-push.gradle"
