@@ -1,7 +1,9 @@
 plugins {
-    id 'org.jetbrains.kotlin.multiplatform'
+    id 'kotlin-multiplatform'
+    id 'com.android.library'
     id 'com.codingfeline.buildkonfig'
 }
+
 
 apply from: '../../../../gradle/dependencies.gradle'
 
@@ -9,10 +11,34 @@ repositories {
     maven {
         url "file://${projectDir.absolutePath}/../../../../build/localMaven"
     }
+    google()
     mavenCentral()
 }
 
-buildKonfig {
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
+        }
+    }
+}
+
+buildkonfig {
     defaultConfigs {
         buildConfigField 'String', 'test', '"hoge"'
     }
@@ -27,6 +53,7 @@ buildKonfig {
 }
 
 kotlin {
+    android()
     jvm()
     js()
     iosArm64() {

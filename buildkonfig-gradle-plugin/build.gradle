@@ -49,6 +49,7 @@ dependencies {
     testImplementation deps.truth
 
     fixtureClasspath deps.plugins.kotlin
+    fixtureClasspath deps.plugins.android
 }
 
 compileKotlin {

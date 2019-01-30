@@ -17,6 +17,12 @@ open class BuildKonfigTask : DefaultTask() {
     }
 
     @Input
+    var isDebug: Boolean = false
+
+    @Input
+    var target: String? = null
+
+    @Input
     fun getDefaultConfig(): PlatformConfig? {
         return extension.defaultConfigs?.toPlatformConfig()
     }
