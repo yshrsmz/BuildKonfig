@@ -7,9 +7,9 @@ import org.gradle.api.model.ObjectFactory
 class PlatformConfigFactory(
     val objectFactory: ObjectFactory,
     val logger: Logger
-) : NamedDomainObjectFactory<PlatformConfigDsl> {
+) : NamedDomainObjectFactory<TargetConfigDsl> {
 
-    override fun create(name: String): PlatformConfigDsl {
-        return objectFactory.newInstance(PlatformConfigDsl::class.java, name, logger)
+    override fun create(name: String): TargetConfigDsl {
+        return objectFactory.newInstance(TargetConfigDsl::class.java, name, logger)
     }
 }

@@ -5,10 +5,11 @@ import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 
 open class BuildKonfigExtension {
-    var defaultConfigs: PlatformConfigDsl? = null
-    var targetConfigs: NamedDomainObjectContainer<PlatformConfigDsl>? = null
+    var packageName: String? = null
+    var defaultConfigs: TargetConfigDsl? = null
+    var targetConfigs: NamedDomainObjectContainer<TargetConfigDsl>? = null
 
-    fun defaultConfigs(config: Action<PlatformConfigDsl>) {
+    fun defaultConfigs(config: Action<TargetConfigDsl>) {
         defaultConfigs?.let { config.execute(it) }
     }
 

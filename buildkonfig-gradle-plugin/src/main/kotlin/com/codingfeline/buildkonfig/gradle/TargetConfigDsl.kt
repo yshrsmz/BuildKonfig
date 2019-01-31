@@ -1,15 +1,15 @@
 package com.codingfeline.buildkonfig.gradle
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
-import com.codingfeline.buildkonfig.compiler.PlatformConfig
+import com.codingfeline.buildkonfig.compiler.TargetConfig
 import org.gradle.api.logging.Logger
 import java.io.Serializable
 import javax.inject.Inject
 
-open class PlatformConfigDsl @Inject constructor(
+open class TargetConfigDsl @Inject constructor(
     name: String,
     private val logger: Logger
-) : PlatformConfig(name), Serializable {
+) : TargetConfig(name), Serializable {
     companion object {
         const val serialVersionUID = 1L
     }
@@ -23,13 +23,13 @@ open class PlatformConfigDsl @Inject constructor(
         val alreadyPresent = fieldSpecs[name]
 
         if (alreadyPresent != null) {
-            logger.info("PlatformConfig: buildConfigField '$name' is being replaced: ${alreadyPresent.value} -> $value")
+            logger.info("TargetConfig: buildConfigField '$name' is being replaced: ${alreadyPresent.value} -> $value")
         }
         fieldSpecs.put(name, FieldSpec(type, name, value))
     }
 
-    fun toPlatformConfig(): PlatformConfig {
-        val config = PlatformConfig(name)
+    fun toPlatformConfig(): TargetConfig {
+        val config = TargetConfig(name)
         config.fieldSpecs.putAll(this.fieldSpecs)
 
         return config

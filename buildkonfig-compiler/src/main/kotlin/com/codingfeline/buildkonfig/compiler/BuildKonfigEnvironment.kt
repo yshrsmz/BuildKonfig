@@ -1,10 +1,10 @@
 package com.codingfeline.buildkonfig.compiler
 
+import com.codingfeline.buildkonfig.compiler.generator.BuildKonfigCompiler
 import java.io.File
 
 class BuildKonfigEnvironment(
-    val platformConfig: PlatformConfig,
-    val outputDirectory: File? = null
+    val data: BuildKonfigData
 ) {
 
     sealed class CompilationStatus {
@@ -12,7 +12,7 @@ class BuildKonfigEnvironment(
         class Failure(val errors: List<String>) : CompilationStatus()
     }
 
-    fun generate(): CompilationStatus {
+    fun generateConfigs(logger: Logger): CompilationStatus {
         val errors = ArrayList<String>()
 
         val writer = writer@{ fileName: String ->
@@ -23,6 +23,10 @@ class BuildKonfigEnvironment(
             }
             return@writer file.writer()
         }
+
+        BuildKonfigCompiler.compileCommon(data.packageName, data.commonConfig, writer, logger)
+
+        BuildKonfigCompiler.compileTarget(data.packageName, data.targetConfig, writer, logger)
 
         return CompilationStatus.Success()
     }

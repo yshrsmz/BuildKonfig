@@ -1,7 +1,9 @@
 package com.codingfeline.buildkonfig.gradle
 
 import com.codingfeline.buildkonfig.VERSION
-import com.codingfeline.buildkonfig.compiler.PlatformConfig
+import com.codingfeline.buildkonfig.compiler.BuildKonfigData
+import com.codingfeline.buildkonfig.compiler.TargetConfig
+import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
@@ -28,12 +30,17 @@ open class BuildKonfigTask : DefaultTask() {
     var platformType: KotlinPlatformType? = null
 
     @Input
-    fun getDefaultConfig(): PlatformConfig? {
+    fun getPackageName(): String? {
+        return extension.packageName
+    }
+
+    @Input
+    fun getDefaultConfig(): TargetConfig? {
         return extension.defaultConfigs?.toPlatformConfig()
     }
 
     @Input
-    fun getTargetConfigs(): List<PlatformConfig> {
+    fun getTargetConfigs(): List<TargetConfig> {
         return extension.targetConfigs?.map { it.toPlatformConfig() } ?: emptyList()
     }
 
@@ -52,21 +59,42 @@ open class BuildKonfigTask : DefaultTask() {
     @TaskAction
     fun generateBuildKonfigFiles() {
 
-        val defaultConfigs = getDefaultConfig()
-        if (defaultConfigs != null) {
-            logger.info("defaultConfig: ${defaultConfigs.name}")
-            defaultConfigs.fieldSpecs.values.forEach { spec -> logger.info("spec: $spec.name, $spec.value") }
-        }
+        val defaultConfigs = getDefaultConfig() ?: throw IllegalStateException("defaultConfigs must be provided")
+        val packageName = getPackageName() ?: throw java.lang.IllegalStateException("packageName must be provided")
 
         val targetConfigs = getTargetConfigs()
-        if (targetConfigs.isEmpty()) {
-            logger.info("configs is empty")
-        } else {
-            logger.info("configs.size(): ${targetConfigs.size}")
-            targetConfigs.forEach { config ->
-                logger.info("config: ${config.name}")
-                config.fieldSpecs.values.forEach { spec -> logger.info("spec: $spec.name, $spec.value") }
+        val config = targetConfigs
+            .filter {
+                it.name == "$targetName${compilationType!!.capitalize()}"
+                        || it.name == targetName
             }
+            .sortedBy { it.name.length }
+            .fold(defaultConfigs) { previous, current -> mergeConfigs(previous, current) }
+
+        val data = BuildKonfigData(
+            packageName = packageName,
+            commonConfig = TargetConfigFile(commonOutputDirectory, defaultConfigs),
+            targetConfig = TargetConfigFile(outputDirectory, config)
+        )
+
+    }
+
+    fun mergeConfigs(baseConfig: TargetConfig, newConfig: TargetConfig): TargetConfig {
+        val result = TargetConfig(targetName!!)
+
+        baseConfig.fieldSpecs.forEach { name, value ->
+            result.fieldSpecs[name] = value.copy()
         }
+
+        newConfig.fieldSpecs.forEach { name, value ->
+            val alreadyPresent = result.fieldSpecs[name]
+            if (alreadyPresent != null) {
+                logger.info("BuildKonfig: buildConfigField '$name' is being replaced: ${alreadyPresent.value} -> ${value.value}")
+            }
+            result.fieldSpecs[name] = value.copy()
+        }
+
+
+        return result
     }
 }
