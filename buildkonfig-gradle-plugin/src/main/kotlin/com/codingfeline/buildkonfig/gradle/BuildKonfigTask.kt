@@ -2,9 +2,11 @@ package com.codingfeline.buildkonfig.gradle
 
 import com.codingfeline.buildkonfig.VERSION
 import com.codingfeline.buildkonfig.compiler.BuildKonfigData
+import com.codingfeline.buildkonfig.compiler.BuildKonfigEnvironment
 import com.codingfeline.buildkonfig.compiler.TargetConfig
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import org.gradle.api.DefaultTask
+import org.gradle.api.logging.LogLevel
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -77,6 +79,7 @@ open class BuildKonfigTask : DefaultTask() {
             targetConfig = TargetConfigFile(outputDirectory, config)
         )
 
+        BuildKonfigEnvironment(data).generateConfigs { info -> logger.log(LogLevel.INFO, info) }
     }
 
     fun mergeConfigs(baseConfig: TargetConfig, newConfig: TargetConfig): TargetConfig {

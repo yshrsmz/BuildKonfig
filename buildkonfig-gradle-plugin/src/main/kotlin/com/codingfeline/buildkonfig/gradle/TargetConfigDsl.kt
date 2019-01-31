@@ -15,7 +15,7 @@ open class TargetConfigDsl @Inject constructor(
     }
 
     fun buildConfigField(
-        type: String,
+        type: FieldSpec.Type,
         name: String,
         value: String
     ) {

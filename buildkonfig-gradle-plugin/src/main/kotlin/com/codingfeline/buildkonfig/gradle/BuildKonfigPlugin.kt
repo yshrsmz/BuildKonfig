@@ -114,7 +114,11 @@ open class BuildKonfigPlugin : Plugin<Project> {
                         )
                         p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(task) }
                     } else {
-                        val outDirName = "${target.name}Main"
+                        val outDirName = if (target.name == "metadata") {
+                            "commonMain"
+                        } else {
+                            "${target.name}Main"
+                        }
                         val compilationType = compilationUnit.name
 
                         val task = registerGenerateBuildKonfigTask(
@@ -146,7 +150,7 @@ open class BuildKonfigPlugin : Plugin<Project> {
         println("BuildKonfig task: $taskName")
         return project.tasks.register(taskName, BuildKonfigTask::class.java) {
             it.setExtension(extension)
-            it.targetName = target.targetName
+            it.targetName = if (target.name == "metadata") "common" else target.name
             it.compilationType = compilationType
             it.platformType = target.platformType
             it.commonOutputDirectory = commonOutputDirectory

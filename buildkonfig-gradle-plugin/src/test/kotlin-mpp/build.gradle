@@ -41,7 +41,8 @@ android {
 buildkonfig {
     packageName = "com.sample"
     defaultConfigs {
-        buildConfigField 'String', 'test', '"hoge"'
+        buildConfigField 'STRING', 'test', 'hoge'
+        buildConfigField 'INT', 'intValue', '10'
     }
     targetConfigs {
         jvm {
