@@ -3,14 +3,13 @@ package com.codingfeline.buildkonfig.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
-import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
-import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.io.File
 
 open class BuildKonfigPlugin : Plugin<Project> {
@@ -53,66 +52,73 @@ open class BuildKonfigPlugin : Plugin<Project> {
 
     fun configure(project: Project, extension: BuildKonfigExtension) {
         val outputDirectory = File(project.buildDir, "buildkonfig")
+        val commonOutputDirectory = File(outputDirectory, "commonMain")
+
+        val mppExtension = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+        val targets = mppExtension.targets
+        val sourceSets = mppExtension.sourceSets
+        targets.filter { it.name != "metadata" }.forEach { target ->
+            val sourceSetMain = sourceSets.getByName("${target.name}Main")
+            val outDirMain = File(outputDirectory, "${target.name}Main")
+
+            sourceSetMain.kotlin.srcDirs(outDirMain.toRelativeString(project.projectDir))
+        }
+
+        sourceSets.getByName("commonMain").kotlin
+            .srcDirs(commonOutputDirectory.toRelativeString(project.projectDir))
+
 
         project.afterEvaluate { p ->
-            //            val task = p.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
-//                it.setExtension(extension)
-//                it.outputDirectory = outputDirectory
-//                it.group = "buildKonfig"
-//                it.description = "Generate BuildKonfig"
-//            }
 
             p.extensions.getByType(KotlinMultiplatformExtension::class.java).targets.forEach { target ->
                 println("----")
-                println("target: $target")
+                println("target: $target, ${target.name}, ${target.platformType.name}")
                 target.compilations.forEach { compilationUnit ->
                     println("compilation: $compilationUnit, ${compilationUnit::class}")
                     if (compilationUnit is KotlinNativeCompilation) {
+                        val outDirName = "${target.name}Main"
+                        val compilationType = compilationUnit.name
+                        val task = registerGenerateBuildKonfigTask(
+                            p,
+                            target,
+                            compilationType,
+                            compilationUnit,
+                            extension,
+                            commonOutputDirectory,
+                            File(outputDirectory, outDirName)
+                        )
+
                         compilationUnit.target.binaries.forEach { binary ->
-                            val taskName = getNativeTaskName(target, compilationUnit, binary)
-                            println("binary: ${binary.buildType}")
-                            println("buildKonfig task: $taskName")
-
-                            val task = p.tasks.register(taskName, BuildKonfigTask::class.java) {
-                                it.setExtension(extension)
-                                it.target = target.targetName
-                                it.isDebug = binary.buildType == NativeBuildType.DEBUG
-                                it.outputDirectory =
-                                    File(outputDirectory, getNativeUniqueIdentifier(target, compilationUnit, binary))
-                                it.group = "buildKonfig"
-                                it.description =
-                                    "Generate BuildKonfig for ${target.name} - ${compilationUnit.name} - ${binary.buildType.name}"
-
-                                println("task output: ${it.outputDirectory}")
-                            }
                             p.tasks.named(binary.linkTaskName).configure { it.dependsOn(task) }
                         }
                     } else if (compilationUnit is KotlinJvmAndroidCompilation) {
                         println("android compilation: ${compilationUnit.name}, ${compilationUnit.compilationName}")
-                        val taskName = getTaskName(target, compilationUnit)
-                        val task = p.tasks.register(taskName, BuildKonfigTask::class.java) {
-                            it.setExtension(extension)
-                            it.target = target.name
-                            it.isDebug = compilationUnit.name.contains("debug", true)
-                            it.outputDirectory = File(outputDirectory, getUniqueIdentifier(target, compilationUnit))
-                            it.group = "buildKonfig"
-                            it.description = "Generate BuildKonfig for ${target.name} - ${compilationUnit.name}"
+                        val outDirName = "${target.name}Main"
+                        val compilationType = if (compilationUnit.name.endsWith("Test")) "test" else "main"
 
-                            println("task output: ${it.outputDirectory}")
-                        }
+                        val task = registerGenerateBuildKonfigTask(
+                            p,
+                            target,
+                            compilationType,
+                            compilationUnit,
+                            extension,
+                            commonOutputDirectory,
+                            File(outputDirectory, outDirName)
+                        )
                         p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(task) }
                     } else {
-                        val taskName = getTaskName(target, compilationUnit)
-                        val task = p.tasks.register(taskName, BuildKonfigTask::class.java) {
-                            it.setExtension(extension)
-                            it.target = target.targetName
-                            it.isDebug = false
-                            it.outputDirectory = File(outputDirectory, getUniqueIdentifier(target, compilationUnit))
-                            it.group = "buildKonfig"
-                            it.description = "Generate BuildKonfig for ${target.name} - ${compilationUnit.name}"
+                        val outDirName = "${target.name}Main"
+                        val compilationType = compilationUnit.name
 
-                            println("task output: ${it.outputDirectory}")
-                        }
+                        val task = registerGenerateBuildKonfigTask(
+                            p,
+                            target,
+                            compilationType,
+                            compilationUnit,
+                            extension,
+                            commonOutputDirectory,
+                            File(outputDirectory, outDirName)
+                        )
                         p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(task) }
                     }
                 }
@@ -120,23 +126,40 @@ open class BuildKonfigPlugin : Plugin<Project> {
         }
     }
 
-    fun getNativeUniqueIdentifier(
+    fun registerGenerateBuildKonfigTask(
+        project: Project,
         target: KotlinTarget,
-        compilation: KotlinNativeCompilation,
-        binary: NativeBinary
+        compilationType: String,
+        compilation: KotlinCompilation<*>,
+        extension: BuildKonfigExtension,
+        commonOutputDirectory: File,
+        outputDirectory: File
+    ): TaskProvider<BuildKonfigTask> {
+        val taskName = getTaskName(target, compilation)
+        println("BuildKonfig task: $taskName")
+        return project.tasks.register(taskName, BuildKonfigTask::class.java) {
+            it.setExtension(extension)
+            it.targetName = target.targetName
+            it.compilationType = compilationType
+            it.platformType = target.platformType
+            it.commonOutputDirectory = commonOutputDirectory
+            it.outputDirectory = outputDirectory
+            it.group = "buildkonfig"
+            it.description =
+                "Generate BuildKonfig for ${target.targetName} - ${target.platformType} - ${compilation.name}"
+
+            println("task output: ${it.outputDirectory}")
+        }
+    }
+
+    fun getUniqueIdentifier(
+        target: KotlinTarget,
+        compilation: KotlinCompilation<*>
     ): String {
-        return "${compilation.name.decapitalize()}${binary.buildType.name.toLowerCase().capitalize()}${target.name.capitalize()}${binary.outputKind.name.toLowerCase().capitalize()}"
-    }
-
-    fun getNativeTaskName(target: KotlinTarget, compilation: KotlinNativeCompilation, binary: NativeBinary): String {
-        return "generate${getNativeUniqueIdentifier(target, compilation, binary).capitalize()}BuildKonfig"
-    }
-
-    fun getUniqueIdentifier(target: KotlinTarget, compilation: KotlinCompilation<*>): String {
-        return "${compilation.name.decapitalize()}${target.name.capitalize()}"
+        return "${compilation.name.decapitalize()}${target.name.capitalize()}${target.platformType.name.capitalize()}"
     }
 
     fun getTaskName(target: KotlinTarget, compilation: KotlinCompilation<*>): String {
-        return "generate${getUniqueIdentifier(target, compilation)}BuildKonfig"
+        return "generate${getUniqueIdentifier(target, compilation).capitalize()}BuildKonfig"
     }
 }

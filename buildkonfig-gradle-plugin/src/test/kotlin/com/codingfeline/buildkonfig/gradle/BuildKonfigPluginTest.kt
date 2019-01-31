@@ -11,14 +11,14 @@ class BuildKonfigPluginTest {
     fun `read configs`() {
         val fixtureRoot = File("src/test/kotlin-mpp")
 
-        val buildDir = File(fixtureRoot, "build/buildKonfig")
-        buildDir.delete()
+        val buildDir = File(fixtureRoot, "build/buildkonfig")
+        buildDir.deleteRecursively()
 
         val runner = GradleRunner.create()
             .withProjectDir(fixtureRoot)
             .withPluginClasspath()
 
-        val result = runner.withArguments("generateBuildKonfig", "--stacktrace", "--info")
+        val result = runner.withArguments("generateMainJvmJvmBuildKonfig", "--stacktrace", "--info")
             .buildAndFail()
 
         Truth.assertThat(result.output)

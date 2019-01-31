@@ -6,6 +6,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import java.io.File
 
 open class BuildKonfigTask : DefaultTask() {
@@ -17,10 +18,14 @@ open class BuildKonfigTask : DefaultTask() {
     }
 
     @Input
-    var isDebug: Boolean = false
+    var targetName: String? = null
+
+    // main or test
+    @Input
+    var compilationType: String? = null
 
     @Input
-    var target: String? = null
+    var platformType: KotlinPlatformType? = null
 
     @Input
     fun getDefaultConfig(): PlatformConfig? {
@@ -31,6 +36,9 @@ open class BuildKonfigTask : DefaultTask() {
     fun getTargetConfigs(): List<PlatformConfig> {
         return extension.targetConfigs?.map { it.toPlatformConfig() } ?: emptyList()
     }
+
+    @OutputDirectory
+    lateinit var commonOutputDirectory: File
 
     @OutputDirectory
     lateinit var outputDirectory: File
