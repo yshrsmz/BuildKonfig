@@ -59,8 +59,4 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-
-test {
-    dependsOn(":buildkonfig-gradle-plugin:installLocally")
-}
 apply from: "$rootDir/gradle/gradle-mvn-push.gradle"

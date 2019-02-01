@@ -63,7 +63,6 @@ open class BuildKonfigTask : DefaultTask() {
         val defaultConfig = defaultConfig ?: throw IllegalStateException("defaultConfigs must be provided")
 
         val mergedConfigFiles = targetNames.map { targetName ->
-            println("merging configs for $targetName")
             val sortedConfigs = mutableListOf<TargetConfig>()
             sortedConfigs.addAll(targetConfigs.filter { it.name == targetName.name })
             sortedConfigs.addAll(targetConfigs.filter { it.name == "${targetName}Main" })
@@ -86,10 +85,6 @@ open class BuildKonfigTask : DefaultTask() {
                         current
                     )
                 }
-                .also {
-                    println("mergedConfig for ${it.name}")
-                    it.fieldSpecs.forEach { key, value -> println("name: $key") }
-                }
                 .let { TargetConfigFile(targetName.platformType, outputDirectories[targetName]!!, it) }
         }
 
@@ -100,22 +95,6 @@ open class BuildKonfigTask : DefaultTask() {
         )
 
         BuildKonfigEnvironment(data).generateConfigs { info -> logger.log(LogLevel.INFO, info) }
-
-//        val config = targetConfigs
-//            .filter {
-//                it.name == "$targetName${compilationType!!.capitalize()}"
-//                        || it.name == targetName
-//            }
-//            .sortedBy { it.name.length }
-//            .fold(defaultConfigs) { previous, current -> mergeConfigs(previous, current) }
-//
-//        val data = BuildKonfigData(
-//            packageName = packageName,
-//            commonConfig = TargetConfigFile(commonOutputDirectory, defaultConfigs),
-//            targetConfig = TargetConfigFile(outputDirectory, config)
-//        )
-//
-//        BuildKonfigEnvironment(data).generateConfigs { info -> logger.log(LogLevel.INFO, info) }
     }
 
     fun mergeConfigs(

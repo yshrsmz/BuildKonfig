@@ -23,8 +23,6 @@ open class BuildKonfigPlugin : Plugin<Project> {
             }
         }
 
-        println("isMultiplatform: $isMultiplatform")
-
         val objectFactory = target.objects
 
         val extension = target.extensions.create("buildkonfig", BuildKonfigExtension::class.java)
@@ -61,7 +59,6 @@ open class BuildKonfigPlugin : Plugin<Project> {
         val targetNames = targets.map { TargetName(name = it.name, platformType = it.platformType.name) }
             .filter { it.name != "metadata" }
 
-        println(targetNames)
         val outputDirectoryMap = mutableMapOf<TargetName, File>()
 
         sourceSets.getByName("commonMain").kotlin
@@ -102,10 +99,7 @@ open class BuildKonfigPlugin : Plugin<Project> {
             }
 
             p.extensions.getByType(KotlinMultiplatformExtension::class.java).targets.forEach { target ->
-                println("----")
-                println("target: $target, ${target.name}, ${target.platformType.name}")
                 target.compilations.forEach { compilationUnit ->
-                    println("compilation: $compilationUnit, ${compilationUnit::class}")
                     if (compilationUnit is KotlinNativeCompilation) {
                         val generateTask = if (compilationUnit.name == "main") mainTask else testTask
 
@@ -113,7 +107,6 @@ open class BuildKonfigPlugin : Plugin<Project> {
                             p.tasks.named(binary.linkTaskName).configure { it.dependsOn(generateTask) }
                         }
                     } else if (compilationUnit is KotlinJvmAndroidCompilation) {
-                        println("android compilation: ${compilationUnit.name}, ${compilationUnit.compilationName}")
                         val generateTask = if (compilationUnit.name.endsWith("Test")) testTask else mainTask
 
                         p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(generateTask) }
