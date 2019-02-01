@@ -39,7 +39,7 @@ kotlin {
     iosX64('ios')
 }
 
-buildKonfig {
+buildkonfig {
     packageName = 'com.example.app'
     
     // default config is required
