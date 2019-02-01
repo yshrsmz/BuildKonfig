@@ -15,7 +15,10 @@ Rather I'd like to do it once.
 
 ## Usege
 
-BuildKonfig supports Kotlin Multiplatform Project **only**.
+### Requirements
+
+- Kotlin 1.3.20 or later
+- Kotlin Multiplatform Project
 
 
 ### Gradle
@@ -26,6 +29,7 @@ buildScript {
         maven { url 'https://dl.bintray.com/yshrsmz/maven' }
     }
     dependencies {
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.20'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
 }
