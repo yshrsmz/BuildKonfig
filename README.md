@@ -3,7 +3,14 @@ BuildKonfig
 
 [ ![Download](https://api.bintray.com/packages/yshrsmz/maven/buildkonfig-gradle-plugin/images/download.svg) ](https://bintray.com/yshrsmz/maven/buildkonfig-gradle-plugin/_latestVersion)
 
-BuildConfig for Kotlin Multiplatform Project
+BuildConfig for Kotlin Multiplatform Project.  
+It currently supports embedding values from gradle file.
+
+## Motivation
+
+Passing values from Android/iOS or any other platform code should work, but it's a hassle.  
+Setting up Android to read values from properties and add those into BuildConfig, and do the equivalent in iOS?  
+Rather I'd like to do it once.
 
 
 ## Usege
@@ -15,6 +22,9 @@ BuildKonfig supports Kotlin Multiplatform Project **only**.
 
 ```gradle
 buildScript {
+    repositories {
+        maven { url 'https://dl.bintray.com/yshrsmz/maven' }
+    }
     dependencies {
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
