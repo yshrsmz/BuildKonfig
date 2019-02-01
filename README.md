@@ -1,6 +1,8 @@
 BuildKonfig
 ===
 
+[ ![Download](https://api.bintray.com/packages/yshrsmz/maven/buildkonfig-gradle-plugin/images/download.svg) ](https://bintray.com/yshrsmz/maven/buildkonfig-gradle-plugin/_latestVersion)
+
 BuildConfig for Kotlin Multiplatform Project
 
 
