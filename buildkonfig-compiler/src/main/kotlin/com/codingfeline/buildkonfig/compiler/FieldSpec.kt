@@ -7,7 +7,8 @@ import java.io.Serializable
 data class FieldSpec(
     val type: Type,
     val name: String,
-    val value: String
+    val value: String,
+    val isTargetSpecific: Boolean = false
 ) : Serializable {
 
     enum class Type(val typeName: TypeName) {

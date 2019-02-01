@@ -2,6 +2,7 @@ package com.codingfeline.buildkonfig.gradle
 
 
 import com.codingfeline.buildkonfig.compiler.CompilationType
+import com.codingfeline.buildkonfig.compiler.TargetName
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -56,12 +57,15 @@ open class BuildKonfigPlugin : Plugin<Project> {
         val targets = mppExtension.targets
         val sourceSets = mppExtension.sourceSets
 
-        val targetNames = targets.map { it.name }.filter { it != "metadata" }
-        val outputDirectoryMap = mutableMapOf<String, File>()
+        targets.first().platformType
+        val targetNames = targets.map { TargetName(name = it.name, platformType = it.platformType.name) }
+            .filter { it.name != "metadata" }
+
+        println(targetNames)
+        val outputDirectoryMap = mutableMapOf<TargetName, File>()
 
         sourceSets.getByName("commonMain").kotlin
             .srcDirs(commonOutputDirectory.toRelativeString(project.projectDir))
-        outputDirectoryMap["common"] = commonOutputDirectory
 
         targets.filter { it.name != "metadata" }.forEach { target ->
             val name = "${target.name}Main"
@@ -70,7 +74,7 @@ open class BuildKonfigPlugin : Plugin<Project> {
 
             sourceSetMain.kotlin.srcDirs(outDirMain.toRelativeString(project.projectDir))
 
-            outputDirectoryMap[target.name] = outDirMain
+            outputDirectoryMap[TargetName(target.name, target.platformType.name)] = outDirMain
         }
 
         project.afterEvaluate { p ->
@@ -80,7 +84,6 @@ open class BuildKonfigPlugin : Plugin<Project> {
                 it.commonOutputDirectory = commonOutputDirectory
                 it.outputDirectories = outputDirectoryMap
                 it.compilationType = CompilationType.MAIN
-                it.targetNames = targetNames
                 it.extension = extension
 
                 it.group = "buildkonfig"
@@ -92,7 +95,6 @@ open class BuildKonfigPlugin : Plugin<Project> {
                 it.commonOutputDirectory = commonOutputDirectory
                 it.outputDirectories = outputDirectoryMap
                 it.compilationType = CompilationType.TEST
-                it.targetNames = targetNames
                 it.extension = extension
 
                 it.group = "buildkonfig"
