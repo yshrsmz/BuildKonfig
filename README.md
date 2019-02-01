@@ -17,7 +17,7 @@ Rather I'd like to do it once.
 
 ### Requirements
 
-- Kotlin 1.3.20 or later
+- Kotlin **1.3.20** or later
 - Kotlin Multiplatform Project
 
 
