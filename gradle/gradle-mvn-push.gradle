@@ -34,7 +34,7 @@ def findProperty(String key) {
 }
 
 def getReleaseRepositoryUrl() {
-    return findProperty('RELEASE_REPOSITORY_URL') ?: "https://api.bintray.com/maven/$BINTRAY_ORG/$BINTRAY_REPOSITORY/$POM_ARTIFACT_ID;publish=1"
+    return findProperty('RELEASE_REPOSITORY_URL') ?: "https://api.bintray.com/maven/$BINTRAY_ORG/$BINTRAY_REPOSITORY/$POM_ARTIFACT_ID"
 }
 
 def getSnapshotRepositoryUrl() {
