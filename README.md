@@ -7,20 +7,29 @@ BuildConfig for Kotlin Multiplatform Project
 ## Usege
 
 ```gradle
-apply plugin: 'com.codingfeline.buildkonfig'
+plugins {
+    id 'kotlin-multiplatform'
+    id 'com.codingfeline.buildkonfig'
+}
+
+kotlin {
+    android()
+    iosX64('ios)
+}
 
 buildKonfig {
     defaultConfigs {
-        buildConfigField 'String', 'name', 'value'
+        buildConfigField 'STRING', 'name', 'value'
     }
     
     targetConfigs {
+        // this name should be same as target name you specified
         android {
-            buildConfigField 'String', 'name2', 'value2'
+            buildConfigField 'STRING', 'name2', 'value2'
         }
         
-        'native' {
-            buildConfigField 'String', 'name', 'valueForNative'
+        ios {
+            buildConfigField 'STRING', 'name', 'valueForNative'
         }
     }
 }
@@ -44,8 +53,17 @@ actual object BuildKonfig {
 ```
 
 ```kotlin
-// nativeMain
+// iosMain
 actual object BuildKonfig {
     actual val name: String = "valueForNative"
 }
 ```
+
+
+## Supported Types
+
+- String
+- Int
+- Long
+- Float
+- Boolean
