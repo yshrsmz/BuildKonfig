@@ -14,7 +14,7 @@ BuildKonfig supports Kotlin Multiplatform Project **only**.
 ```gradle
 buildScript {
     dependencies {
-        classpath 'com.codingfeline.buildkonfig:gradle-plugin:latest_version'
+        classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
 }
 
