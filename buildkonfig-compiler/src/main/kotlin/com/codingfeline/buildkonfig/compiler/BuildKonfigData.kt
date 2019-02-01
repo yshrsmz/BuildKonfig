@@ -5,5 +5,5 @@ data class BuildKonfigData(
     // filed specs for common source set
     val commonConfig: TargetConfigFile,
     // field specs for target source set
-    val targetConfig: TargetConfigFile
+    val targetConfigs: List<TargetConfigFile>
 )

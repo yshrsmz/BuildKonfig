@@ -24,10 +24,24 @@ class BuildKonfigEnvironment(
             return@writer file.writer()
         }
 
-        BuildKonfigCompiler.compileCommon(data.packageName, data.commonConfig, writer, logger)
+        try {
+            BuildKonfigCompiler.compileCommon(data.packageName, data.commonConfig, writer, logger)
+        } catch (e: Throwable) {
+            e.message?.let { errors.add(it) }
+        }
 
-        BuildKonfigCompiler.compileTarget(data.packageName, data.targetConfig, writer, logger)
+        data.targetConfigs.forEach { config ->
+            try {
+                BuildKonfigCompiler.compileTarget(data.packageName, config, writer, logger)
+            } catch (e: Throwable) {
+                e.message?.let { errors.add(it) }
+            }
+        }
 
-        return CompilationStatus.Success()
+        return if (errors.isEmpty()) {
+            CompilationStatus.Success()
+        } else {
+            CompilationStatus.Failure(errors)
+        }
     }
 }

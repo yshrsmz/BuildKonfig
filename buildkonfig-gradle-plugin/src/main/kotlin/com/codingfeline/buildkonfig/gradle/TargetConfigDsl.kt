@@ -10,6 +10,7 @@ open class TargetConfigDsl @Inject constructor(
     name: String,
     private val logger: Logger
 ) : TargetConfig(name), Serializable {
+
     companion object {
         const val serialVersionUID = 1L
     }

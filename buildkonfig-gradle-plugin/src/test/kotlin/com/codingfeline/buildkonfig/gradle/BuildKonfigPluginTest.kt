@@ -18,7 +18,7 @@ class BuildKonfigPluginTest {
             .withProjectDir(fixtureRoot)
             .withPluginClasspath()
 
-        val result = runner.withArguments("generateMainJvmJvmBuildKonfig", "--stacktrace", "--info")
+        val result = runner.withArguments("generateMainBuildKonfig", "--stacktrace", "--info")
             .buildAndFail()
 
         Truth.assertThat(result.output)
