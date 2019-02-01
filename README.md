@@ -60,6 +60,9 @@ buildkonfig {
 }
 ```
 
+To generate BuildKonfig files, run `generateBuildKonfig` task.  
+This task will be automatically run upon execution of kotlin compile tasks.
+
 Above configuration will generate following codes.
 
 ```kotlin
