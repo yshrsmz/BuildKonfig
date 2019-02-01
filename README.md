@@ -6,24 +6,37 @@ BuildConfig for Kotlin Multiplatform Project
 
 ## Usege
 
+BuildKonfig supports Kotlin Multiplatform Project **only**.
+
+
+### Gradle
+
 ```gradle
-plugins {
-    id 'kotlin-multiplatform'
-    id 'com.codingfeline.buildkonfig'
+buildScript {
+    dependencies {
+        classpath 'com.codingfeline.buildkonfig:gradle-plugin:latest_version'
+    }
 }
 
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'com.codingfeline.buildkonfig'
+
 kotlin {
+    // your target config...
     android()
-    iosX64('ios)
+    iosX64('ios')
 }
 
 buildKonfig {
+    packageName = 'com.example.app'
+    
+    // default config is required
     defaultConfigs {
         buildConfigField 'STRING', 'name', 'value'
     }
     
     targetConfigs {
-        // this name should be same as target name you specified
+        // this name should be same as target names you specified
         android {
             buildConfigField 'STRING', 'name2', 'value2'
         }
