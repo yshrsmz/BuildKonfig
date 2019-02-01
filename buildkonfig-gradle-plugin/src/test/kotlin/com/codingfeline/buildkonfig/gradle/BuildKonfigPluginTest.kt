@@ -19,7 +19,7 @@ class BuildKonfigPluginTest {
             .withPluginClasspath()
 
         val result = runner
-            .withArguments("generateMainBuildKonfig", "--stacktrace")
+            .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
 
         assertThat(result.output)
@@ -42,10 +42,7 @@ class BuildKonfigPluginTest {
             .build()
 
         assertThat(result.output)
-            .contains("generateMainBuildKonfig")
-
-        assertThat(result.output)
-            .doesNotContain("generateTestBuildKonfig")
+            .contains("generateBuildKonfig")
     }
 
     @Test
@@ -64,7 +61,7 @@ class BuildKonfigPluginTest {
             .build()
 
         assertThat(result.output)
-            .contains("generateTestBuildKonfig")
+            .contains("generateBuildKonfig")
 
 //        assertThat(result.output)
 //            .doesNotContain("generateMainBuildKonfig")
@@ -86,9 +83,6 @@ class BuildKonfigPluginTest {
             .build()
 
         assertThat(result.output)
-            .contains("generateMainBuildKonfig")
-
-        assertThat(result.output)
-            .doesNotContain("generateTestBuildKonfig")
+            .contains("generateBuildKonfig")
     }
 }

@@ -3,7 +3,6 @@ package com.codingfeline.buildkonfig.gradle
 import com.codingfeline.buildkonfig.VERSION
 import com.codingfeline.buildkonfig.compiler.BuildKonfigData
 import com.codingfeline.buildkonfig.compiler.BuildKonfigEnvironment
-import com.codingfeline.buildkonfig.compiler.CompilationType
 import com.codingfeline.buildkonfig.compiler.TargetConfig
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.codingfeline.buildkonfig.compiler.TargetName
@@ -22,10 +21,6 @@ open class BuildKonfigTask : DefaultTask() {
     @get:Input
     val pluginVersion: String
         get() = VERSION
-
-
-    @Input
-    lateinit var compilationType: CompilationType
 
     @Input
     lateinit var packageName: String
@@ -66,10 +61,6 @@ open class BuildKonfigTask : DefaultTask() {
             val sortedConfigs = mutableListOf<TargetConfig>()
             sortedConfigs.addAll(targetConfigs.filter { it.name == targetName.name })
             sortedConfigs.addAll(targetConfigs.filter { it.name == "${targetName}Main" })
-
-            if (compilationType == CompilationType.TEST) {
-                sortedConfigs.addAll(targetConfigs.filter { it.name == "${targetName}Test" })
-            }
 
             val defaultConfigsForTarget = TargetConfig(targetName.name)
                 .apply {
@@ -118,13 +109,5 @@ open class BuildKonfigTask : DefaultTask() {
         }
 
         return result
-    }
-
-    fun getTargetConfigFilterFun(targetName: String, compilationType: CompilationType): (TargetConfig) -> Boolean {
-        return if (compilationType == CompilationType.MAIN) {
-            { config: TargetConfig -> config.name == targetName || config.name == "${targetName}Main" }
-        } else {
-            { config: TargetConfig -> config.name == targetName || config.name == "${targetName}Main" || config.name == "${targetName}Test" }
-        }
     }
 }

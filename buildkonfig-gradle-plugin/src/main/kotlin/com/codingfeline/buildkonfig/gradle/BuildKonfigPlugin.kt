@@ -1,7 +1,6 @@
 package com.codingfeline.buildkonfig.gradle
 
 
-import com.codingfeline.buildkonfig.compiler.CompilationType
 import com.codingfeline.buildkonfig.compiler.TargetName
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -76,44 +75,29 @@ open class BuildKonfigPlugin : Plugin<Project> {
 
         project.afterEvaluate { p ->
 
-            val mainTask = p.tasks.register("generateMainBuildKonfig", BuildKonfigTask::class.java) {
+            val mainTask = p.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
                 it.packageName = requireNotNull(extension.packageName) { "packageName must be provided" }
                 it.commonOutputDirectory = commonOutputDirectory
                 it.outputDirectories = outputDirectoryMap
-                it.compilationType = CompilationType.MAIN
                 it.extension = extension
 
                 it.group = "buildkonfig"
-                it.description = "generate BuildKonfig for main"
-            }
-
-            val testTask = p.tasks.register("generateTestBuildKonfig", BuildKonfigTask::class.java) {
-                it.packageName = requireNotNull(extension.packageName) { "packageName must be provided" }
-                it.commonOutputDirectory = commonOutputDirectory
-                it.outputDirectories = outputDirectoryMap
-                it.compilationType = CompilationType.TEST
-                it.extension = extension
-
-                it.group = "buildkonfig"
-                it.description = "generate BuildKonfig for test"
+                it.description = "generate BuildKonfig"
             }
 
             p.extensions.getByType(KotlinMultiplatformExtension::class.java).targets.forEach { target ->
                 target.compilations.forEach { compilationUnit ->
                     if (compilationUnit is KotlinNativeCompilation) {
-                        val generateTask = if (compilationUnit.name == "main") mainTask else testTask
 
                         compilationUnit.target.binaries.forEach { binary ->
-                            p.tasks.named(binary.linkTaskName).configure { it.dependsOn(generateTask) }
+                            p.tasks.named(binary.linkTaskName).configure { it.dependsOn(mainTask) }
                         }
                     } else if (compilationUnit is KotlinJvmAndroidCompilation) {
-                        val generateTask = if (compilationUnit.name.endsWith("Test")) testTask else mainTask
 
-                        p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(generateTask) }
+                        p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(mainTask) }
                     } else {
-                        val generateTask = if (compilationUnit.name == "main") mainTask else testTask
 
-                        p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(generateTask) }
+                        p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(mainTask) }
                     }
                 }
             }

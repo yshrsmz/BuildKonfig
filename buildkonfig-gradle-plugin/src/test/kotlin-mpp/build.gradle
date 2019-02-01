@@ -49,14 +49,8 @@ buildkonfig {
             buildConfigField 'String', 'test', 'jvm'
             buildConfigField 'String', 'jmv', 'jvmHoge'
         }
-        jvmTest {
-            buildConfigField 'String', 'test', 'jvmTest'
-        }
         hogeMain {
             buildConfigField 'String', 'android', 'fuga'
-        }
-        hogeTest {
-            buildConfigField 'String', 'android', 'androidTest'
         }
         iosMain {
             buildConfigField 'String', 'native', 'fuge'
