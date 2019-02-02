@@ -46,13 +46,13 @@ buildkonfig {
     }
     targetConfigs {
         jvm {
-            buildConfigField 'String', 'test', 'jvm'
-            buildConfigField 'String', 'jmv', 'jvmHoge'
+            buildConfigField 'STRING', 'test', 'jvm'
+            buildConfigField 'STRING', 'jmv', 'jvmHoge'
         }
         hogeMain {
-            buildConfigField 'String', 'android', 'fuga'
+            buildConfigField 'String', 'android', '$fuga'
         }
-        iosMain {
+        iosX64 {
             buildConfigField 'String', 'native', 'fuge'
         }
     }

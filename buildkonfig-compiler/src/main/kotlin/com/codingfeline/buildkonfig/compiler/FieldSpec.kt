@@ -11,15 +11,11 @@ data class FieldSpec(
     val isTargetSpecific: Boolean = false
 ) : Serializable {
 
-    enum class Type(val typeName: TypeName) {
-        STRING(String::class.asTypeName()) {
-            override val template = "\"%L\""
-        },
+    enum class Type(val typeName: TypeName, val template: String = "%L") {
+        STRING(String::class.asTypeName(), "%S"),
         INT(Int::class.asTypeName()),
         FLOAT(Float::class.asTypeName()),
         LONG(Long::class.asTypeName()),
         BOOLEAN(Boolean::class.asTypeName());
-
-        open val template: String = "%L"
     }
 }
