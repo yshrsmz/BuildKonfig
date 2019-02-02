@@ -71,6 +71,8 @@ Above configuration will generate following codes.
 
 ```kotlin
 // commonMain
+package com.example.app
+
 expect object BuildKonfig {
     val name: String
 }
@@ -78,6 +80,8 @@ expect object BuildKonfig {
 
 ```kotlin
 // androidMain
+package com.example.app
+
 actual object BuildKonfig {
     actual val name: String = "value"
     val name2: String = "value2"
@@ -86,6 +90,8 @@ actual object BuildKonfig {
 
 ```kotlin
 // iosMain
+package com.example.app
+
 actual object BuildKonfig {
     actual val name: String = "valueForNative"
 }
