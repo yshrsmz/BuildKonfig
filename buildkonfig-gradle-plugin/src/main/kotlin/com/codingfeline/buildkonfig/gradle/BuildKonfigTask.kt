@@ -60,7 +60,7 @@ open class BuildKonfigTask : DefaultTask() {
         val mergedConfigFiles = targetNames.map { targetName ->
             val sortedConfigs = mutableListOf<TargetConfig>()
             sortedConfigs.addAll(targetConfigs.filter { it.name == targetName.name })
-            sortedConfigs.addAll(targetConfigs.filter { it.name == "${targetName}Main" })
+            sortedConfigs.addAll(targetConfigs.filter { it.name == "${targetName.name}Main" })
 
             val defaultConfigsForTarget = TargetConfig(targetName.name)
                 .apply {
