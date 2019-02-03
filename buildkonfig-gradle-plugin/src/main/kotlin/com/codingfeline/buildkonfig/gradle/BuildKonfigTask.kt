@@ -31,7 +31,6 @@ open class BuildKonfigTask : DefaultTask() {
 
     lateinit var extension: BuildKonfigExtension
 
-
     @get:Input
     val defaultConfig: TargetConfig?
         get() = extension.defaultConfigs?.toPlatformConfig()

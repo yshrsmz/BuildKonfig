@@ -1,6 +1,12 @@
 Change Log
 ===
 
+Version 0.3.0 *(WIP)
+---
+
+- Generated codes are not properly recognized by IDE sometimes [#7](https://github.com/yshrsmz/BuildKonfig/issues/7))
+
+
 Version 0.2.0 *(2019-02-03)*
 ---
 

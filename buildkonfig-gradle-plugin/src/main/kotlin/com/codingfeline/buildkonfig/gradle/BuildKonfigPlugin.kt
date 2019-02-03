@@ -46,17 +46,13 @@ open class BuildKonfigPlugin : Plugin<Project> {
         }
     }
 
-    fun configure(project: Project, extension: BuildKonfigExtension) {
+    private fun configure(project: Project, extension: BuildKonfigExtension) {
         val outputDirectory = File(project.buildDir, "buildkonfig")
-        val commonOutputDirectory = File(outputDirectory, "commonMain")
+        val commonOutputDirectory = File(outputDirectory, "commonMain").also { it.mkdirs() }
 
         val mppExtension = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
         val targets = mppExtension.targets
         val sourceSets = mppExtension.sourceSets
-
-        targets.first().platformType
-        val targetNames = targets.map { TargetName(name = it.name, platformType = it.platformType.name) }
-            .filter { it.name != "metadata" }
 
         val outputDirectoryMap = mutableMapOf<TargetName, File>()
 
@@ -66,7 +62,7 @@ open class BuildKonfigPlugin : Plugin<Project> {
         targets.filter { it.name != "metadata" }.forEach { target ->
             val name = "${target.name}Main"
             val sourceSetMain = sourceSets.getByName(name)
-            val outDirMain = File(outputDirectory, name)
+            val outDirMain = File(outputDirectory, name).also { it.mkdirs() }
 
             sourceSetMain.kotlin.srcDirs(outDirMain.toRelativeString(project.projectDir))
 
