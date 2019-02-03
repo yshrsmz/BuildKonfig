@@ -17,6 +17,7 @@ abstract class BuildKonfigGenerator(
 
     fun generateType(): TypeSpec {
         val obj = TypeSpec.objectBuilder(KONFIG_OBJECT_NAME)
+            .addModifiers(KModifier.INTERNAL)
             .addModifiers(*objectModifiers)
 
         val props = file.config.fieldSpecs.values

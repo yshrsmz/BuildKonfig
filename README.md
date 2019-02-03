@@ -73,7 +73,7 @@ Above configuration will generate following codes.
 // commonMain
 package com.example.app
 
-expect object BuildKonfig {
+internal expect object BuildKonfig {
     val name: String
 }
 ```
@@ -82,7 +82,7 @@ expect object BuildKonfig {
 // androidMain
 package com.example.app
 
-actual object BuildKonfig {
+internal actual object BuildKonfig {
     actual val name: String = "value"
     val name2: String = "value2"
 }
@@ -92,7 +92,7 @@ actual object BuildKonfig {
 // iosMain
 package com.example.app
 
-actual object BuildKonfig {
+internal actual object BuildKonfig {
     actual val name: String = "valueForNative"
 }
 ```
