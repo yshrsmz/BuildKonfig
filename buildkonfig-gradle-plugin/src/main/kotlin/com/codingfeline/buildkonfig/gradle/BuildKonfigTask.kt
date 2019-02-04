@@ -9,6 +9,7 @@ import com.codingfeline.buildkonfig.compiler.TargetName
 import org.gradle.api.DefaultTask
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectories
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -29,6 +30,7 @@ open class BuildKonfigTask : DefaultTask() {
     val targetNames: Set<TargetName>
         get() = outputDirectories.keys
 
+    @Internal
     lateinit var extension: BuildKonfigExtension
 
     @get:Input
@@ -49,6 +51,7 @@ open class BuildKonfigTask : DefaultTask() {
     @OutputDirectory
     lateinit var commonOutputDirectory: File
 
+    @Internal
     lateinit var outputDirectories: Map<TargetName, File>
 
     @TaskAction
