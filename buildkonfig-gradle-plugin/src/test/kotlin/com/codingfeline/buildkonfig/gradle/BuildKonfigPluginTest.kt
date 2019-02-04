@@ -8,6 +8,25 @@ import java.io.File
 class BuildKonfigPluginTest {
 
     @Test
+    fun `Applying plugin with kotlin jvm plugin throws`() {
+        val fixtureRoot = File("src/test/kotlin-no-mpp")
+
+        val buildDir = File(fixtureRoot, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(fixtureRoot)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("build", "--stacktrace")
+            .buildAndFail()
+
+        assertThat(result.output)
+            .contains("BuildKonfig Gradle plugin applied in project ':' but no supported Kotlin multiplatform plugin was found")
+    }
+
+    @Test
     fun `Applying the plugin works fine for multiplatform project`() {
         val fixtureRoot = File("src/test/kotlin-mpp")
 
