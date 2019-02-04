@@ -26,7 +26,7 @@ Rather I'd like to do it once.
 ```gradle
 buildScript {
     repositories {
-        maven { url 'https://dl.bintray.com/yshrsmz/maven' }
+        jcenter()
     }
     dependencies {
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.20'
