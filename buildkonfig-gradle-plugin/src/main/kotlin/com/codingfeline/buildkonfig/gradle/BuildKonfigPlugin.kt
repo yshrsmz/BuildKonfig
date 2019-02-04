@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import java.io.File
 
+@Suppress("unused")
 open class BuildKonfigPlugin : Plugin<Project> {
 
 

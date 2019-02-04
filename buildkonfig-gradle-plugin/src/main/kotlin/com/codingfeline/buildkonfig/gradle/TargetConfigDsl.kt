@@ -15,6 +15,7 @@ open class TargetConfigDsl @Inject constructor(
         const val serialVersionUID = 1L
     }
 
+    @Suppress("unused")
     fun buildConfigField(
         type: FieldSpec.Type,
         name: String,

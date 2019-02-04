@@ -19,6 +19,7 @@ import java.io.File
 open class BuildKonfigTask : DefaultTask() {
 
     // Required to invalidate the task on version updates.
+    @Suppress("unused")
     @get:Input
     val pluginVersion: String
         get() = VERSION
@@ -43,6 +44,7 @@ open class BuildKonfigTask : DefaultTask() {
         get() = extension.targetConfigs?.map { it.toPlatformConfig() } ?: emptyList()
 
 
+    @Suppress("unused")
     @get:OutputDirectories
     val targetOutputDirectories: List<File>
         get() = outputDirectories.values.toList()
@@ -54,6 +56,7 @@ open class BuildKonfigTask : DefaultTask() {
     @Internal
     lateinit var outputDirectories: Map<TargetName, File>
 
+    @Suppress("unused")
     @TaskAction
     fun generateBuildKonfigFiles() {
 

@@ -9,10 +9,12 @@ open class BuildKonfigExtension {
     var defaultConfigs: TargetConfigDsl? = null
     var targetConfigs: NamedDomainObjectContainer<TargetConfigDsl>? = null
 
+    @Suppress("unused")
     fun defaultConfigs(config: Action<TargetConfigDsl>) {
         defaultConfigs?.let { config.execute(it) }
     }
 
+    @Suppress("unused")
     fun targetConfigs(config: Closure<*>) {
         this.targetConfigs?.configure(config)
     }
