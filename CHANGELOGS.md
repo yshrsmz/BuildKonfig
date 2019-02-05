@@ -1,6 +1,12 @@
 Change Log
 ===
 
+Version 0.3.0 *(WIP)*
+---
+
+- TBD
+
+
 Version 0.2.1 *(2019-02-05)*
 ---
 
