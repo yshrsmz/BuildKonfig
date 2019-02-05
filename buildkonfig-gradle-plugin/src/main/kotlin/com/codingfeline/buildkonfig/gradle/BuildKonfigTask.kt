@@ -16,6 +16,8 @@ import org.gradle.api.tasks.TaskAction
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import java.io.File
 
+const val FLAVOR_PROPERTY = "buildkonfig.flavor"
+
 open class BuildKonfigTask : DefaultTask() {
 
     // Required to invalidate the task on version updates.
@@ -59,6 +61,8 @@ open class BuildKonfigTask : DefaultTask() {
     @Suppress("unused")
     @TaskAction
     fun generateBuildKonfigFiles() {
+
+        println("flavor: ${getFlavor()}")
 
         val defaultConfig = defaultConfig ?: throw IllegalStateException("defaultConfigs must be provided")
 
@@ -114,5 +118,14 @@ open class BuildKonfigTask : DefaultTask() {
         }
 
         return result
+    }
+
+    private fun getFlavor(): String {
+        val flavor = project.findProperty(FLAVOR_PROPERTY) ?: ""
+        if (flavor is String) {
+            return flavor
+        } else {
+            throw IllegalStateException("$FLAVOR_PROPERTY must be String")
+        }
     }
 }

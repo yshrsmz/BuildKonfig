@@ -42,7 +42,7 @@ class BuildKonfigPluginTest {
             .build()
 
         assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
+            .contains("BUILD SUCCESSFULa")
     }
 
     @Test
