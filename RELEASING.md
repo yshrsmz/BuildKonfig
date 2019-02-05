@@ -18,6 +18,6 @@ gradle.publish.secret=
 5. `sh ./release.sh`
 6. Visit [bintrary.com](https://bintray.com/yshrsmz/kgql) and promote the artifact.
 7. Visit [Gradle Plugin Portal](https://plugins.gradle.org/) and promote the plugin.
-8. `git tag -a vX.Y.Z -m "Version vX.Y.Z"` (where X.Y.Z is the new version)
+8. `git tag -a vX.Y.Z -m "Version X.Y.Z"` (where X.Y.Z is the new version)
 9. Change the version in `gradle.properties` to a new SNAPSHOT version
 10. `git commit -am "Prepare for next development iteration"`
