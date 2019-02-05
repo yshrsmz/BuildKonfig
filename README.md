@@ -21,7 +21,7 @@ Rather I'd like to do it once.
 - Kotlin Multiplatform Project
 
 
-### Gradle
+### Gradle Configuration
 
 ```gradle
 buildScript {
@@ -63,6 +63,11 @@ buildkonfig {
     }
 }
 ```
+
+- `packageName` Set the package name where BuildKonfig is being placed. **Required**.
+- `defaultConfigs` Set values which you want to have in common. **Required**.
+- `targetConfigs` Set target specific values as closure. You can overwrite values specified in `defaultConfigs`.
+- `buildConfigField(String type, String name, String value)` Add new value or overwrite existing one.
 
 To generate BuildKonfig files, run `generateBuildKonfig` task.  
 This task will be automatically run upon execution of kotlin compile tasks.
