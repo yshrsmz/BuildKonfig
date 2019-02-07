@@ -40,6 +40,7 @@ android {
 
 buildkonfig {
     packageName = "com.sample"
+
     defaultConfigs {
         buildConfigField 'STRING', 'test', 'hoge'
         buildConfigField 'INT', 'intValue', '10'
@@ -49,7 +50,7 @@ buildkonfig {
             buildConfigField 'STRING', 'test', 'jvm'
             buildConfigField 'STRING', 'jmv', 'jvmHoge'
         }
-        hogeMain {
+        hoge {
             buildConfigField 'String', 'android', '$fuga'
         }
         iosX64 {

@@ -25,15 +25,9 @@ open class BuildKonfigPlugin : Plugin<Project> {
 
         val objectFactory = target.objects
 
-        val extension = target.extensions.create("buildkonfig", BuildKonfigExtension::class.java)
+        val extension = target.extensions.create("buildkonfig", BuildKonfigExtension::class.java, target)
 
         val logger = target.logger
-
-        extension.defaultConfigs = objectFactory.newInstance(TargetConfigDsl::class.java, "defaults", logger)
-        extension.targetConfigs = target.container(
-            TargetConfigDsl::class.java,
-            PlatformConfigFactory(objectFactory, logger)
-        )
 
         target.afterEvaluate {
             if (!isMultiplatform) {

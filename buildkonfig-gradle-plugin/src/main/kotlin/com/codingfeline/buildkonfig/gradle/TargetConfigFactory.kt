@@ -4,7 +4,7 @@ import org.gradle.api.NamedDomainObjectFactory
 import org.gradle.api.logging.Logger
 import org.gradle.api.model.ObjectFactory
 
-class PlatformConfigFactory(
+class TargetConfigFactory(
     val objectFactory: ObjectFactory,
     val logger: Logger
 ) : NamedDomainObjectFactory<TargetConfigDsl> {

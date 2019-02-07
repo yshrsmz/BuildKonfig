@@ -3,6 +3,7 @@ package com.codingfeline.buildkonfig.gradle
 import com.codingfeline.buildkonfig.VERSION
 import com.codingfeline.buildkonfig.compiler.BuildKonfigData
 import com.codingfeline.buildkonfig.compiler.BuildKonfigEnvironment
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 import com.codingfeline.buildkonfig.compiler.TargetConfig
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.codingfeline.buildkonfig.compiler.TargetName
@@ -37,13 +38,16 @@ open class BuildKonfigTask : DefaultTask() {
     lateinit var extension: BuildKonfigExtension
 
     @get:Input
-    val defaultConfig: TargetConfig?
-        get() = extension.defaultConfigs?.toPlatformConfig()
-
+    val defaultConfigs: Map<String, TargetConfig>
+        get() = extension.defaultConfigs.mapValues { (_, value) -> value.toTargetConfig() }
 
     @get:Input
-    val targetConfigs: List<TargetConfig>
-        get() = extension.targetConfigs?.map { it.toPlatformConfig() } ?: emptyList()
+    val targetConfigs: Map<String, List<TargetConfig>>
+        get() = extension.targetConfigs.mapValues { (_, value) -> value.map { it.toTargetConfig() } }
+
+    @get:Input
+    val flavor: String
+        get() = findFlavor()
 
 
     @Suppress("unused")
@@ -62,25 +66,35 @@ open class BuildKonfigTask : DefaultTask() {
     @TaskAction
     fun generateBuildKonfigFiles() {
 
-        println("flavor: ${getFlavor()}")
+        val flavorName = flavor
 
-        val defaultConfig = defaultConfig ?: throw IllegalStateException("defaultConfigs must be provided")
+        if (!defaultConfigs.containsKey("")) {
+            throw IllegalStateException("non flavored defaultConfigs must be provided")
+        }
+
+        val defaultConfig = getMergedDefaultConfig(flavorName)
 
         val mergedConfigFiles = targetNames.map { targetName ->
             val sortedConfigs = mutableListOf<TargetConfig>()
-            sortedConfigs.addAll(targetConfigs.filter { it.name == targetName.name })
-            sortedConfigs.addAll(targetConfigs.filter { it.name == "${targetName.name}Main" })
 
-            val defaultConfigsForTarget = TargetConfig(targetName.name)
-                .apply {
-                    this.fieldSpecs.putAll(defaultConfig.fieldSpecs)
+            // get non-flavored config first
+            targetConfigs.getOrDefault("", emptyList()).filter { it.name == targetName.name }
+                .let { sortedConfigs.addAll(it) }
+            // get flavored config
+            targetConfigs.getOrDefault(flavorName, emptyList()).filter { it.name == targetName.name }
+                .let { sortedConfigs.addAll(it) }
+
+            val defaultConfigsForTarget = defaultConfig
+                .let { base ->
+                    TargetConfig(targetName.name)
+                        .also { it.fieldSpecs.putAll(base.fieldSpecs) }
                 }
 
             sortedConfigs
                 .fold(defaultConfigsForTarget) { previous, current ->
                     mergeConfigs(
                         targetName.name,
-                        defaultConfig,
+                        defaultConfigsForTarget,
                         previous,
                         current
                     )
@@ -97,7 +111,30 @@ open class BuildKonfigTask : DefaultTask() {
         BuildKonfigEnvironment(data).generateConfigs { info -> logger.log(LogLevel.INFO, info) }
     }
 
-    fun mergeConfigs(
+    private fun mergeDefaultConfigs(
+        flavor: String,
+        baseConfig: TargetConfig,
+        newConfig: TargetConfig?
+    ): TargetConfig {
+        val result = TargetConfig(baseConfig.name)
+
+        listOf(
+            baseConfig.fieldSpecs,
+            newConfig?.fieldSpecs ?: emptyMap<String, FieldSpec>()
+        ).forEach { specs ->
+            specs.forEach { name, value ->
+                val alreadyPresent = result.fieldSpecs[name]
+                if (alreadyPresent != null) {
+                    logger.info("Default BuildKonfig: buildConfigField '$name' is being replaced with flavored($flavor): ${alreadyPresent.value} -> ${value.value}")
+                }
+                result.fieldSpecs[name] = value.copy()
+            }
+        }
+
+        return result
+    }
+
+    private fun mergeConfigs(
         targetName: String,
         defaultConfig: TargetConfig,
         baseConfig: TargetConfig,
@@ -120,12 +157,20 @@ open class BuildKonfigTask : DefaultTask() {
         return result
     }
 
-    private fun getFlavor(): String {
+    private fun findFlavor(): String {
         val flavor = project.findProperty(FLAVOR_PROPERTY) ?: ""
         if (flavor is String) {
             return flavor
         } else {
-            throw IllegalStateException("$FLAVOR_PROPERTY must be String")
+            logger.error("$FLAVOR_PROPERTY must be string: ${flavor::class.java}")
+            return ""
         }
+    }
+
+    private fun getMergedDefaultConfig(flavor: String): TargetConfig {
+        val default = defaultConfigs.getValue("")
+        val flavored = defaultConfigs[flavor]
+
+        return mergeDefaultConfigs(flavor, default, flavored)
     }
 }
