@@ -1,6 +1,5 @@
 plugins {
     id 'kotlin-multiplatform'
-    id 'com.android.library'
     id 'com.codingfeline.buildkonfig'
 }
 
@@ -8,31 +7,11 @@ plugins {
 apply from: '../../../../gradle/dependencies.gradle'
 
 repositories {
+    maven {
+        url "file://${projectDir.absolutePath}/../../../../build/localMaven"
+    }
     google()
     mavenCentral()
-}
-
-android {
-    compileSdkVersion 28
-
-    defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-
-    sourceSets {
-        main {
-            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
-        }
-    }
 }
 
 buildkonfig {
@@ -43,13 +22,10 @@ buildkonfig {
         buildConfigField 'INT', 'intValue', '10'
     }
 
-    targetConfigs {
+    targetConfigs("dev") {
         jvm {
             buildConfigField 'STRING', 'test', 'jvm'
             buildConfigField 'STRING', 'jmv', 'jvmHoge'
-        }
-        hoge {
-            buildConfigField 'String', 'android', '$fuga'
         }
         iosX64 {
             buildConfigField 'String', 'native', 'fuge'
@@ -58,7 +34,6 @@ buildkonfig {
 }
 
 kotlin {
-    android('hoge')
     jvm()
     js()
     iosArm64() {
