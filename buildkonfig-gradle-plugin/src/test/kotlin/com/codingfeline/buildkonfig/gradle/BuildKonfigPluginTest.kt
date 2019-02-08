@@ -27,6 +27,25 @@ class BuildKonfigPluginTest {
     }
 
     @Test
+    fun `buildkonfig block without defaultConfigs throws`() {
+        val fixtureRoot = File("src/test/kotlin-mpp-no-defaultconfigs")
+
+        val buildDir = File(fixtureRoot, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(fixtureRoot)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("build", "--stacktrace")
+            .buildAndFail()
+
+        assertThat(result.output)
+            .contains("non flavored defaultConfigs must be provided")
+    }
+
+    @Test
     fun `Applying the plugin works fine for multiplatform project`() {
         val fixtureRoot = File("src/test/kotlin-mpp")
 
