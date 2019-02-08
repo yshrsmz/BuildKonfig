@@ -4,11 +4,11 @@ import com.codingfeline.buildkonfig.compiler.generator.BuildKonfigCompiler
 import java.io.File
 
 class BuildKonfigEnvironment(
-    val data: BuildKonfigData
+    private val data: BuildKonfigData
 ) {
 
     sealed class CompilationStatus {
-        class Success : CompilationStatus()
+        object Success : CompilationStatus()
         class Failure(val errors: List<String>) : CompilationStatus()
     }
 
@@ -39,7 +39,7 @@ class BuildKonfigEnvironment(
         }
 
         return if (errors.isEmpty()) {
-            CompilationStatus.Success()
+            CompilationStatus.Success
         } else {
             CompilationStatus.Failure(errors)
         }

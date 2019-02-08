@@ -4,6 +4,7 @@ Change Log
 Version 0.3.0 *(WIP)*
 ---
 
+- Support build flavor ([#8](https://github.com/yshrsmz/BuildKonfig/issues/8))
 - TBD
 
 

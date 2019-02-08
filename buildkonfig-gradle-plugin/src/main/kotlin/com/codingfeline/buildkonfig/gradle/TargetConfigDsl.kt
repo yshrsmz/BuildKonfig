@@ -27,13 +27,14 @@ open class TargetConfigDsl @Inject constructor(
         if (alreadyPresent != null) {
             logger.info("TargetConfig: buildConfigField '$name' is being replaced: ${alreadyPresent.value} -> $value")
         }
-        fieldSpecs.put(name, FieldSpec(type, name, value))
+        fieldSpecs[name] = FieldSpec(type, name, value)
     }
 
-    fun toPlatformConfig(): TargetConfig {
-        val config = TargetConfig(name)
-        config.fieldSpecs.putAll(this.fieldSpecs)
-
-        return config
+    fun toTargetConfig(): TargetConfig {
+        return TargetConfig(name)
+            .also {
+                it.flavor = flavor
+                it.fieldSpecs.putAll(fieldSpecs)
+            }
     }
 }

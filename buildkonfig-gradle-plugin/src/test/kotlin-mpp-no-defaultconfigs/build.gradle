@@ -8,6 +8,9 @@ plugins {
 apply from: '../../../../gradle/dependencies.gradle'
 
 repositories {
+    maven {
+        url "file://${projectDir.absolutePath}/../../../../build/localMaven"
+    }
     google()
     mavenCentral()
 }
@@ -37,11 +40,6 @@ android {
 
 buildkonfig {
     packageName = "com.sample"
-
-    defaultConfigs {
-        buildConfigField 'STRING', 'test', 'hoge'
-        buildConfigField 'INT', 'intValue', '10'
-    }
 
     targetConfigs {
         jvm {

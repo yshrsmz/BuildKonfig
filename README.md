@@ -6,6 +6,18 @@ BuildKonfig
 BuildConfig for Kotlin Multiplatform Project.  
 It currently supports embedding values from gradle file.
 
+## Table Of Contents
+
+- [Motivation](#motivation)
+- [Usage](#usage)
+  - [Requirements](#requirements)
+  - [Gradle Configuration](#gradle-configuration)
+  - [Product Flavor?](#product-flavor)
+  - [Overwriting Values](#overwriting-values)
+- [Supported Types](#supported-types)
+
+<a name="motivation"/>
+
 ## Motivation
 
 Passing values from Android/iOS or any other platform code should work, but it's a hassle.  
@@ -13,13 +25,18 @@ Setting up Android to read values from properties and add those into BuildConfig
 Rather I'd like to do it once.
 
 
-## Usege
+<a name="usage"/>
+
+## Usage
+
+<a name="requirements"/>
 
 ### Requirements
 
 - Kotlin **1.3.20** or later
 - Kotlin Multiplatform Project
 
+<a name="gradle-configuration"/>
 
 ### Gradle Configuration
 
@@ -102,6 +119,69 @@ internal actual object BuildKonfig {
 }
 ```
 
+<a name="product-flavor"/>
+
+### Product Flavor?
+
+Yes(sort of).  
+Kotlin Multiplatform Project does not support product flavor. Kotlin/Native part of the project has release/debug distinction, but it's not global.  
+So we made some workaround to mimick product flavor capability of Android.
+
+Specify default flavor in your `gradle.properties`
+
+```properties
+# ROOT_DIR/gradle.properties
+buildkonfig.flavor=dev
+```
+
+```gradle
+// ./mpp_project/build.gradle
+
+buildkonfig {
+    packageName = 'com.example.app'
+    
+    // default config is required
+    defaultConfigs {
+        buildConfigField 'STRING', 'name', 'value'
+    }
+    defaultConfigs("dev") {
+        buildConfigField 'STRING', 'name', 'devValue'
+    }
+    
+    targetConfigs {
+        android {
+            buildConfigField 'STRING', 'name2', 'value2'
+        }
+        
+        ios {
+            buildConfigField 'STRING', 'name', 'valueIos'
+        }
+    }
+    targetConfigs("dev") {
+        ios {
+            buildConfigField 'STRING', 'name', 'devValueIos'
+        }
+    }
+}
+```
+
+In a development phase you can change value in `gradle.properties` as you like.  
+In CI environment, you can pass value via CLI `$ ./gradlew build -Pbuildkonfig.flavor=release`
+
+
+<a name="overwriting-values"/>
+
+### Overwriting Values
+
+If you configure same field across multiple defaultConfigs and targetConfigs, flavored targetConfigs is the strongest.
+
+Lefter the stronger.
+```
+Flavored TargetConfig > TargetConfig > Flavored DefaultConfig > DefaultConfig
+```
+
+
+<a name="supported-types"/>
 
 ## Supported Types
 

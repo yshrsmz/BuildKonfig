@@ -55,3 +55,4 @@ playground.xcworkspace
 
 secret.properties
 !.idea/codeStyles/*
+!.idea/dictionaries/dic.xml

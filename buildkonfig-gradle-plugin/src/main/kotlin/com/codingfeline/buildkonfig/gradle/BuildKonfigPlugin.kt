@@ -23,17 +23,7 @@ open class BuildKonfigPlugin : Plugin<Project> {
             }
         }
 
-        val objectFactory = target.objects
-
-        val extension = target.extensions.create("buildkonfig", BuildKonfigExtension::class.java)
-
-        val logger = target.logger
-
-        extension.defaultConfigs = objectFactory.newInstance(TargetConfigDsl::class.java, "defaults", logger)
-        extension.targetConfigs = target.container(
-            TargetConfigDsl::class.java,
-            PlatformConfigFactory(objectFactory, logger)
-        )
+        val extension = target.extensions.create("buildkonfig", BuildKonfigExtension::class.java, target)
 
         target.afterEvaluate {
             if (!isMultiplatform) {
@@ -72,7 +62,7 @@ open class BuildKonfigPlugin : Plugin<Project> {
 
         project.afterEvaluate { p ->
 
-            val mainTask = p.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
+            val task = p.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
                 it.packageName = requireNotNull(extension.packageName) { "packageName must be provided" }
                 it.commonOutputDirectory = commonOutputDirectory
                 it.outputDirectories = outputDirectoryMap
@@ -84,17 +74,17 @@ open class BuildKonfigPlugin : Plugin<Project> {
 
             p.extensions.getByType(KotlinMultiplatformExtension::class.java).targets.forEach { target ->
                 target.compilations.forEach { compilationUnit ->
-                    if (compilationUnit is KotlinNativeCompilation) {
-
-                        compilationUnit.target.binaries.forEach { binary ->
-                            p.tasks.named(binary.linkTaskName).configure { it.dependsOn(mainTask) }
+                    when (compilationUnit) {
+                        is KotlinNativeCompilation -> {
+                            compilationUnit.target.binaries.forEach { binary ->
+                                p.tasks.named(binary.linkTaskName).configure { it.dependsOn(task) }
+                            }
                         }
-                    } else if (compilationUnit is KotlinJvmAndroidCompilation) {
-
-                        p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(mainTask) }
-                    } else {
-
-                        p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(mainTask) }
+                        is KotlinJvmAndroidCompilation -> {
+                            p.tasks.named(compilationUnit.compileKotlinTaskName)
+                                .configure { it.dependsOn(task) }
+                        }
+                        else -> p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(task) }
                     }
                 }
             }
