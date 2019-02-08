@@ -5,8 +5,8 @@ import org.gradle.api.logging.Logger
 import org.gradle.api.model.ObjectFactory
 
 class TargetConfigFactory(
-    val objectFactory: ObjectFactory,
-    val logger: Logger
+    private val objectFactory: ObjectFactory,
+    private val logger: Logger
 ) : NamedDomainObjectFactory<TargetConfigDsl> {
 
     override fun create(name: String): TargetConfigDsl {

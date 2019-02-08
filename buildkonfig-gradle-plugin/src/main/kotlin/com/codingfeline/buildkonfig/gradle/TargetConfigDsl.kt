@@ -31,12 +31,10 @@ open class TargetConfigDsl @Inject constructor(
     }
 
     fun toTargetConfig(): TargetConfig {
-        val config = TargetConfig(name)
+        return TargetConfig(name)
             .also {
-                it.flavor = this.flavor
-                it.fieldSpecs.putAll(this.fieldSpecs)
+                it.flavor = flavor
+                it.fieldSpecs.putAll(fieldSpecs)
             }
-
-        return config
     }
 }
