@@ -332,4 +332,61 @@ class BuildKonfigPluginFlavorTest {
         Truth.assertThat(iosResult.readText())
             .contains("defaultValue")
     }
+
+    @Test
+    fun `Passing non-existent flavor results in default configurations`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |   }
+            |   targetConfigs {
+            |       js {
+            |           buildConfigField 'STRING', 'value', 'defaultJsValue'
+            |       }
+            |   }
+            |   targetConfigs("dev") {
+            |       js {
+            |           buildConfigField 'STRING', 'value', 'devJsValue'
+            |       }
+            |   }
+            |}
+            |$buildFileMPPConfig
+        """.trimMargin()
+        )
+
+        val propertyFile = projectDir.newFile("gradle.properties")
+        propertyFile.writeText("buildkonfig.flavor=dev")
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace", "-Pbuildkonfig.flavor=nonexistent")
+            .build()
+
+        Truth.assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
+        Truth.assertThat(jvmResult.readText())
+            .contains("defaultValue")
+
+        val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
+        Truth.assertThat(jsResult.readText())
+            .contains("defaultJsValue")
+
+        val iosResult = File(buildDir, "iosMain/com/example/BuildKonfig.kt")
+        Truth.assertThat(iosResult.readText())
+            .contains("defaultValue")
+    }
 }
