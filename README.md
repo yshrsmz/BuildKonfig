@@ -6,6 +6,16 @@ BuildKonfig
 BuildConfig for Kotlin Multiplatform Project.  
 It currently supports embedding values from gradle file.
 
+## Table Of Contents
+
+- [Motivation](#motivation)
+- [Usage](#usage)
+  - [Requirements](#requirements)
+  - [Gradle Configuration](#gradle-configuration)
+- [Supported Types](#supported-types)
+
+<a name="motivation"/>
+
 ## Motivation
 
 Passing values from Android/iOS or any other platform code should work, but it's a hassle.  
@@ -13,13 +23,18 @@ Setting up Android to read values from properties and add those into BuildConfig
 Rather I'd like to do it once.
 
 
-## Usege
+<a name="usage"/>
+
+## Usage
+
+<a name="requirements"/>
 
 ### Requirements
 
 - Kotlin **1.3.20** or later
 - Kotlin Multiplatform Project
 
+<a name="gradle-configuration"/>
 
 ### Gradle Configuration
 
@@ -102,6 +117,7 @@ internal actual object BuildKonfig {
 }
 ```
 
+<a name="supported-types"/>
 
 ## Supported Types
 
