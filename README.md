@@ -175,7 +175,10 @@ In CI environment, you can pass value via CLI `$ ./gradlew build -Pbuildkonfig.f
 
 If you configure same field across multiple defaultConfigs and targetConfigs, flavored targetConfigs is the strongest.
 
+Lefter the stronger.
+```
 Flavored TargetConfig > TargetConfig > Flavored DefaultConfig > DefaultConfig
+```
 
 
 <a name="supported-types"/>
