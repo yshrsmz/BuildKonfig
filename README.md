@@ -46,7 +46,7 @@ buildScript {
         jcenter()
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.20'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.21'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
 }
