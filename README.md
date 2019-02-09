@@ -144,6 +144,7 @@ buildkonfig {
     defaultConfigs {
         buildConfigField 'STRING', 'name', 'value'
     }
+    // flavor is passed as a first argument of defaultConfigs 
     defaultConfigs("dev") {
         buildConfigField 'STRING', 'name', 'devValue'
     }
@@ -157,6 +158,7 @@ buildkonfig {
             buildConfigField 'STRING', 'name', 'valueIos'
         }
     }
+    // flavor is passed as a first argument of targetConfigs
     targetConfigs("dev") {
         ios {
             buildConfigField 'STRING', 'name', 'devValueIos'
