@@ -162,7 +162,7 @@ open class BuildKonfigTask : DefaultTask() {
         if (flavor is String) {
             return flavor
         } else {
-            logger.error("$FLAVOR_PROPERTY must be string: ${flavor::class.java}")
+            logger.error("$FLAVOR_PROPERTY must be string. Fallback to non-flavored config: ${flavor::class.java}")
             return ""
         }
     }
