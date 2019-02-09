@@ -1,11 +1,10 @@
 Change Log
 ===
 
-Version 0.3.0 *(WIP)*
+Version 0.3.0 *(2019-02-09)*
 ---
 
-- Support build flavor ([#8](https://github.com/yshrsmz/BuildKonfig/issues/8))
-- TBD
+- Support build flavor ([#8](https://github.com/yshrsmz/BuildKonfig/issues/8)). See readme for the detail.
 
 
 Version 0.2.1 *(2019-02-05)*
