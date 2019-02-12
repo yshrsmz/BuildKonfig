@@ -125,7 +125,7 @@ internal actual object BuildKonfig {
 
 Yes(sort of).  
 Kotlin Multiplatform Project does not support product flavor. Kotlin/Native part of the project has release/debug distinction, but it's not global.  
-So we made some workaround to mimick product flavor capability of Android.
+So to mimick product flavor capability of Android, we need to provide additional property in order to determine flavors.
 
 Specify default flavor in your `gradle.properties`
 
