@@ -65,11 +65,16 @@ open class BuildKonfigTask : DefaultTask() {
     @Suppress("unused")
     @TaskAction
     fun generateBuildKonfigFiles() {
-
         val flavorName = flavor
 
         if (!defaultConfigs.containsKey("")) {
             throw IllegalStateException("non flavored defaultConfigs must be provided")
+        }
+
+        // clean up output directories
+        targetOutputDirectories.forEach {
+            it.deleteRecursively()
+            it.mkdirs()
         }
 
         val defaultConfig = getMergedDefaultConfig(flavorName)

@@ -1,6 +1,12 @@
 Change Log
 ===
 
+Version 0.4.0 *(WIP)*
+---
+
+- Delete old `BuildKonfig` objects before executing the task. ([#12](https://github.com/yshrsmz/BuildKonfig/issues/12))
+
+
 Version 0.3.0 *(2019-02-09)*
 ---
 
