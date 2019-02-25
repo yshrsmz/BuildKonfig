@@ -35,6 +35,7 @@ Rather I'd like to do it once.
 
 - Kotlin **1.3.20** or later
 - Kotlin Multiplatform Project
+- Gradle 5.1.1 or later
 
 <a name="gradle-configuration"/>
 
