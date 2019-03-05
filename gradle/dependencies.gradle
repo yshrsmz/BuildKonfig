@@ -7,11 +7,11 @@ ext.versions = [
 
 ext.deps = [
         plugins   : [
-                android      : "com.android.tools.build:gradle:3.3.0",
+                android      : "com.android.tools.build:gradle:3.3.2",
                 kotlin       : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
                 serialization: "org.jetbrains.kotlin:kotlin-serialization:${versions.kotlin}",
                 dokka        : "org.jetbrains.dokka:dokka-gradle-plugin:${versions.dokka}",
-                versions     : "com.github.ben-manes:gradle-versions-plugin:0.20.0",
+                versions     : "com.github.ben-manes:gradle-versions-plugin:0.21.0",
                 pluginPublish: "com.gradle.publish:plugin-publish-plugin:0.10.1"
         ],
         kotlin    : [
@@ -29,8 +29,8 @@ ext.deps = [
                         js               : "org.jetbrains.kotlin:kotlin-test-js:${versions.kotlin}",
                 ]
         ],
-        kotlinPoet: 'com.squareup:kotlinpoet:1.0.1',
+        kotlinPoet: 'com.squareup:kotlinpoet:1.1.0',
 
         junit     : "junit:junit:4.12",
-        truth     : "com.google.truth:truth:0.42"
+        truth     : "com.google.truth:truth:0.43"
 ]
