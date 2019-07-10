@@ -1,13 +1,13 @@
 ext.versions = [
         compileSdk: 28,
-        kotlin    : '1.3.21',
-        dokka     : '0.9.17',
+        kotlin    : '1.3.31',
+        dokka     : '0.9.18',
         moshi     : '1.8.0'
 ]
 
 ext.deps = [
         plugins   : [
-                android      : "com.android.tools.build:gradle:3.3.2",
+                android      : "com.android.tools.build:gradle:3.4.2",
                 kotlin       : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
                 serialization: "org.jetbrains.kotlin:kotlin-serialization:${versions.kotlin}",
                 dokka        : "org.jetbrains.dokka:dokka-gradle-plugin:${versions.dokka}",
@@ -29,8 +29,8 @@ ext.deps = [
                         js               : "org.jetbrains.kotlin:kotlin-test-js:${versions.kotlin}",
                 ]
         ],
-        kotlinPoet: 'com.squareup:kotlinpoet:1.1.0',
+        kotlinPoet: 'com.squareup:kotlinpoet:1.3.0',
 
         junit     : "junit:junit:4.12",
-        truth     : "com.google.truth:truth:0.43"
+        truth     : "com.google.truth:truth:1.0"
 ]
