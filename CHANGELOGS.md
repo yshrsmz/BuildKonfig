@@ -1,6 +1,13 @@
 Change Log
 ===
 
+Version 0.3.2 *(2019-07-10)*
+---
+
+- Kotlin 1.3.31(though this shouldn't be a problem as it's just a plugin dependency)
+- Fix issue with task dependency in some cases
+
+
 Version 0.3.1 *(2019-02-25)*
 ---
 

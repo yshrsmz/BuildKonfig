@@ -76,6 +76,10 @@ open class BuildKonfigPlugin : Plugin<Project> {
                 target.compilations.forEach { compilationUnit ->
                     when (compilationUnit) {
                         is KotlinNativeCompilation -> {
+
+                            p.tasks.named(compilationUnit.compileAllTaskName).configure { it.dependsOn(task) }
+                            p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(task) }
+
                             compilationUnit.target.binaries.forEach { binary ->
                                 p.tasks.named(binary.linkTaskName).configure { it.dependsOn(task) }
                             }
