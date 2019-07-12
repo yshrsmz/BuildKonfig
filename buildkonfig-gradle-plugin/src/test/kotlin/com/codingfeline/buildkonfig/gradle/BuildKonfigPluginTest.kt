@@ -35,6 +35,19 @@ class BuildKonfigPluginTest {
         |  jvm()
         |  js()
         |  iosX64('ios')
+        |
+        |  sourceSets {
+        |    commonMain {
+        |      dependencies {
+        |        implementation kotlin('stdlib-common')
+        |      }
+        |    }
+        |    jvmMain {
+        |      dependencies {
+        |        implementation kotlin('stdlib-jdk8')
+        |      }
+        |    }
+        |  }
         |}
     """.trimMargin()
 
@@ -144,9 +157,17 @@ class BuildKonfigPluginTest {
             |}
             |
             |kotlin {
-            |   jvm()
-            |   js()
-            |   iosX64()
+            |  jvm()
+            |  js()
+            |  iosX64()
+            |
+            |  sourceSets {
+            |    commonMain {
+            |      dependencies {
+            |        implementation kotlin('stdlib-common')
+            |      }
+            |    }
+            |  }
             |}
             """.trimMargin()
         )
@@ -230,6 +251,24 @@ class BuildKonfigPluginTest {
             |   jvm()
             |   js()
             |   iosX64()
+            |
+            |   sourceSets {
+            |     commonMain {
+            |       dependencies {
+            |         implementation kotlin('stdlib-common')
+            |       }
+            |     }
+            |     customAndroidMain {
+            |       dependencies {
+            |         implementation kotlin('stdlib-jdk8')
+            |       }
+            |     }
+            |     jvmMain {
+            |       dependencies {
+            |         implementation kotlin('stdlib-jdk8')
+            |       }
+            |     }
+            |   }
             |}
             """.trimMargin()
         )
@@ -361,6 +400,24 @@ class BuildKonfigPluginTest {
             |   jvm()
             |   js()
             |   iosX64()
+            |
+            |   sourceSets {
+            |     commonMain {
+            |       dependencies {
+            |         implementation kotlin('stdlib-common')
+            |       }
+            |     }
+            |     customAndroidMain {
+            |       dependencies {
+            |         implementation kotlin('stdlib-jdk8')
+            |       }
+            |     }
+            |     jvmMain {
+            |       dependencies {
+            |         implementation kotlin('stdlib-jdk8')
+            |       }
+            |     }
+            |   }
             |}
             """.trimMargin()
         )
@@ -448,6 +505,24 @@ class BuildKonfigPluginTest {
             |   jvm()
             |   js()
             |   iosX64()
+            |
+            |   sourceSets {
+            |     commonMain {
+            |       dependencies {
+            |         implementation kotlin('stdlib-common')
+            |       }
+            |     }
+            |     customAndroidMain {
+            |       dependencies {
+            |         implementation kotlin('stdlib-jdk8')
+            |       }
+            |     }
+            |     jvmMain {
+            |       dependencies {
+            |         implementation kotlin('stdlib-jdk8')
+            |       }
+            |     }
+            |   }
             |}
             """.trimMargin()
         )
@@ -535,6 +610,24 @@ class BuildKonfigPluginTest {
             |   jvm()
             |   js()
             |   iosX64()
+            |
+            |   sourceSets {
+            |     commonMain {
+            |       dependencies {
+            |         implementation kotlin('stdlib-common')
+            |       }
+            |     }
+            |     customAndroidMain {
+            |       dependencies {
+            |         implementation kotlin('stdlib-jdk8')
+            |       }
+            |     }
+            |     jvmMain {
+            |       dependencies {
+            |         implementation kotlin('stdlib-jdk8')
+            |       }
+            |     }
+            |   }
             |}
             """.trimMargin()
         )
