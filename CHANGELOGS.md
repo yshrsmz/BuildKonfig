@@ -1,6 +1,13 @@
 Change Log
 ===
 
+Version 0.3.4 *(2019-08-23)*
+---
+
+- Kotlin 1.3.50
+- Android Gradle Plugin 3.5.0
+- Gradle 5.6
+
 Version 0.3.3 *(2019-07-12)*
 ---
 
