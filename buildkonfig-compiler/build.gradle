@@ -1,4 +1,6 @@
-apply plugin: 'org.jetbrains.kotlin.jvm'
+plugins {
+    id("org.jetbrains.kotlin.jvm")
+}
 
 sourceSets {
     main.java.srcDir "src/generated/kotlin"
@@ -12,7 +14,7 @@ dependencies {
 task pluginVersion {
     def outputDir = file("src/generated/kotlin")
 
-    inputs.property 'version', version
+    inputs.property "version", version
     outputs.dir outputDir
 
     doLast {
@@ -26,7 +28,7 @@ val VERSION = "${project.version}"
     }
 }
 
-tasks.getByName('compileKotlin').dependsOn('pluginVersion')
+tasks.getByName("compileKotlin").dependsOn("pluginVersion")
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
