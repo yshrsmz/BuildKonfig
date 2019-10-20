@@ -18,7 +18,7 @@ buildscript {
 }
 
 plugins {
-    id("com.github.ben-manes.versions") version "0.27.0"
+    id("com.github.ben-manes.versions") version com.codingfeline.buildkonfig.build.Versions.benManesVersionsPlugin
 }
 
 
@@ -39,6 +39,6 @@ allprojects {
 }
 
 tasks.wrapper {
-    gradleVersion = "5.6"
+    gradleVersion = com.codingfeline.buildkonfig.build.Versions.gradle
     distributionType = Wrapper.DistributionType.ALL
 }
