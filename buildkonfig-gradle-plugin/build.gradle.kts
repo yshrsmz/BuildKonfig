@@ -1,5 +1,5 @@
-import com.codingfeline.buildkonfig.build.Dependencies
-import com.codingfeline.buildkonfig.build.Versions
+import com.codingfeline.buildkonfig.buildsrc.Dependencies
+import com.codingfeline.buildkonfig.buildsrc.Versions
 
 plugins {
     id("org.jetbrains.kotlin.jvm")

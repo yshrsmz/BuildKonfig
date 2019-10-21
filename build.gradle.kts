@@ -10,15 +10,15 @@ buildscript {
     }
 
     dependencies {
-        classpath(com.codingfeline.buildkonfig.build.Dependencies.kotlinPlugin)
-        classpath(com.codingfeline.buildkonfig.build.Dependencies.dokkaPlugin)
-        classpath(com.codingfeline.buildkonfig.build.Dependencies.gradleVersionsPlugin)
-        classpath(com.codingfeline.buildkonfig.build.Dependencies.pluginPublishPlugin)
+        classpath(com.codingfeline.buildkonfig.buildsrc.Dependencies.kotlinPlugin)
+        classpath(com.codingfeline.buildkonfig.buildsrc.Dependencies.dokkaPlugin)
+        classpath(com.codingfeline.buildkonfig.buildsrc.Dependencies.gradleVersionsPlugin)
+        classpath(com.codingfeline.buildkonfig.buildsrc.Dependencies.pluginPublishPlugin)
     }
 }
 
 plugins {
-    id("com.github.ben-manes.versions") version com.codingfeline.buildkonfig.build.Versions.benManesVersionsPlugin
+    id("com.github.ben-manes.versions") version com.codingfeline.buildkonfig.buildsrc.Versions.benManesVersionsPlugin
 }
 
 
@@ -39,6 +39,6 @@ allprojects {
 }
 
 tasks.wrapper {
-    gradleVersion = com.codingfeline.buildkonfig.build.Versions.gradle
+    gradleVersion = com.codingfeline.buildkonfig.buildsrc.Versions.gradle
     distributionType = Wrapper.DistributionType.ALL
 }
