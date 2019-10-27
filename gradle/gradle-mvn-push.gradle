@@ -17,7 +17,7 @@ import java.nio.file.Paths
  * limitations under the License.
  */
 
-apply plugin: 'maven'
+apply plugin: "maven"
 
 version = VERSION_NAME
 group = GROUP
@@ -34,19 +34,19 @@ def findProperty(String key) {
 }
 
 def getReleaseRepositoryUrl() {
-    return findProperty('RELEASE_REPOSITORY_URL') ?: "https://api.bintray.com/maven/$BINTRAY_ORG/$BINTRAY_REPOSITORY/$POM_ARTIFACT_ID"
+    return findProperty("RELEASE_REPOSITORY_URL") ?: "https://api.bintray.com/maven/$BINTRAY_ORG/$BINTRAY_REPOSITORY/$POM_ARTIFACT_ID"
 }
 
 def getSnapshotRepositoryUrl() {
-    return findProperty('SNAPSHOT_REPOSITORY_URL') ?: "https://oss.jfrog.org/artifactory/oss-snapshot-local"
+    return findProperty("SNAPSHOT_REPOSITORY_URL") ?: "https://oss.jfrog.org/artifactory/oss-snapshot-local"
 }
 
 def getRepositoryUsername() {
-    return findProperty('BINTRAY_USER') ?: "no.bintray.user"
+    return findProperty("BINTRAY_USER") ?: "no.bintray.user"
 }
 
 def getRepositoryPassword() {
-    return findProperty('BINTRAY_API_KEY') ?: "no.bintray.api.key"
+    return findProperty("BINTRAY_API_KEY") ?: "no.bintray.api.key"
 }
 
 def configurePom(pom) {
@@ -133,19 +133,19 @@ install {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    classifier = "sources"
     from sourceSets.main.allSource
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    classifier = "javadoc"
     from javadoc.destinationDir
 }
 
 if (JavaVersion.current().isJava8Compatible()) {
     allprojects {
         tasks.withType(Javadoc) {
-            options.addStringOption('Xdoclint:none', '-quiet')
+            options.addStringOption("Xdoclint:none", "-quiet")
         }
     }
 }
