@@ -4,7 +4,7 @@ buildscript {
         google()
         jcenter()
         gradlePluginPortal()
-        maven { url = uri( "https://dl.bintray.com/kotlin/kotlinx") }
+        maven { url = uri("https://dl.bintray.com/kotlin/kotlinx") }
         maven { url = uri("https://dl.bintray.com/kotlin/kotlin-eap") }
         maven { url = uri("https://dl.bintray.com/jetbrains/kotlin-native-dependencies") }
     }

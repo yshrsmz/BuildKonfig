@@ -1,6 +1,7 @@
 package com.codingfeline.buildkonfig.compiler
 
 import com.codingfeline.buildkonfig.compiler.generator.BuildKonfigCompiler
+import com.codingfeline.buildkonfig.compiler.generator.FileAppender
 import java.io.File
 
 class BuildKonfigEnvironment(
@@ -24,6 +25,31 @@ class BuildKonfigEnvironment(
             return@writer file.writer()
         }
 
+        if (data.targetConfigs.isEmpty()) {
+            compileCommonObject(data, writer, logger)
+        } else {
+            compileExpectActual(data, writer, logger)
+        }
+
+        return if (errors.isEmpty()) {
+            CompilationStatus.Success
+        } else {
+            CompilationStatus.Failure(errors)
+        }
+    }
+
+    private fun compileCommonObject(data: BuildKonfigData, writer: FileAppender, logger: Logger): List<String> {
+        val errors = mutableListOf<String>()
+        try {
+            BuildKonfigCompiler.compileCommonObject(data.packageName, data.commonConfig, writer, logger)
+        } catch (e: Throwable) {
+            e.message?.let { errors.add(it) }
+        }
+        return errors
+    }
+
+    private fun compileExpectActual(data: BuildKonfigData, writer: FileAppender, logger: Logger): List<String> {
+        val errors = mutableListOf<String>()
         try {
             BuildKonfigCompiler.compileCommon(data.packageName, data.commonConfig, writer, logger)
         } catch (e: Throwable) {
@@ -37,11 +63,6 @@ class BuildKonfigEnvironment(
                 e.message?.let { errors.add(it) }
             }
         }
-
-        return if (errors.isEmpty()) {
-            CompilationStatus.Success
-        } else {
-            CompilationStatus.Failure(errors)
-        }
+        return errors
     }
 }

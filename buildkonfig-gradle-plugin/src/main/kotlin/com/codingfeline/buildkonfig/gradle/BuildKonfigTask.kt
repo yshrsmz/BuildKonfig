@@ -8,7 +8,6 @@ import com.codingfeline.buildkonfig.compiler.TargetConfig
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.codingfeline.buildkonfig.compiler.TargetName
 import org.gradle.api.DefaultTask
-import org.gradle.api.logging.LogLevel
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectories
@@ -79,7 +78,86 @@ open class BuildKonfigTask : DefaultTask() {
 
         val defaultConfig = getMergedDefaultConfig(flavorName)
 
-        val mergedConfigFiles = targetNames.map { targetName ->
+        val mergedConfigFiles = if (targetConfigs.isNotEmpty()) {
+            getMergedTargetConfigFiles(flavorName, defaultConfig)
+        } else {
+            emptyList()
+        }
+
+        val data = BuildKonfigData(
+            packageName = packageName,
+            commonConfig = TargetConfigFile(KotlinPlatformType.common.name, commonOutputDirectory, defaultConfig),
+            targetConfigs = mergedConfigFiles
+        )
+
+        BuildKonfigEnvironment(data).generateConfigs { info -> logger.info(info) }
+    }
+
+    private fun mergeDefaultConfigs(
+        flavor: String,
+        baseConfig: TargetConfig,
+        newConfig: TargetConfig?
+    ): TargetConfig {
+        val result = TargetConfig(baseConfig.name)
+
+        listOf(
+            baseConfig.fieldSpecs,
+            newConfig?.fieldSpecs ?: emptyMap<String, FieldSpec>()
+        ).forEach { specs ->
+            specs.forEach { (name, value) ->
+                val alreadyPresent = result.fieldSpecs[name]
+                if (alreadyPresent != null) {
+                    logger.info("Default BuildKonfig: buildConfigField '$name' is being replaced with flavored($flavor): ${alreadyPresent.value} -> ${value.value}")
+                }
+                result.fieldSpecs[name] = value.copy()
+            }
+        }
+
+        return result
+    }
+
+    private fun mergeConfigs(
+        targetName: String,
+        defaultConfig: TargetConfig,
+        baseConfig: TargetConfig,
+        newConfig: TargetConfig
+    ): TargetConfig {
+        val result = TargetConfig(targetName)
+
+        baseConfig.fieldSpecs.forEach { (name, value) ->
+            result.fieldSpecs[name] = value.copy(isTargetSpecific = !defaultConfig.fieldSpecs.contains(name))
+        }
+
+        newConfig.fieldSpecs.forEach { (name, value) ->
+            val alreadyPresent = result.fieldSpecs[name]
+            if (alreadyPresent != null) {
+                logger.info("BuildKonfig for $targetName: buildConfigField '$name' is being replaced: ${alreadyPresent.value} -> ${value.value}")
+            }
+            result.fieldSpecs[name] = value.copy(isTargetSpecific = !defaultConfig.fieldSpecs.contains(name))
+        }
+
+        return result
+    }
+
+    private fun findFlavor(): String {
+        val flavor = project.findProperty(FLAVOR_PROPERTY) ?: ""
+        return if (flavor is String) {
+            flavor
+        } else {
+            logger.error("$FLAVOR_PROPERTY must be string. Fallback to non-flavored config: ${flavor::class.java}")
+            ""
+        }
+    }
+
+    private fun getMergedDefaultConfig(flavor: String): TargetConfig {
+        val default = defaultConfigs.getValue("")
+        val flavored = defaultConfigs[flavor]
+
+        return mergeDefaultConfigs(flavor, default, flavored)
+    }
+
+    private fun getMergedTargetConfigFiles(flavorName: String, defaultConfig: TargetConfig): List<TargetConfigFile> {
+        return targetNames.map { targetName ->
             val sortedConfigs = mutableListOf<TargetConfig>()
 
             // get non-flavored config first
@@ -106,76 +184,5 @@ open class BuildKonfigTask : DefaultTask() {
                 }
                 .let { TargetConfigFile(targetName.platformType, outputDirectories[targetName]!!, it) }
         }
-
-        val data = BuildKonfigData(
-            packageName = packageName,
-            commonConfig = TargetConfigFile(KotlinPlatformType.common.name, commonOutputDirectory, defaultConfig),
-            targetConfigs = mergedConfigFiles
-        )
-
-        BuildKonfigEnvironment(data).generateConfigs { info -> logger.log(LogLevel.INFO, info) }
-    }
-
-    private fun mergeDefaultConfigs(
-        flavor: String,
-        baseConfig: TargetConfig,
-        newConfig: TargetConfig?
-    ): TargetConfig {
-        val result = TargetConfig(baseConfig.name)
-
-        listOf(
-            baseConfig.fieldSpecs,
-            newConfig?.fieldSpecs ?: emptyMap<String, FieldSpec>()
-        ).forEach { specs ->
-            specs.forEach { name, value ->
-                val alreadyPresent = result.fieldSpecs[name]
-                if (alreadyPresent != null) {
-                    logger.info("Default BuildKonfig: buildConfigField '$name' is being replaced with flavored($flavor): ${alreadyPresent.value} -> ${value.value}")
-                }
-                result.fieldSpecs[name] = value.copy()
-            }
-        }
-
-        return result
-    }
-
-    private fun mergeConfigs(
-        targetName: String,
-        defaultConfig: TargetConfig,
-        baseConfig: TargetConfig,
-        newConfig: TargetConfig
-    ): TargetConfig {
-        val result = TargetConfig(targetName)
-
-        baseConfig.fieldSpecs.forEach { name, value ->
-            result.fieldSpecs[name] = value.copy(isTargetSpecific = !defaultConfig.fieldSpecs.contains(name))
-        }
-
-        newConfig.fieldSpecs.forEach { name, value ->
-            val alreadyPresent = result.fieldSpecs[name]
-            if (alreadyPresent != null) {
-                logger.info("BuildKonfig for $targetName: buildConfigField '$name' is being replaced: ${alreadyPresent.value} -> ${value.value}")
-            }
-            result.fieldSpecs[name] = value.copy(isTargetSpecific = !defaultConfig.fieldSpecs.contains(name))
-        }
-
-        return result
-    }
-
-    private fun findFlavor(): String {
-        val flavor = project.findProperty(FLAVOR_PROPERTY) ?: ""
-        if (flavor is String) {
-            return flavor
-        } else {
-            logger.error("$FLAVOR_PROPERTY must be string. Fallback to non-flavored config: ${flavor::class.java}")
-            return ""
-        }
-    }
-
-    private fun getMergedDefaultConfig(flavor: String): TargetConfig {
-        val default = defaultConfigs.getValue("")
-        val flavored = defaultConfigs[flavor]
-
-        return mergeDefaultConfigs(flavor, default, flavored)
     }
 }
