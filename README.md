@@ -15,6 +15,7 @@ It currently supports embedding values from gradle file.
   - [Product Flavor?](#product-flavor)
   - [Overwriting Values](#overwriting-values)
 - [Supported Types](#supported-types)
+- [Try out the sample](#try-out-the-sample)
 
 <a name="motivation"/>
 
@@ -193,3 +194,19 @@ Flavored TargetConfig > TargetConfig > Flavored DefaultConfig > DefaultConfig
 - Long
 - Float
 - Boolean
+
+
+<a name="try-out-the-sample"/>
+
+## Try out the sample
+
+Have a look at `./sample` directory.
+
+```
+# Publish the latest version of the plugin to mavenLocal()
+$ ./gradlew install
+
+# Try out the samples.
+# BuildKonfig will be generated in ./sample/build/buildkonfig
+$ ./gradlew -p sample generateBuildKonfig
+```

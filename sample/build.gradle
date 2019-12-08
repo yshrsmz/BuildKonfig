@@ -1,0 +1,28 @@
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'com.codingfeline.buildkonfig'
+
+buildscript {
+    repositories {
+        // Use 'gradle install' to install latest
+        mavenLocal()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:+'
+    }
+}
+
+kotlin {
+    jvm {}
+    js {}
+    iosX64 {}
+}
+
+buildkonfig {
+    packageName = 'com.codingfeline.buildkonfigsample'
+
+    defaultConfigs {
+        buildConfigField 'STRING', 'test', 'testvalue'
+    }
+}
