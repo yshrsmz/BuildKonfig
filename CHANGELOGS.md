@@ -1,6 +1,12 @@
 Change Log
 ===
 
+Version 0.4.0 *(2019-12-12)*
+---
+
+- Simple `defaultConfigs` only configuration now creates object in common sourceSet.
+
+
 Version 0.3.4 *(2019-08-23)*
 ---
 
