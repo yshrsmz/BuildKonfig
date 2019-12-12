@@ -31,6 +31,28 @@ abstract class BuildKonfigGenerator(
     abstract fun generateProp(fieldSpec: FieldSpec): PropertySpec
 
     companion object {
+        /**
+         * Generate common object
+         */
+        fun ofCommonObject(file: TargetConfigFile, logger: Logger): BuildKonfigGenerator {
+            return object : BuildKonfigGenerator(
+                file = file,
+                objectModifiers = emptyArray(),
+                propertyModifiers = emptyArray(),
+                logger = logger
+            ) {
+                override fun generateProp(fieldSpec: FieldSpec): PropertySpec {
+                    return PropertySpec.builder(fieldSpec.name, fieldSpec.type.typeName)
+                        .initializer(fieldSpec.type.template, fieldSpec.value)
+                        .addModifiers(*propertyModifiers)
+                        .build()
+                }
+            }
+        }
+
+        /**
+         * Generate common `expect` object
+         */
         fun ofCommon(file: TargetConfigFile, logger: Logger): BuildKonfigGenerator {
             return object : BuildKonfigGenerator(
                 file = file,
@@ -46,6 +68,9 @@ abstract class BuildKonfigGenerator(
             }
         }
 
+        /**
+         * Generate target `actual` object
+         */
         fun ofTarget(file: TargetConfigFile, logger: Logger): BuildKonfigGenerator {
             return object : BuildKonfigGenerator(
                 file = file,

@@ -64,6 +64,62 @@ class BuildKonfigPluginFlavorTest {
     }
 
     @Test
+    fun `common object should be generated if there is no targetConfigs`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |   }
+            |}
+            |$buildFileMPPConfig
+        """.trimMargin()
+        )
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+
+        Truth.assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
+        Truth.assertThat(commonResult.readText())
+            .isEqualTo(
+                """
+                |package com.example
+                |
+                |import kotlin.String
+                |
+                |internal object BuildKonfig {
+                |  val value: String = "defaultValue"
+                |}
+                |
+            """.trimMargin()
+            )
+
+        val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
+        Truth.assertThat(jvmResult.exists()).isFalse()
+
+        val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
+        Truth.assertThat(jsResult.exists()).isFalse()
+
+        val iosResult = File(buildDir, "iosMain/com/example/BuildKonfig.kt")
+        Truth.assertThat(iosResult.exists()).isFalse()
+    }
+
+    @Test
     fun `flavor can be obtained from gradle properties file`() {
         buildFile.writeText(
             """
@@ -100,17 +156,18 @@ class BuildKonfigPluginFlavorTest {
         Truth.assertThat(result.output)
             .contains("BUILD SUCCESSFUL")
 
+        val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
+        Truth.assertThat(commonResult.readText())
+            .contains("val value: String = \"devDefaultValue\"")
+
         val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jvmResult.readText())
-            .contains("devDefaultValue")
+        Truth.assertThat(jvmResult.exists()).isFalse()
 
         val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jsResult.readText())
-            .contains("devDefaultValue")
+        Truth.assertThat(jsResult.exists()).isFalse()
 
         val iosResult = File(buildDir, "iosMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(iosResult.readText())
-            .contains("devDefaultValue")
+        Truth.assertThat(iosResult.exists()).isFalse()
     }
 
     @Test
@@ -153,17 +210,18 @@ class BuildKonfigPluginFlavorTest {
         Truth.assertThat(result.output)
             .contains("BUILD SUCCESSFUL")
 
+        val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
+        Truth.assertThat(commonResult.readText())
+            .contains("val value: String = \"releaseDefaultValue\"")
+
         val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jvmResult.readText())
-            .contains("releaseDefaultValue")
+        Truth.assertThat(jvmResult.exists()).isFalse()
 
         val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jsResult.readText())
-            .contains("releaseDefaultValue")
+        Truth.assertThat(jsResult.exists()).isFalse()
 
         val iosResult = File(buildDir, "iosMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(iosResult.readText())
-            .contains("releaseDefaultValue")
+        Truth.assertThat(iosResult.exists()).isFalse()
     }
 
     @Test

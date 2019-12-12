@@ -42,6 +42,58 @@ Rather I'd like to do it once.
 
 ### Gradle Configuration
 
+#### Simple configuration
+
+```gradle
+buildScript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.50'
+        classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
+    }
+}
+
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'com.codingfeline.buildkonfig'
+
+kotlin {
+    // your target config...
+    android()
+    iosX64('ios')
+}
+
+buildkonfig {
+    packageName = 'com.example.app'
+
+    defaultConfigs {
+        buildConfigField 'STRING', 'name', 'value'
+    }
+}
+```
+- `packageName` Set the package name where BuildKonfig is being placed. **Required**.
+- `defaultConfigs` Set values which you want to have in common. **Required**.
+
+To generate BuildKonfig files, run `generateBuildKonfig` task.  
+This task will be automatically run upon execution of kotlin compile tasks.
+
+Above configuration will generate following simple object.
+
+```kotlin
+// commonMain
+package com.example.app
+
+internal object BuildKonfig {
+    val name: String = "value"
+}
+```
+
+#### Configuring `target` dependent values
+
+If you want to change value depending on your targets, you can use `targetConfigs` to define target dependent values.
+
+
 ```gradle
 buildScript {
     repositories {
@@ -87,9 +139,6 @@ buildkonfig {
 - `defaultConfigs` Set values which you want to have in common. **Required**.
 - `targetConfigs` Set target specific values as closure. You can overwrite values specified in `defaultConfigs`.
 - `buildConfigField(String type, String name, String value)` Add new value or overwrite existing one.
-
-To generate BuildKonfig files, run `generateBuildKonfig` task.  
-This task will be automatically run upon execution of kotlin compile tasks.
 
 Above configuration will generate following codes.
 
