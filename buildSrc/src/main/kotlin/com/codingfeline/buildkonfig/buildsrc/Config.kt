@@ -2,7 +2,7 @@ package com.codingfeline.buildkonfig.buildsrc
 
 object Versions {
     const val compileSdk = 29
-    const val kotlin = "1.3.50"
+    const val kotlin = "1.3.61"
     const val dokka = "0.10.0"
     const val jvmTarget = "1.8"
     const val benManesVersionsPlugin = "0.27.0"
