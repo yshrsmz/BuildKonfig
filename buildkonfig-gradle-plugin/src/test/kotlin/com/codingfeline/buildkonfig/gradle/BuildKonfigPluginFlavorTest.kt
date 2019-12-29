@@ -335,7 +335,7 @@ class BuildKonfigPluginFlavorTest {
     }
 
     @Test
-    fun `Can write nullable field`() {
+    fun `Can create nullable field`() {
         buildFile.writeText(
             """
             |$buildFileHeader
@@ -345,6 +345,7 @@ class BuildKonfigPluginFlavorTest {
             |
             |   defaultConfigs {
             |       buildConfigNullableField 'STRING', 'value', 'defaultValue'
+            |       buildConfigNullableField 'INT', 'intValue', '10'
             |   }
             |}
             |$buildFileMPPConfig
@@ -369,13 +370,54 @@ class BuildKonfigPluginFlavorTest {
             .contains("BUILD SUCCESSFUL")
 
         val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
-//        println(commonResult.readText())
         Truth.assertThat(commonResult.readText()).apply {
             contains("String?")
             contains("defaultValue")
+            contains("intValue: Int? = 10")
         }
     }
 
+    @Test
+    fun `Can assign null to nullable field`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |
+            |   defaultConfigs {
+            |       buildConfigNullableField 'STRING', 'value', null
+            |       buildConfigNullableField 'INT', 'intValue', null
+            |   }
+            |}
+            |$buildFileMPPConfig
+        """.trimMargin()
+        )
+
+        val propertyFile = projectDir.newFile("gradle.properties")
+        propertyFile.writeText("buildkonfig.flavor=dev")
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+
+        Truth.assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
+        Truth.assertThat(commonResult.readText()).apply {
+            contains("value: String? = null")
+            contains("intValue: Int? = null")
+        }
+    }
 
     @Test
     fun `Flavored targetConfigs overwrite default targetConfigs`() {

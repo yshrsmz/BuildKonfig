@@ -34,7 +34,7 @@ open class TargetConfigDsl @Inject constructor(
     fun buildConfigNullableField(
         type: FieldSpec.Type,
         name: String,
-        value: String
+        value: String?
     ) {
 
         val alreadyPresent = fieldSpecs[name]
