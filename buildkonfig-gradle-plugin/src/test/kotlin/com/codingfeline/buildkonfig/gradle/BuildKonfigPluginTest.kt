@@ -1,6 +1,5 @@
 package com.codingfeline.buildkonfig.gradle
 
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Before
@@ -292,7 +291,7 @@ class BuildKonfigPluginTest {
             .contains("BUILD SUCCESSFUL")
 
         val jvmResult = File(buildDir, "jvmMain/com/sample/BuildKonfig.kt")
-        Truth.assertThat(jvmResult.readText())
+        assertThat(jvmResult.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
                 contains("actual val test: String = \"jvm\"")
@@ -303,7 +302,7 @@ class BuildKonfigPluginTest {
             }
 
         val androidResult = File(buildDir, "customAndroidMain/com/sample/BuildKonfig.kt")
-        Truth.assertThat(androidResult.readText())
+        assertThat(androidResult.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
                 contains("actual val test: String = \"hoge\"")
@@ -314,7 +313,7 @@ class BuildKonfigPluginTest {
             }
 
         val jsResult = File(buildDir, "jsMain/com/sample/BuildKonfig.kt")
-        Truth.assertThat(jsResult.readText())
+        assertThat(jsResult.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
                 contains("actual val test: String = \"hoge\"")
@@ -324,7 +323,7 @@ class BuildKonfigPluginTest {
             }
 
         val iosResult = File(buildDir, "iosX64Main/com/sample/BuildKonfig.kt")
-        Truth.assertThat(iosResult.readText())
+        assertThat(iosResult.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
                 contains("actual val test: String = \"hoge\"")
@@ -450,6 +449,7 @@ class BuildKonfigPluginTest {
             |   id 'com.android.library'
             |   id 'com.codingfeline.buildkonfig'
             |}
+            |
             |
             |repositories {
             |   google()

@@ -335,6 +335,49 @@ class BuildKonfigPluginFlavorTest {
     }
 
     @Test
+    fun `Can write nullable field`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |
+            |   defaultConfigs {
+            |       buildConfigNullableField 'STRING', 'value', 'defaultValue'
+            |   }
+            |}
+            |$buildFileMPPConfig
+        """.trimMargin()
+        )
+
+        val propertyFile = projectDir.newFile("gradle.properties")
+        propertyFile.writeText("buildkonfig.flavor=dev")
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+
+        Truth.assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
+//        println(commonResult.readText())
+        Truth.assertThat(commonResult.readText()).apply {
+            contains("String?")
+            contains("defaultValue")
+        }
+    }
+
+
+    @Test
     fun `Flavored targetConfigs overwrite default targetConfigs`() {
         buildFile.writeText(
             """

@@ -42,7 +42,7 @@ abstract class BuildKonfigGenerator(
                 logger = logger
             ) {
                 override fun generateProp(fieldSpec: FieldSpec): PropertySpec {
-                    return PropertySpec.builder(fieldSpec.name, fieldSpec.type.typeName)
+                    return PropertySpec.builder(fieldSpec.name, fieldSpec.typeName)
                         .initializer(fieldSpec.type.template, fieldSpec.value)
                         .addModifiers(*propertyModifiers)
                         .build()
@@ -61,7 +61,7 @@ abstract class BuildKonfigGenerator(
                 logger = logger
             ) {
                 override fun generateProp(fieldSpec: FieldSpec): PropertySpec {
-                    return PropertySpec.builder(fieldSpec.name, fieldSpec.type.typeName)
+                    return PropertySpec.builder(fieldSpec.name, fieldSpec.typeName)
                         .addModifiers(*propertyModifiers)
                         .build()
                 }
@@ -79,7 +79,7 @@ abstract class BuildKonfigGenerator(
                 logger = logger
             ) {
                 override fun generateProp(fieldSpec: FieldSpec): PropertySpec {
-                    val spec = PropertySpec.builder(fieldSpec.name, fieldSpec.type.typeName)
+                    val spec = PropertySpec.builder(fieldSpec.name, fieldSpec.typeName)
                         .initializer(fieldSpec.type.template, fieldSpec.value)
 
                     if (!fieldSpec.isTargetSpecific) {
