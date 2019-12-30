@@ -30,6 +30,21 @@ open class TargetConfigDsl @Inject constructor(
         fieldSpecs[name] = FieldSpec(type, name, value)
     }
 
+    @Suppress("unused")
+    fun buildConfigNullableField(
+        type: FieldSpec.Type,
+        name: String,
+        value: String?
+    ) {
+
+        val alreadyPresent = fieldSpecs[name]
+
+        if (alreadyPresent != null) {
+            logger.info("TargetConfig: buildConfigField '$name' is being replaced: ${alreadyPresent.value} -> $value")
+        }
+        fieldSpecs[name] = FieldSpec(type, name, value, nullable = true)
+    }
+
     fun toTargetConfig(): TargetConfig {
         return TargetConfig(name)
             .also {
