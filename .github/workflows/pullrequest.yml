@@ -15,7 +15,7 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}-${{ hashFiles('**/buildSrc/src/main/kotlin/**/*.kt') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
 
