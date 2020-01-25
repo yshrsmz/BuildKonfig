@@ -1,0 +1,23 @@
+name: Publish a release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  macos-build:
+    runs-on: macOS-latest
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+
+      - name: Publish the artifacts
+        env:
+          BINTRAY_USER: {{ secrets.BINTRAY_USER }}
+          BINTRAY_API_KEY: {{ secrets.BINTRAY_API_KEY}}
+        run: ./gradlew build publish --no-daemon
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.configureondemand=true -Dorg.gradle.parallel=false -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"

@@ -3,6 +3,7 @@ import com.codingfeline.buildkonfig.buildsrc.Versions
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
+    id("maven-publish")
 }
 
 sourceSets {
@@ -25,11 +26,14 @@ tasks.create("pluginVersion") {
     doLast {
         val versionFile = file("$outputDir/com/codingfeline/buildkonfig/Version.kt")
         versionFile.parentFile.mkdirs()
-        versionFile.writeText("""// Generated file. Do not edit!
-package com.codingfeline.buildkonfig
-
-val VERSION = "${project.version}"
-""")
+        versionFile.writeText(
+            """
+                |// Generated file. Do not edit!
+                |package com.codingfeline.buildkonfig
+                |
+                |val VERSION = "${project.version}"
+            """.trimMargin()
+        )
     }
 }
 
@@ -42,4 +46,12 @@ tasks.compileTestKotlin {
     kotlinOptions.jvmTarget = Versions.jvmTarget
 }
 
-apply(from = "$rootDir/gradle/gradle-mvn-push.gradle")
+apply(from = "$rootDir/gradle/maven-publish.gradle")
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components.getByName("java"))
+        }
+    }
+}
