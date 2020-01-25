@@ -44,7 +44,6 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 publishing {
     publications.all { p ->
-        println("publication: ${p.name}")
         artifact sourcesJar
         artifact javadocJar
 

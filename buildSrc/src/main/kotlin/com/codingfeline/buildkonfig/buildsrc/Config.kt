@@ -17,7 +17,7 @@ object Dependencies {
     const val gradleVersionsPlugin = "com.github.ben-manes:gradle-versions-plugin:0.27.0"
     const val pluginPublishPlugin = "com.gradle.publish:plugin-publish-plugin:0.10.1"
 
-    const val kotlinPoet = "com.squareup:kotlinpoet:1.4.4"
-    const val junit = "junit:junit:4.12"
-    const val truth = "com.google.truth:truth:1.0"
+    const val kotlinPoet = "com.squareup:kotlinpoet:1.5.0"
+    const val junit = "junit:junit:4.13"
+    const val truth = "com.google.truth:truth:1.0.1"
 }
