@@ -120,12 +120,14 @@ buildkonfig {
     // default config is required
     defaultConfigs {
         buildConfigField 'STRING', 'name', 'value'
+        buildConfigNullablefield 'STRING', 'nullableField', null
     }
     
     targetConfigs {
         // this name should be same as target names you specified
         android {
             buildConfigField 'STRING', 'name2', 'value2'
+            buildConfigNullablefield 'STRING', 'nullableField', 'NonNull-value'
         }
         
         ios {
@@ -139,6 +141,7 @@ buildkonfig {
 - `defaultConfigs` Set values which you want to have in common. **Required**.
 - `targetConfigs` Set target specific values as closure. You can overwrite values specified in `defaultConfigs`.
 - `buildConfigField(String type, String name, String value)` Add new value or overwrite existing one.
+- `buildConfigNullableField((String type, String name, String value)` Add new nullable value or overwrite existing one.
 
 Above configuration will generate following codes.
 
@@ -148,6 +151,7 @@ package com.example.app
 
 internal expect object BuildKonfig {
     val name: String
+    val nullableField: String?
 }
 ```
 
@@ -157,6 +161,7 @@ package com.example.app
 
 internal actual object BuildKonfig {
     actual val name: String = "value"
+    actual val nullableField: String? = "NonNull-value"
     val name2: String = "value2"
 }
 ```
@@ -167,6 +172,7 @@ package com.example.app
 
 internal actual object BuildKonfig {
     actual val name: String = "valueForNative"
+    actual val nullableField: String? = null
 }
 ```
 

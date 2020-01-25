@@ -1,8 +1,10 @@
 Change Log
 ===
 
-Version 0.5.0 *(WIP)*
+Version 0.5.0 *(2020-01-25)*
 ---
+
+- Add new `buildConfigNullableField` to support nullable value. ([#21](https://github.com/yshrsmz/BuildKonfig/pull/21))
 
 
 Version 0.4.1 *(2019-12-12)*
