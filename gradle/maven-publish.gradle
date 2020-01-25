@@ -1,0 +1,95 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
+apply plugin: 'maven-publish'
+
+// Load `secret.properties` file, if it exists. You can put your bintrayUser and bintrayApiKey values there, that file is ignored by git
+if (Files.exists(Paths.get("$project.rootDir/secret.properties"))) {
+    def localProperties = new Properties()
+    localProperties.load(new FileInputStream("$project.rootDir/secret.properties"))
+    localProperties.each { prop -> project.ext.set(prop.key, prop.value) }
+}
+
+def findProperty(String key) {
+    [project.properties[key], System.getenv(key)].find { it != null }
+}
+
+def getReleaseRepositoryUrl() {
+    return findProperty("RELEASE_REPOSITORY_URL") ?: "https://api.bintray.com/maven/$BINTRAY_ORG/$BINTRAY_REPOSITORY/$POM_ARTIFACT_ID"
+}
+
+def getSnapshotRepositoryUrl() {
+    return findProperty("SNAPSHOT_REPOSITORY_URL") ?: "https://oss.jfrog.org/artifactory/oss-snapshot-local"
+}
+
+def getRepositoryUsername() {
+    return findProperty("BINTRAY_USER") ?: "no.bintray.user"
+}
+
+def getRepositoryPassword() {
+    return findProperty("BINTRAY_API_KEY") ?: "no.bintray.api.key"
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier.set("sources")
+    archiveClassifier.convention("sources")
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    archiveClassifier.set("javadoc")
+    archiveClassifier.convention("javadoc")
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications.all { p ->
+        println("publication: ${p.name}")
+        artifact sourcesJar
+        artifact javadocJar
+
+        pom.withXml {
+            def root = asNode()
+
+            root.children().last() + {
+                resolveStrategy = Closure.DELEGATE_FIRST
+
+                description POM_DESCRIPTION
+                name POM_NAME
+                url POM_URL
+                licenses {
+                    license {
+                        name POM_LICENCE_NAME
+                        url POM_LICENCE_URL
+                        distribution POM_LICENCE_DIST
+                    }
+                }
+                scm {
+                    url POM_SCM_URL
+                    connection POM_SCM_CONNECTION
+                    developerConnection POM_SCM_DEV_CONNECTION
+                }
+                developers {
+                    developer {
+                        id POM_DEVELOPER_ID
+                        name POM_DEVELOPER_NAME
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url getReleaseRepositoryUrl()
+            credentials {
+                username getRepositoryUsername()
+                password getRepositoryPassword()
+            }
+        }
+        maven {
+            name 'test'
+            url "file://${rootProject.buildDir}/localMaven"
+        }
+    }
+}

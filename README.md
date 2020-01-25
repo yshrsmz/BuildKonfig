@@ -253,7 +253,7 @@ Have a look at `./sample` directory.
 
 ```
 # Publish the latest version of the plugin to mavenLocal()
-$ ./gradlew install
+$ ./gradlew publishToMavenLocal
 
 # Try out the samples.
 # BuildKonfig will be generated in ./sample/build/buildkonfig

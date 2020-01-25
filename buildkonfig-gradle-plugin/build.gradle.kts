@@ -68,4 +68,5 @@ tasks.compileTestKotlin {
     kotlinOptions.jvmTarget = Versions.jvmTarget
 }
 
-apply(from = "$rootDir/gradle/gradle-mvn-push.gradle")
+//apply(from = "$rootDir/gradle/gradle-mvn-push.gradle")
+apply(from = "$rootDir/gradle/maven-publish.gradle")
