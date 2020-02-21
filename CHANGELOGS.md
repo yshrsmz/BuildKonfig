@@ -1,72 +1,78 @@
-Change Log
-===
+# Changelog
 
-Version 0.5.0 *(2020-01-25)*
----
+All notable changes to this project will be documented in this file.
 
-- Add new `buildConfigNullableField` to support nullable value. ([#21](https://github.com/yshrsmz/BuildKonfig/pull/21))
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.5.0] - 2020-01-25
+
+### Added
+- New `buildConfigNullableField` to support nullable value by [@MikolajKakol](https://github.com/MikolajKakol). ([#21](https://github.com/yshrsmz/BuildKonfig/pull/21))
 
 
-Version 0.4.1 *(2019-12-12)*
----
+## [0.4.1] -2019-12-12
 
+### Changed
 - Kotlin 1.3.61
 
 
-Version 0.4.0 *(2019-12-12)*
----
+## [0.4.0] - 2019-12-12
 
+### Changed
 - Simple `defaultConfigs` only configuration now creates object in common sourceSet.
 
 
-Version 0.3.4 *(2019-08-23)*
----
+## [0.3.4] - 2019-08-23
 
+### Changed
 - Kotlin 1.3.50
 - Android Gradle Plugin 3.5.0
 - Gradle 5.6
 
-Version 0.3.3 *(2019-07-12)*
----
 
+## [0.3.3] - 2019-07-12
+
+### Changed
 - Kotlin 1.3.41
 
 
-Version 0.3.2 *(2019-07-10)*
----
+## [0.3.2] - 2019-07-10
 
+### Changed
 - Kotlin 1.3.31(though this shouldn't be a problem as it's just a plugin dependency)
-- Fix issue with task dependency in some cases
+
+### Fixed
+- Issue with task dependency in some cases
 
 
-Version 0.3.1 *(2019-02-25)*
----
+## [0.3.1] - 2019-02-25
 
+### Fixed
 - Delete old `BuildKonfig` objects before executing the task. ([#12](https://github.com/yshrsmz/BuildKonfig/issues/12))
 
 
-Version 0.3.0 *(2019-02-09)*
----
+## [0.3.0] - 2019-02-09
 
+### Added
 - Support build flavor ([#8](https://github.com/yshrsmz/BuildKonfig/issues/8)). See readme for the detail.
 
 
-Version 0.2.1 *(2019-02-05)*
----
+## [0.2.1] - 2019-02-05
 
+### Fixed
 - Generated codes are not properly recognized by IDE sometimes ([#7](https://github.com/yshrsmz/BuildKonfig/issues/7))
 
 
-Version 0.2.0 *(2019-02-03)*
----
+## [0.2.0] - 2019-02-03
 
+### Changed
 - BuildKonfig task is renamed to `generateBuildKonfig`
 - BuildKonfig object is now internal [#6](https://github.com/yshrsmz/BuildKonfig/issues/6))
 - Escape `$` in String value ([#5](https://github.com/yshrsmz/BuildKonfig/issues/5))
 - `${target}Main` is not properly handled
 
 
-Version 0.1.0 *(2019-02-01)*
----
+## [0.1.0] - 2019-02-01
 
 - First public release
