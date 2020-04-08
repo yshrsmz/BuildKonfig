@@ -34,9 +34,9 @@ Rather I'd like to do it once.
 
 ### Requirements
 
-- Kotlin **1.3.61** or later
+- Kotlin **1.3.71** or later
 - Kotlin Multiplatform Project
-- Gradle 5.3.1 or later
+- Gradle 5.4.1 or later
 
 <a name="gradle-configuration"/>
 
@@ -50,7 +50,7 @@ buildScript {
         jcenter()
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.61'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.71'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
 }
@@ -100,7 +100,7 @@ buildScript {
         jcenter()
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.61'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.71'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
 }
