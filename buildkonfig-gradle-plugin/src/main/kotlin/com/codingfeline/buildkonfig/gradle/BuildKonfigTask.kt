@@ -29,6 +29,9 @@ open class BuildKonfigTask : DefaultTask() {
     @Input
     lateinit var packageName: String
 
+    @Input
+    lateinit var objectName: String
+
     @get:Input
     val targetNames: Set<TargetName>
         get() = outputDirectories.keys
@@ -86,6 +89,7 @@ open class BuildKonfigTask : DefaultTask() {
 
         val data = BuildKonfigData(
             packageName = packageName,
+            objectName = objectName,
             commonConfig = TargetConfigFile(KotlinPlatformType.common.name, commonOutputDirectory, defaultConfig),
             targetConfigs = mergedConfigFiles
         )

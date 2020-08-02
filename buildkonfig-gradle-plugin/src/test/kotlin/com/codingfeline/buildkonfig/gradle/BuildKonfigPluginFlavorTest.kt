@@ -532,4 +532,45 @@ class BuildKonfigPluginFlavorTest {
         Truth.assertThat(iosResult.readText())
             .contains("defaultValue")
     }
+
+    @Test
+    fun `The generated object uses the given objectName`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |   objectName = "AwesomeConfig"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |   }
+            |}
+            |$buildFileMPPConfig
+        """.trimMargin()
+        )
+
+        val propertyFile = projectDir.newFile("gradle.properties")
+        propertyFile.writeText("buildkonfig.flavor=dev")
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+
+        Truth.assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(commonResult.readText()).apply {
+            contains("object AwesomeConfig")
+        }
+    }
 }
