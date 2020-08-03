@@ -573,4 +573,62 @@ class BuildKonfigPluginFlavorTest {
             contains("object AwesomeConfig")
         }
     }
+
+    @Test
+    fun `The generated target objects use the given objectName`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |   objectName = "AwesomeConfig"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |   }
+            |   targetConfigs {
+            |       js {
+            |         buildConfigField 'STRING', 'value', 'jsValue'
+            |       }
+            |   }
+            |}
+            |$buildFileMPPConfig
+        """.trimMargin()
+        )
+
+        val propertyFile = projectDir.newFile("gradle.properties")
+        propertyFile.writeText("buildkonfig.flavor=dev")
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+
+        Truth.assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(commonResult.readText()).apply {
+            contains("object AwesomeConfig")
+        }
+
+        val jsResult = File(buildDir, "jsMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(jsResult.readText())
+            .contains("object AwesomeConfig")
+
+        val jvmResult = File(buildDir, "jvmMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(jvmResult.readText())
+            .contains("object AwesomeConfig")
+
+        val iosResult = File(buildDir, "iosMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(iosResult.readText())
+            .contains("object AwesomeConfig")
+    }
 }
