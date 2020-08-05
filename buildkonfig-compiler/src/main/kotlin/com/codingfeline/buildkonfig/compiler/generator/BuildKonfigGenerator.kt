@@ -1,7 +1,6 @@
 package com.codingfeline.buildkonfig.compiler.generator
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
-import com.codingfeline.buildkonfig.compiler.KONFIG_OBJECT_NAME
 import com.codingfeline.buildkonfig.compiler.Logger
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.squareup.kotlinpoet.KModifier
@@ -15,8 +14,8 @@ abstract class BuildKonfigGenerator(
     val logger: Logger
 ) {
 
-    fun generateType(): TypeSpec {
-        val obj = TypeSpec.objectBuilder(KONFIG_OBJECT_NAME)
+    fun generateType(objectName: String): TypeSpec {
+        val obj = TypeSpec.objectBuilder(objectName)
             .addModifiers(KModifier.INTERNAL)
             .addModifiers(*objectModifiers)
 

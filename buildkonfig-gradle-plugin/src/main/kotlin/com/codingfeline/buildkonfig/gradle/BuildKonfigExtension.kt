@@ -1,5 +1,6 @@
 package com.codingfeline.buildkonfig.gradle
 
+import com.codingfeline.buildkonfig.compiler.DEFAULT_KONFIG_OBJECT_NAME
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
@@ -12,6 +13,7 @@ open class BuildKonfigExtension(
     private val configFactory = TargetConfigFactory(project.objects, project.logger)
 
     var packageName: String? = null
+    var objectName: String = DEFAULT_KONFIG_OBJECT_NAME
 
     val defaultConfigs = mutableMapOf<String, TargetConfigDsl>()
     val targetConfigs = mutableMapOf<String, NamedDomainObjectContainer<TargetConfigDsl>>()
