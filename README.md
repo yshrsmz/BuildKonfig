@@ -66,6 +66,7 @@ kotlin {
 
 buildkonfig {
     packageName = 'com.example.app'
+    // objectName = 'YourAwesomeConfig'
 
     defaultConfigs {
         buildConfigField 'STRING', 'name', 'value'
@@ -73,6 +74,7 @@ buildkonfig {
 }
 ```
 - `packageName` Set the package name where BuildKonfig is being placed. **Required**.
+- `objectName` Set the name of the generated object. Defaults to `BuildKonfig`.
 - `defaultConfigs` Set values which you want to have in common. **Required**.
 
 To generate BuildKonfig files, run `generateBuildKonfig` task.  

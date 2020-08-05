@@ -13,11 +13,11 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v2
 
-#      - name: Publish the artifacts to bintray
-#        env:
-#          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-#          BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY}}
-#        run: ./gradlew build publish --no-daemon
+      - name: Publish the artifacts to bintray
+        env:
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY}}
+        run: ./gradlew build publish --no-daemon
 
       - name: Publish the plugin to Gradle Plugin portal
         env:
