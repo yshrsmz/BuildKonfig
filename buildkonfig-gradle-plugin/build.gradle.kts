@@ -16,27 +16,29 @@ val POM_URL: String by project
 val POM_DESCRIPTION: String by project
 val POM_NAME: String by project
 
+gradlePlugin {
+    plugins {
+        create("buildKonfig") {
+            id = "com.codingfeline.buildkonfig"
+            implementationClass = "com.codingfeline.buildkonfig.gradle.BuildKonfigPlugin"
+        }
+    }
+}
+
 pluginBundle {
     website = POM_URL
     vcsUrl = "https://github.com/yshrsmz/BuildKonfig.git"
     description = POM_DESCRIPTION
     tags = listOf("BuildConfig", "Kotlin", "Kotlin Multiplatform")
 
-    plugins {
-        create("buildKonfig") {
+    (plugins) {
+        "buildKonfig" {
             displayName = POM_NAME
         }
     }
 }
 
-gradlePlugin {
-    plugins {
-        register("buildKonfig") {
-            id = "com.codingfeline.buildkonfig"
-            implementationClass = "com.codingfeline.buildkonfig.gradle.BuildKonfigPlugin"
-        }
-    }
-}
+
 
 val fixtureClasspath by configurations.creating
 
