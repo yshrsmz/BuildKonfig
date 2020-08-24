@@ -9,6 +9,6 @@ data class BuildKonfigData(
     // field specs for target source set
     val targetConfigs: List<TargetConfigFile>
 ) {
-    val hasJsTarget: Boolean = targetConfigs.any { it.targetName.platformType == PlatformType.js }
+    val hasJsTarget: Boolean = targetConfigs.any { it.isJsTarget }
     val hasTargetSpecificConfigs: Boolean = targetConfigs.any { it.config != null }
 }

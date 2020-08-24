@@ -88,8 +88,4 @@ class BuildKonfigEnvironment(
             }
         return errors
     }
-
-    private fun List<TargetConfigFile>.hasNoTargetSpecificConfig(): Boolean {
-        return this.none { it.config != null }
-    }
 }

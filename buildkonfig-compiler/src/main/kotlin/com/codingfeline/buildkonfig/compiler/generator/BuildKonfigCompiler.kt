@@ -20,8 +20,8 @@ object BuildKonfigCompiler {
     ) {
         val outputDirectory = getOutputDirectory(configFile, packageName)
 
-        val konfigType =
-            BuildKonfigGenerator.ofCommonObject(configFile, exposeObject, hasJsTarget, logger).generateType(objectName)
+        val konfigType = BuildKonfigGenerator.ofCommonObject(configFile, exposeObject, hasJsTarget, logger)
+            .generateType(objectName)
 
         FileSpec.builder(packageName, objectName)
             .apply {
