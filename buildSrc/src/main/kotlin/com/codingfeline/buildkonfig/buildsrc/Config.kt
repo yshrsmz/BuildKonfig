@@ -6,7 +6,7 @@ object Versions {
     const val dokka = "0.10.1"
     const val jvmTarget = "1.8"
     const val benManesVersionsPlugin = "0.29.0"
-    const val gradle = "6.5.1"
+    const val gradle = "6.6"
 }
 
 object Dependencies {
