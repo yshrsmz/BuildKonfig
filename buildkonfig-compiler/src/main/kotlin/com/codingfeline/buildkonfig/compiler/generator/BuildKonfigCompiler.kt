@@ -12,13 +12,14 @@ object BuildKonfigCompiler {
     fun compileCommonObject(
         packageName: String,
         objectName: String,
+        exposeObject: Boolean,
         configFile: TargetConfigFile,
         output: FileAppender,
         logger: Logger
     ) {
         val outputDirectory = getOutputDirectory(configFile, packageName)
 
-        val konfigType = BuildKonfigGenerator.ofCommonObject(configFile, logger).generateType(objectName)
+        val konfigType = BuildKonfigGenerator.ofCommonObject(configFile, exposeObject, logger).generateType(objectName)
 
         FileSpec.builder(packageName, objectName)
             .apply {
@@ -31,13 +32,14 @@ object BuildKonfigCompiler {
     fun compileCommon(
         packageName: String,
         objectName: String,
+        exposeObject: Boolean,
         configFile: TargetConfigFile,
         output: FileAppender,
         logger: Logger
     ) {
         val outputDirectory = getOutputDirectory(configFile, packageName)
 
-        val konfigType = BuildKonfigGenerator.ofCommon(configFile, logger).generateType(objectName)
+        val konfigType = BuildKonfigGenerator.ofCommon(configFile, exposeObject, logger).generateType(objectName)
 
         FileSpec.builder(packageName, objectName)
             .apply {
@@ -50,12 +52,13 @@ object BuildKonfigCompiler {
     fun compileTarget(
         packageName: String,
         objectName: String,
+        exposeObject: Boolean,
         configFile: TargetConfigFile,
         output: FileAppender,
         logger: Logger
     ) {
         val outputDirectory = getOutputDirectory(configFile, packageName)
-        val konfigType = BuildKonfigGenerator.ofTarget(configFile, logger).generateType(objectName)
+        val konfigType = BuildKonfigGenerator.ofTarget(configFile, exposeObject, logger).generateType(objectName)
 
         FileSpec.builder(packageName, objectName)
             .apply {
@@ -75,6 +78,6 @@ object BuildKonfigCompiler {
     }
 
     private fun getOutputDirectory(configFile: TargetConfigFile, packageName: String): String {
-        return "${configFile.outputDirectory.absolutePath}/${packageName.replace(".", "/")}"
+        return "${configFile.outputDirectory.absolutePath}/${getPackageDirectory(packageName)}"
     }
 }

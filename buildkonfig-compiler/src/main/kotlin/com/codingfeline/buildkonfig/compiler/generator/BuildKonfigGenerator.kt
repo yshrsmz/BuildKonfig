@@ -16,7 +16,6 @@ abstract class BuildKonfigGenerator(
 
     fun generateType(objectName: String): TypeSpec {
         val obj = TypeSpec.objectBuilder(objectName)
-            .addModifiers(KModifier.INTERNAL)
             .addModifiers(*objectModifiers)
 
         val props = file.config.fieldSpecs.values
@@ -33,10 +32,11 @@ abstract class BuildKonfigGenerator(
         /**
          * Generate common object
          */
-        fun ofCommonObject(file: TargetConfigFile, logger: Logger): BuildKonfigGenerator {
+        fun ofCommonObject(file: TargetConfigFile, exposeObject: Boolean, logger: Logger): BuildKonfigGenerator {
+            val objectModifiers = arrayOf(getVisibilityModifier(exposeObject))
             return object : BuildKonfigGenerator(
                 file = file,
-                objectModifiers = emptyArray(),
+                objectModifiers = objectModifiers,
                 propertyModifiers = emptyArray(),
                 logger = logger
             ) {
@@ -52,10 +52,11 @@ abstract class BuildKonfigGenerator(
         /**
          * Generate common `expect` object
          */
-        fun ofCommon(file: TargetConfigFile, logger: Logger): BuildKonfigGenerator {
+        fun ofCommon(file: TargetConfigFile, exposeObject: Boolean, logger: Logger): BuildKonfigGenerator {
+            val objectModifiers = arrayOf(KModifier.EXPECT, getVisibilityModifier(exposeObject))
             return object : BuildKonfigGenerator(
                 file = file,
-                objectModifiers = arrayOf(KModifier.EXPECT),
+                objectModifiers = objectModifiers,
                 propertyModifiers = emptyArray(),
                 logger = logger
             ) {
@@ -70,10 +71,11 @@ abstract class BuildKonfigGenerator(
         /**
          * Generate target `actual` object
          */
-        fun ofTarget(file: TargetConfigFile, logger: Logger): BuildKonfigGenerator {
+        fun ofTarget(file: TargetConfigFile, exposeObject: Boolean, logger: Logger): BuildKonfigGenerator {
+            val objectModifiers = arrayOf(KModifier.ACTUAL, getVisibilityModifier(exposeObject))
             return object : BuildKonfigGenerator(
                 file = file,
-                objectModifiers = arrayOf(KModifier.ACTUAL),
+                objectModifiers = objectModifiers,
                 propertyModifiers = arrayOf(KModifier.ACTUAL),
                 logger = logger
             ) {
@@ -91,3 +93,6 @@ abstract class BuildKonfigGenerator(
         }
     }
 }
+
+private fun getVisibilityModifier(exposeObject: Boolean): KModifier =
+    if (exposeObject) KModifier.PUBLIC else KModifier.INTERNAL

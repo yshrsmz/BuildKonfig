@@ -65,7 +65,20 @@ open class BuildKonfigPlugin : Plugin<Project> {
             val task = p.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
                 it.packageName = requireNotNull(extension.packageName) { "packageName must be provided" }
                 require(extension.objectName.isNotBlank()) { "objectName must not be blank" }
-                it.objectName = extension.objectName
+
+                var objectName = extension.objectName
+                var exposeObject = false
+                if (!extension.exposeObjectWithName.isNullOrBlank()) {
+                    objectName = extension.exposeObjectWithName!!
+                }
+                extension.exposeObjectWithName.takeIf { name -> !name.isNullOrBlank() }
+                    ?.also { name ->
+                        objectName = name
+                        exposeObject = true
+                    }
+
+                it.objectName = objectName
+                it.exposeObject = exposeObject
                 it.commonOutputDirectory = commonOutputDirectory
                 it.outputDirectories = outputDirectoryMap
                 it.extension = extension

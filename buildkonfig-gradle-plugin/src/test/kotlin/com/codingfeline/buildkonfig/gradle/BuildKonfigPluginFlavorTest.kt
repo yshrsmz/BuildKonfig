@@ -570,7 +570,7 @@ class BuildKonfigPluginFlavorTest {
 
         val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
         Truth.assertThat(commonResult.readText()).apply {
-            contains("object AwesomeConfig")
+            contains("internal object AwesomeConfig")
         }
     }
 
@@ -583,6 +583,105 @@ class BuildKonfigPluginFlavorTest {
             |buildkonfig {
             |   packageName = "com.example"
             |   objectName = "AwesomeConfig"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |   }
+            |   targetConfigs {
+            |       js {
+            |         buildConfigField 'STRING', 'value', 'jsValue'
+            |       }
+            |   }
+            |}
+            |$buildFileMPPConfig
+        """.trimMargin()
+        )
+
+        val propertyFile = projectDir.newFile("gradle.properties")
+        propertyFile.writeText("buildkonfig.flavor=dev")
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+
+        Truth.assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(commonResult.readText()).apply {
+            contains("internal expect object AwesomeConfig")
+        }
+
+        val jsResult = File(buildDir, "jsMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(jsResult.readText())
+            .contains("internal actual object AwesomeConfig")
+
+        val jvmResult = File(buildDir, "jvmMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(jvmResult.readText())
+            .contains("internal actual object AwesomeConfig")
+
+        val iosResult = File(buildDir, "iosMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(iosResult.readText())
+            .contains("internal actual object AwesomeConfig")
+    }
+
+    @Test
+    fun `The generated object uses the given objectName and is public`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |   exposeObjectWithName = "AwesomeConfig"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |   }
+            |}
+            |$buildFileMPPConfig
+        """.trimMargin()
+        )
+
+        val propertyFile = projectDir.newFile("gradle.properties")
+        propertyFile.writeText("buildkonfig.flavor=dev")
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+
+        Truth.assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(commonResult.readText()).apply {
+            contains("object AwesomeConfig")
+        }
+    }
+
+    @Test
+    fun `The generated target objects use the given objectName and are public`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |   exposeObjectWithName = "AwesomeConfig"
             |
             |   defaultConfigs {
             |       buildConfigField 'STRING', 'value', 'defaultValue'

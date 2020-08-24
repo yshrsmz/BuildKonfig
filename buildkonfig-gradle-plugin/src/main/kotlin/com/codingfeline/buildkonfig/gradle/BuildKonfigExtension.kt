@@ -14,6 +14,7 @@ open class BuildKonfigExtension(
 
     var packageName: String? = null
     var objectName: String = DEFAULT_KONFIG_OBJECT_NAME
+    var exposeObjectWithName: String? = null
 
     val defaultConfigs = mutableMapOf<String, TargetConfigDsl>()
     val targetConfigs = mutableMapOf<String, NamedDomainObjectContainer<TargetConfigDsl>>()
