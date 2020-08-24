@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Gradle wrapper 6.6
 
 ### Added
-- New `exposeObjectWithName` to support exposing the generated objects(in other words, an option make it public). ([#31](https://github.com/yshrsmz/BuildKonfig/issues/31), [#35](https://github.com/yshrsmz/BuildKonfig/issues/35)
+- New `exposeObjectWithName` to support exposing the generated objects(in other words, an option make it public). ([#31](https://github.com/yshrsmz/BuildKonfig/issues/31), [#35](https://github.com/yshrsmz/BuildKonfig/issues/35))
 
 
 ## [0.6.0] - 2020-08-05
