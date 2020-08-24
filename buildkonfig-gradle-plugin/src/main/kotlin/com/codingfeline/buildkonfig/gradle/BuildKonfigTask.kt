@@ -3,7 +3,6 @@ package com.codingfeline.buildkonfig.gradle
 import com.codingfeline.buildkonfig.VERSION
 import com.codingfeline.buildkonfig.compiler.BuildKonfigData
 import com.codingfeline.buildkonfig.compiler.BuildKonfigEnvironment
-import com.codingfeline.buildkonfig.compiler.FieldSpec
 import com.codingfeline.buildkonfig.compiler.TargetConfig
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.codingfeline.buildkonfig.compiler.TargetName
@@ -54,12 +53,10 @@ open class BuildKonfigTask : DefaultTask() {
     val flavor: String
         get() = findFlavor()
 
-
     @Suppress("unused")
     @get:OutputDirectories
     val targetOutputDirectories: List<File>
         get() = outputDirectories.values.toList()
-
 
     @OutputDirectory
     lateinit var commonOutputDirectory: File
@@ -77,24 +74,22 @@ open class BuildKonfigTask : DefaultTask() {
         }
 
         // clean up output directories
-        targetOutputDirectories.forEach {
-            it.deleteRecursively()
-            it.mkdirs()
-        }
+        commonOutputDirectory.cleanupDirectory()
+        targetOutputDirectories.forEach { it.cleanupDirectory() }
 
         val defaultConfig = getMergedDefaultConfig(flavorName)
 
-        val mergedConfigFiles = if (targetConfigs.isNotEmpty()) {
-            getMergedTargetConfigFiles(flavorName, defaultConfig)
-        } else {
-            emptyList()
-        }
+        val mergedConfigFiles = getMergedTargetConfigFiles(flavorName, defaultConfig)
 
         val data = BuildKonfigData(
             packageName = packageName,
             objectName = objectName,
             exposeObject = exposeObject,
-            commonConfig = TargetConfigFile(KotlinPlatformType.common.name, commonOutputDirectory, defaultConfig),
+            commonConfig = TargetConfigFile(
+                TargetName("common", KotlinPlatformType.common.toKgqlPlatformType()),
+                commonOutputDirectory,
+                defaultConfig
+            ),
             targetConfigs = mergedConfigFiles
         )
 
@@ -110,7 +105,7 @@ open class BuildKonfigTask : DefaultTask() {
 
         listOf(
             baseConfig.fieldSpecs,
-            newConfig?.fieldSpecs ?: emptyMap<String, FieldSpec>()
+            newConfig?.fieldSpecs ?: emptyMap()
         ).forEach { specs ->
             specs.forEach { (name, value) ->
                 val alreadyPresent = result.fieldSpecs[name]
@@ -164,8 +159,14 @@ open class BuildKonfigTask : DefaultTask() {
         return mergeDefaultConfigs(flavor, default, flavored)
     }
 
-    private fun getMergedTargetConfigFiles(flavorName: String, defaultConfig: TargetConfig): List<TargetConfigFile> {
+    private fun getMergedTargetConfigFiles(
+        flavorName: String,
+        defaultConfig: TargetConfig
+    ): List<TargetConfigFile> {
         return targetNames.map { targetName ->
+            if (targetConfigs.isEmpty()) {
+                return@map TargetConfigFile(targetName, outputDirectories.getValue(targetName), null)
+            }
             val sortedConfigs = mutableListOf<TargetConfig>()
 
             // get non-flavored config first
@@ -190,7 +191,12 @@ open class BuildKonfigTask : DefaultTask() {
                         current
                     )
                 }
-                .let { TargetConfigFile(targetName.platformType, outputDirectories[targetName]!!, it) }
+                .let { TargetConfigFile(targetName, outputDirectories.getValue(targetName), it) }
         }
+    }
+
+    private fun File.cleanupDirectory() {
+        deleteRecursively()
+        mkdirs()
     }
 }

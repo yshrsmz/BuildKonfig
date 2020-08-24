@@ -3,22 +3,26 @@ package com.codingfeline.buildkonfig.compiler.generator
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import com.codingfeline.buildkonfig.compiler.Logger
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
+import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 
 abstract class BuildKonfigGenerator(
     val file: TargetConfigFile,
-    val objectModifiers: Array<KModifier>,
-    val propertyModifiers: Array<KModifier>,
+    val objectAnnotations: List<AnnotationSpec>,
+    val objectModifiers: List<KModifier>,
+    val propertyModifiers: List<KModifier>,
     val logger: Logger
 ) {
 
     fun generateType(objectName: String): TypeSpec {
         val obj = TypeSpec.objectBuilder(objectName)
-            .addModifiers(*objectModifiers)
+            .addModifiers(*objectModifiers.toTypedArray())
+            .addAnnotations(objectAnnotations)
 
-        val props = file.config.fieldSpecs.values
+        val props = requireNotNull(file.config).fieldSpecs.values
             .map { generateProp(it) }
 
         obj.addProperties(props)
@@ -32,18 +36,25 @@ abstract class BuildKonfigGenerator(
         /**
          * Generate common object
          */
-        fun ofCommonObject(file: TargetConfigFile, exposeObject: Boolean, logger: Logger): BuildKonfigGenerator {
-            val objectModifiers = arrayOf(getVisibilityModifier(exposeObject))
+        fun ofCommonObject(
+            file: TargetConfigFile,
+            exposeObject: Boolean,
+            hasJsTarget: Boolean,
+            logger: Logger
+        ): BuildKonfigGenerator {
+            val objectModifiers = listOf(getVisibilityModifier(exposeObject))
+            val annotations = if (exposeObject && hasJsTarget) getJsObjectAnnotations() else emptyList()
             return object : BuildKonfigGenerator(
                 file = file,
+                objectAnnotations = annotations,
                 objectModifiers = objectModifiers,
-                propertyModifiers = emptyArray(),
+                propertyModifiers = emptyList(),
                 logger = logger
             ) {
                 override fun generateProp(fieldSpec: FieldSpec): PropertySpec {
                     return PropertySpec.builder(fieldSpec.name, fieldSpec.typeName)
                         .initializer(fieldSpec.template, fieldSpec.value)
-                        .addModifiers(*propertyModifiers)
+                        .addModifiers(*propertyModifiers.toTypedArray())
                         .build()
                 }
             }
@@ -53,16 +64,17 @@ abstract class BuildKonfigGenerator(
          * Generate common `expect` object
          */
         fun ofCommon(file: TargetConfigFile, exposeObject: Boolean, logger: Logger): BuildKonfigGenerator {
-            val objectModifiers = arrayOf(KModifier.EXPECT, getVisibilityModifier(exposeObject))
+            val objectModifiers = listOf(KModifier.EXPECT, getVisibilityModifier(exposeObject))
             return object : BuildKonfigGenerator(
                 file = file,
+                objectAnnotations = emptyList(),
                 objectModifiers = objectModifiers,
-                propertyModifiers = emptyArray(),
+                propertyModifiers = emptyList(),
                 logger = logger
             ) {
                 override fun generateProp(fieldSpec: FieldSpec): PropertySpec {
                     return PropertySpec.builder(fieldSpec.name, fieldSpec.typeName)
-                        .addModifiers(*propertyModifiers)
+                        .addModifiers(*propertyModifiers.toTypedArray())
                         .build()
                 }
             }
@@ -72,11 +84,13 @@ abstract class BuildKonfigGenerator(
          * Generate target `actual` object
          */
         fun ofTarget(file: TargetConfigFile, exposeObject: Boolean, logger: Logger): BuildKonfigGenerator {
-            val objectModifiers = arrayOf(KModifier.ACTUAL, getVisibilityModifier(exposeObject))
+            val objectModifiers = listOf(KModifier.ACTUAL, getVisibilityModifier(exposeObject))
+            val annotations = if (exposeObject && file.isJsTarget) getJsObjectAnnotations() else emptyList()
             return object : BuildKonfigGenerator(
                 file = file,
+                objectAnnotations = annotations,
                 objectModifiers = objectModifiers,
-                propertyModifiers = arrayOf(KModifier.ACTUAL),
+                propertyModifiers = listOf(KModifier.ACTUAL),
                 logger = logger
             ) {
                 override fun generateProp(fieldSpec: FieldSpec): PropertySpec {
@@ -84,7 +98,7 @@ abstract class BuildKonfigGenerator(
                         .initializer(fieldSpec.template, fieldSpec.value)
 
                     if (!fieldSpec.isTargetSpecific) {
-                        spec.addModifiers(*propertyModifiers)
+                        spec.addModifiers(*propertyModifiers.toTypedArray())
                     }
 
                     return spec.build()
@@ -96,3 +110,12 @@ abstract class BuildKonfigGenerator(
 
 private fun getVisibilityModifier(exposeObject: Boolean): KModifier =
     if (exposeObject) KModifier.PUBLIC else KModifier.INTERNAL
+
+private fun getJsObjectAnnotations(): List<AnnotationSpec> {
+    return listOf(
+        AnnotationSpec.builder(ClassName("kotlin.js", "JsExport")).build(),
+        AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
+            .addMember("%T::class", ClassName("kotlin.js", "ExperimentalJsExport"))
+            .build()
+    )
+}

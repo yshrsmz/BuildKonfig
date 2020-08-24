@@ -1,18 +1,19 @@
 package com.codingfeline.buildkonfig.gradle
 
 
+import com.codingfeline.buildkonfig.compiler.PlatformType
 import com.codingfeline.buildkonfig.compiler.TargetName
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import java.io.File
 
 @Suppress("unused")
 open class BuildKonfigPlugin : Plugin<Project> {
-
 
     override fun apply(target: Project) {
 
@@ -53,11 +54,12 @@ open class BuildKonfigPlugin : Plugin<Project> {
         targets.filter { it.name != "metadata" }.forEach { target ->
             val name = "${target.name}Main"
             val sourceSetMain = sourceSets.getByName(name)
+
             val outDirMain = File(outputDirectory, name).also { it.mkdirs() }
 
             sourceSetMain.kotlin.srcDirs(outDirMain.toRelativeString(project.projectDir))
 
-            outputDirectoryMap[TargetName(target.name, target.platformType.name)] = outDirMain
+            outputDirectoryMap[TargetName(target.name, target.platformType.toKgqlPlatformType())] = outDirMain
         }
 
         project.afterEvaluate { p ->
@@ -105,5 +107,15 @@ open class BuildKonfigPlugin : Plugin<Project> {
                 }
             }
         }
+    }
+}
+
+internal fun KotlinPlatformType.toKgqlPlatformType(): PlatformType {
+    return when (this) {
+        KotlinPlatformType.common -> PlatformType.common
+        KotlinPlatformType.jvm -> PlatformType.jvm
+        KotlinPlatformType.js -> PlatformType.js
+        KotlinPlatformType.androidJvm -> PlatformType.androidJvm
+        KotlinPlatformType.native -> PlatformType.native
     }
 }

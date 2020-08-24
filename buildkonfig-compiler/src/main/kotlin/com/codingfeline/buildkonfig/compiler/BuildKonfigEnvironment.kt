@@ -25,10 +25,10 @@ class BuildKonfigEnvironment(
             return@writer file.writer()
         }
 
-        if (data.targetConfigs.isEmpty()) {
-            compileCommonObject(data, writer, logger)
-        } else {
+        if (data.hasTargetSpecificConfigs) {
             compileExpectActual(data, writer, logger)
+        } else {
+            compileCommonObject(data, writer, logger)
         }
 
         return if (errors.isEmpty()) {
@@ -46,6 +46,7 @@ class BuildKonfigEnvironment(
                 data.objectName,
                 data.exposeObject,
                 data.commonConfig,
+                data.hasJsTarget,
                 writer,
                 logger
             )
@@ -70,20 +71,25 @@ class BuildKonfigEnvironment(
             e.message?.let { errors.add(it) }
         }
 
-        data.targetConfigs.forEach { config ->
-            try {
-                BuildKonfigCompiler.compileTarget(
-                    data.packageName,
-                    data.objectName,
-                    data.exposeObject,
-                    config,
-                    writer,
-                    logger
-                )
-            } catch (e: Throwable) {
-                e.message?.let { errors.add(it) }
+        data.targetConfigs.filter { it.config != null }
+            .forEach { config ->
+                try {
+                    BuildKonfigCompiler.compileTarget(
+                        data.packageName,
+                        data.objectName,
+                        data.exposeObject,
+                        config,
+                        writer,
+                        logger
+                    )
+                } catch (e: Throwable) {
+                    e.message?.let { errors.add(it) }
+                }
             }
-        }
         return errors
+    }
+
+    private fun List<TargetConfigFile>.hasNoTargetSpecificConfig(): Boolean {
+        return this.none { it.config != null }
     }
 }

@@ -32,19 +32,18 @@ class BuildKonfigPluginTest {
     private val buildFileMPPConfig = """
         |kotlin {
         |  jvm()
-        |  js()
+        |  js {
+        |    browser()
+        |    nodejs()
+        |  }
         |  iosX64('ios')
         |
         |  sourceSets {
         |    commonMain {
-        |      dependencies {
-        |        implementation kotlin('stdlib-common')
-        |      }
+        |      dependencies {}
         |    }
         |    jvmMain {
-        |      dependencies {
-        |        implementation kotlin('stdlib-jdk8')
-        |      }
+        |      dependencies {}
         |    }
         |  }
         |}
@@ -76,7 +75,6 @@ class BuildKonfigPluginTest {
             |       maven { url 'https://plugins.gradle.org/m2/' }
             |   }
             |}
-            |enableFeaturePreview("GRADLE_METADATA")
         """.trimMargin()
         )
     }
@@ -157,14 +155,15 @@ class BuildKonfigPluginTest {
             |
             |kotlin {
             |  jvm()
-            |  js()
+            |  js {
+            |    browser()
+            |    nodejs()
+            |  }
             |  iosX64()
             |
             |  sourceSets {
             |    commonMain {
-            |      dependencies {
-            |        implementation kotlin('stdlib-common')
-            |      }
+            |      dependencies {}
             |    }
             |  }
             |}
@@ -248,24 +247,21 @@ class BuildKonfigPluginTest {
             |kotlin {
             |   android('customAndroid')
             |   jvm()
-            |   js()
+            |   js {
+            |    browser()
+            |    nodejs()
+            |   }
             |   iosX64()
             |
             |   sourceSets {
             |     commonMain {
-            |       dependencies {
-            |         implementation kotlin('stdlib-common')
-            |       }
+            |       dependencies {}
             |     }
             |     customAndroidMain {
-            |       dependencies {
-            |         implementation kotlin('stdlib-jdk8')
-            |       }
+            |       dependencies {}
             |     }
             |     jvmMain {
-            |       dependencies {
-            |         implementation kotlin('stdlib-jdk8')
-            |       }
+            |       dependencies {}
             |     }
             |   }
             |}
@@ -335,6 +331,162 @@ class BuildKonfigPluginTest {
     }
 
     @Test
+    fun `Applying the plugin works fine for the hierarchical multiplatform project`() {
+        buildFile.writeText(
+            """
+            |plugins {
+            |   id 'kotlin-multiplatform'
+            |   id 'com.android.library'
+            |   id 'com.codingfeline.buildkonfig'
+            |}
+            |
+            |repositories {
+            |   google()
+            |   mavenCentral()
+            |}
+            |
+            |android {
+            |    compileSdkVersion 28
+            |
+            |    defaultConfig {
+            |        minSdkVersion 21
+            |        targetSdkVersion 28
+            |        versionCode 1
+            |        versionName "1.0"
+            |    }
+            |    buildTypes {
+            |        release {
+            |            minifyEnabled false
+            |            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            |        }
+            |    }
+            |
+            |    sourceSets {
+            |        main {
+            |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
+            |        }
+            |    }
+            |}
+            |buildkonfig {
+            |    packageName = "com.sample"
+            |
+            |    defaultConfigs {
+            |        buildConfigField 'STRING', 'test', 'hoge'
+            |        buildConfigField 'INT', 'intValue', '10'
+            |    }
+            |
+            |    targetConfigs {
+            |        jvm {
+            |            buildConfigField 'STRING', 'test', 'jvm'
+            |            buildConfigField 'STRING', 'jvm', 'jvmHoge'
+            |        }
+            |        customAndroid {
+            |            buildConfigField 'String', 'android', '${'$'}fuga'
+            |        }
+            |        iosX64 {
+            |            buildConfigField 'BOOLEAN', 'native', 'true'
+            |        }
+            |    }
+            |}
+            |
+            |kotlin {
+            |   android('customAndroid')
+            |   jvm()
+            |   js {
+            |    browser()
+            |    nodejs()
+            |   }
+            |   ios()
+            |
+            |   sourceSets {
+            |     commonMain {
+            |       dependencies {}
+            |     }
+            |     customAndroidMain {
+            |       dependencies {}
+            |     }
+            |     jvmMain {
+            |       dependencies {}
+            |     }
+            |   }
+            |}
+            """.trimMargin()
+        )
+
+        projectDir.newFolder("src", "androidMain")
+        val androidManifestFile = projectDir.newFile("src/androidMain/AndroidManifest.xml")
+        androidManifestFile.writeText(androidManifest)
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace", "--info")
+            .build()
+
+        assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val jvmResult = File(buildDir, "jvmMain/com/sample/BuildKonfig.kt")
+        assertThat(jvmResult.readText())
+            .apply {
+                contains("actual val intValue: Int = 10")
+                contains("actual val test: String = \"jvm\"")
+                contains("val jvm: String = \"jvmHoge\"")
+                doesNotContain("actual val jvm")
+                doesNotContain("android")
+                doesNotContain("native")
+            }
+
+        val androidResult = File(buildDir, "customAndroidMain/com/sample/BuildKonfig.kt")
+        assertThat(androidResult.readText())
+            .apply {
+                contains("actual val intValue: Int = 10")
+                contains("actual val test: String = \"hoge\"")
+                contains("val android: String = \"${'$'}{'$'}fuga\"")
+                doesNotContain("actual val android")
+                doesNotContain("jvm")
+                doesNotContain("native")
+            }
+
+        val jsResult = File(buildDir, "jsMain/com/sample/BuildKonfig.kt")
+        assertThat(jsResult.readText())
+            .apply {
+                contains("actual val intValue: Int = 10")
+                contains("actual val test: String = \"hoge\"")
+                doesNotContain("android")
+                doesNotContain("jvm")
+                doesNotContain("native")
+            }
+
+        val iosX64Result = File(buildDir, "iosX64Main/com/sample/BuildKonfig.kt")
+        assertThat(iosX64Result.readText())
+            .apply {
+                contains("actual val intValue: Int = 10")
+                contains("actual val test: String = \"hoge\"")
+                contains("val native: Boolean = true")
+                doesNotContain("actual val native")
+                doesNotContain("android")
+                doesNotContain("jvm")
+            }
+
+        val iosArm64Result = File(buildDir, "iosArm64Main/com/sample/BuildKonfig.kt")
+        assertThat(iosArm64Result.readText())
+            .apply {
+                contains("actual val intValue: Int = 10")
+                contains("actual val test: String = \"hoge\"")
+//                contains("val native: Boolean = true")
+                doesNotContain("actual val native")
+                doesNotContain("android")
+                doesNotContain("jvm")
+            }
+    }
+
+    @Test
     fun `The generate task is a dependency of multiplatform jvm target`() {
 
         buildFile.writeText(
@@ -397,24 +549,21 @@ class BuildKonfigPluginTest {
             |kotlin {
             |   android('customAndroid')
             |   jvm()
-            |   js()
+            |   js {
+            |    browser()
+            |    nodejs()
+            |   }
             |   iosX64()
             |
             |   sourceSets {
             |     commonMain {
-            |       dependencies {
-            |         implementation kotlin('stdlib-common')
-            |       }
+            |       dependencies {}
             |     }
             |     customAndroidMain {
-            |       dependencies {
-            |         implementation kotlin('stdlib-jdk8')
-            |       }
+            |       dependencies {}
             |     }
             |     jvmMain {
-            |       dependencies {
-            |         implementation kotlin('stdlib-jdk8')
-            |       }
+            |       dependencies {}
             |     }
             |   }
             |}
@@ -503,24 +652,21 @@ class BuildKonfigPluginTest {
             |kotlin {
             |   android('customAndroid')
             |   jvm()
-            |   js()
+            |   js {
+            |    browser()
+            |    nodejs()
+            |   }
             |   iosX64()
             |
             |   sourceSets {
             |     commonMain {
-            |       dependencies {
-            |         implementation kotlin('stdlib-common')
-            |       }
+            |       dependencies {}
             |     }
             |     customAndroidMain {
-            |       dependencies {
-            |         implementation kotlin('stdlib-jdk8')
-            |       }
+            |       dependencies {}
             |     }
             |     jvmMain {
-            |       dependencies {
-            |         implementation kotlin('stdlib-jdk8')
-            |       }
+            |       dependencies {}
             |     }
             |   }
             |}
@@ -608,24 +754,21 @@ class BuildKonfigPluginTest {
             |kotlin {
             |   android('customAndroid')
             |   jvm()
-            |   js()
+            |   js {
+            |    browser()
+            |    nodejs()
+            |   }
             |   iosX64()
             |
             |   sourceSets {
             |     commonMain {
-            |       dependencies {
-            |         implementation kotlin('stdlib-common')
-            |       }
+            |       dependencies {}
             |     }
             |     customAndroidMain {
-            |       dependencies {
-            |         implementation kotlin('stdlib-jdk8')
-            |       }
+            |       dependencies {}
             |     }
             |     jvmMain {
-            |       dependencies {
-            |         implementation kotlin('stdlib-jdk8')
-            |       }
+            |       dependencies {}
             |     }
             |   }
             |}

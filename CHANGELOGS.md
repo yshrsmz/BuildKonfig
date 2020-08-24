@@ -5,17 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.0] - WIP
+## Unreleased
+
+### Changed
+- Kotlin 1.4.0 ([#36](https://github.com/yshrsmz/BuildKonfig/issues/36))
+- Gradle wrapper 6.6
 
 ### Added
-
-- New `exposeObjectWithName` to support exposing the generated objects(in other words, an option make it public).
+- New `exposeObjectWithName` to support exposing the generated objects(in other words, an option make it public). ([#31](https://github.com/yshrsmz/BuildKonfig/issues/31), [#35](https://github.com/yshrsmz/BuildKonfig/issues/35)
 
 
 ## [0.6.0] - 2020-08-05
 
 ### Changed
-
 - Kotlin 1.3.72
 - Android Gradle Plugin 4.0.1
 - Gradle wrapper 6.5.1
