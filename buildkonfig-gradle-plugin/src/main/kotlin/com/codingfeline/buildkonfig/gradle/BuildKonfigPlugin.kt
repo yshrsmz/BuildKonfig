@@ -68,9 +68,6 @@ open class BuildKonfigPlugin : Plugin<Project> {
 
                 var objectName = extension.objectName
                 var exposeObject = false
-                if (!extension.exposeObjectWithName.isNullOrBlank()) {
-                    objectName = extension.exposeObjectWithName!!
-                }
                 extension.exposeObjectWithName.takeIf { name -> !name.isNullOrBlank() }
                     ?.also { name ->
                         objectName = name
