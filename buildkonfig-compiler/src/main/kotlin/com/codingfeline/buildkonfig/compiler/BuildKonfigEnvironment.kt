@@ -41,7 +41,14 @@ class BuildKonfigEnvironment(
     private fun compileCommonObject(data: BuildKonfigData, writer: FileAppender, logger: Logger): List<String> {
         val errors = mutableListOf<String>()
         try {
-            BuildKonfigCompiler.compileCommonObject(data.packageName, data.objectName, data.commonConfig, writer, logger)
+            BuildKonfigCompiler.compileCommonObject(
+                data.packageName,
+                data.objectName,
+                data.exposeObject,
+                data.commonConfig,
+                writer,
+                logger
+            )
         } catch (e: Throwable) {
             e.message?.let { errors.add(it) }
         }
@@ -51,14 +58,28 @@ class BuildKonfigEnvironment(
     private fun compileExpectActual(data: BuildKonfigData, writer: FileAppender, logger: Logger): List<String> {
         val errors = mutableListOf<String>()
         try {
-            BuildKonfigCompiler.compileCommon(data.packageName, data.objectName, data.commonConfig, writer, logger)
+            BuildKonfigCompiler.compileCommon(
+                data.packageName,
+                data.objectName,
+                data.exposeObject,
+                data.commonConfig,
+                writer,
+                logger
+            )
         } catch (e: Throwable) {
             e.message?.let { errors.add(it) }
         }
 
         data.targetConfigs.forEach { config ->
             try {
-                BuildKonfigCompiler.compileTarget(data.packageName, data.objectName, config, writer, logger)
+                BuildKonfigCompiler.compileTarget(
+                    data.packageName,
+                    data.objectName,
+                    data.exposeObject,
+                    config,
+                    writer,
+                    logger
+                )
             } catch (e: Throwable) {
                 e.message?.let { errors.add(it) }
             }

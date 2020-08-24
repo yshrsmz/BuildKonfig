@@ -67,6 +67,7 @@ kotlin {
 buildkonfig {
     packageName = 'com.example.app'
     // objectName = 'YourAwesomeConfig'
+    // exposeObjectWithName = 'YourAwesomePublicConfig'
 
     defaultConfigs {
         buildConfigField 'STRING', 'name', 'value'
@@ -75,6 +76,7 @@ buildkonfig {
 ```
 - `packageName` Set the package name where BuildKonfig is being placed. **Required**.
 - `objectName` Set the name of the generated object. Defaults to `BuildKonfig`.
+- `exposeObjectWithName` Set the name of the generated object, and make it public.
 - `defaultConfigs` Set values which you want to have in common. **Required**.
 
 To generate BuildKonfig files, run `generateBuildKonfig` task.  
@@ -140,6 +142,8 @@ buildkonfig {
 ```
 
 - `packageName` Set the package name where BuildKonfig is being placed. **Required**.
+- `objectName` Set the name of the generated object. Defaults to `BuildKonfig`.
+- `exposeObjectWithName` Set the name of the generated object, and make it public.
 - `defaultConfigs` Set values which you want to have in common. **Required**.
 - `targetConfigs` Set target specific values as closure. You can overwrite values specified in `defaultConfigs`.
 - `buildConfigField(String type, String name, String value)` Add new value or overwrite existing one.
