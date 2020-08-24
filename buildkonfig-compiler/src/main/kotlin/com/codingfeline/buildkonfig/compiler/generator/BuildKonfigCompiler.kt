@@ -14,12 +14,14 @@ object BuildKonfigCompiler {
         objectName: String,
         exposeObject: Boolean,
         configFile: TargetConfigFile,
+        hasJsTarget: Boolean,
         output: FileAppender,
         logger: Logger
     ) {
         val outputDirectory = getOutputDirectory(configFile, packageName)
 
-        val konfigType = BuildKonfigGenerator.ofCommonObject(configFile, exposeObject, logger).generateType(objectName)
+        val konfigType = BuildKonfigGenerator.ofCommonObject(configFile, exposeObject, hasJsTarget, logger)
+            .generateType(objectName)
 
         FileSpec.builder(packageName, objectName)
             .apply {

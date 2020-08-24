@@ -32,7 +32,10 @@ class BuildKonfigPluginFlavorTest {
     private val buildFileMPPConfig = """
         |kotlin {
         |  jvm()
-        |  js()
+        |  js {
+        |    browser()
+        |    nodejs()
+        |  }
         |  iosX64('ios')
         |}
     """.trimMargin()
@@ -58,7 +61,6 @@ class BuildKonfigPluginFlavorTest {
             |       maven { url 'https://plugins.gradle.org/m2/' }
             |   }
             |}
-            |enableFeaturePreview("GRADLE_METADATA")
         """.trimMargin()
         )
     }
@@ -669,6 +671,8 @@ class BuildKonfigPluginFlavorTest {
 
         val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
         Truth.assertThat(commonResult.readText()).apply {
+            contains("@JsExport")
+            contains("@OptIn(ExperimentalJsExport::class)")
             contains("object AwesomeConfig")
         }
     }
@@ -719,8 +723,12 @@ class BuildKonfigPluginFlavorTest {
         }
 
         val jsResult = File(buildDir, "jsMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(jsResult.readText())
-            .contains("object AwesomeConfig")
+
+        Truth.assertThat(jsResult.readText()).apply {
+            contains("@JsExport")
+            contains("@OptIn(ExperimentalJsExport::class)")
+            contains("object AwesomeConfig")
+        }
 
         val jvmResult = File(buildDir, "jvmMain/com/example/AwesomeConfig.kt")
         Truth.assertThat(jvmResult.readText())
