@@ -95,7 +95,7 @@ internal object BuildKonfig {
 
 #### Configuring `target` dependent values
 
-If you want to change value depending on your targets, you can use `targetConfigs` to define target dependent values.
+If you want to change value depending on your targets, you can use `targetConfigs` to define target-dependent values.
 
 
 ```gradle
