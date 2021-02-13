@@ -39,7 +39,6 @@ pluginBundle {
 }
 
 
-
 val fixtureClasspath by configurations.creating
 
 // Append any extra dependencies to the test fixtures via a custom configuration classpath. This

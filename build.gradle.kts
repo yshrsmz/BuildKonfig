@@ -14,6 +14,7 @@ buildscript {
         classpath(com.codingfeline.buildkonfig.buildsrc.Dependencies.dokkaPlugin)
         classpath(com.codingfeline.buildkonfig.buildsrc.Dependencies.gradleVersionsPlugin)
         classpath(com.codingfeline.buildkonfig.buildsrc.Dependencies.pluginPublishPlugin)
+        classpath(com.codingfeline.buildkonfig.buildsrc.Dependencies.mavenPublishPlugin)
     }
 }
 
@@ -36,6 +37,10 @@ allprojects {
 
     group = GROUP
     version = VERSION_NAME
+}
+
+tasks.register("clean", Delete::class.java) {
+    delete(rootProject.buildDir)
 }
 
 tasks.wrapper {
