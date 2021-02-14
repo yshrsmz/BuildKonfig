@@ -5,7 +5,7 @@ buildscript {
     repositories {
         // Use 'gradle install' to install latest
         mavenLocal()
-        jcenter()
+//        mavenCentral()
     }
 
     dependencies {

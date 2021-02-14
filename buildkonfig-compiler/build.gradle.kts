@@ -47,11 +47,3 @@ tasks.compileTestKotlin {
 }
 
 apply(from = "$rootDir/gradle/maven-publish.gradle")
-
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components.getByName("java"))
-        }
-    }
-}

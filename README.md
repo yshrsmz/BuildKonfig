@@ -1,7 +1,7 @@
 BuildKonfig
 ===
 
-[ ![Download](https://api.bintray.com/packages/yshrsmz/maven/buildkonfig-gradle-plugin/images/download.svg) ](https://bintray.com/yshrsmz/maven/buildkonfig-gradle-plugin/_latestVersion)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.codingfeline.buildkonfig/buildkonfig-gradle-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.codingfeline.buildkonfig/buildkonfig-gradle-plugin)
 
 BuildConfig for Kotlin Multiplatform Project.  
 It currently supports embedding values from gradle file.
@@ -47,7 +47,7 @@ Rather I'd like to do it once.
 ```gradle
 buildScript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0'
@@ -101,7 +101,7 @@ If you want to change value depending on your targets, you can use `targetConfig
 ```gradle
 buildScript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0'
