@@ -124,14 +124,14 @@ buildkonfig {
     // default config is required
     defaultConfigs {
         buildConfigField 'STRING', 'name', 'value'
-        buildConfigNullablefield 'STRING', 'nullableField', null
+        buildConfigNullableField 'STRING', 'nullableField', null
     }
     
     targetConfigs {
         // this name should be same as target names you specified
         android {
             buildConfigField 'STRING', 'name2', 'value2'
-            buildConfigNullablefield 'STRING', 'nullableField', 'NonNull-value'
+            buildConfigNullableField 'STRING', 'nullableField', 'NonNull-value'
         }
         
         ios {
