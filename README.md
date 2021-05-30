@@ -44,6 +44,7 @@ Rather I'd like to do it once.
 
 #### Simple configuration
 
+##### Groovy DSL
 ```gradle
 buildScript {
     repositories {
@@ -74,6 +75,43 @@ buildkonfig {
     }
 }
 ```
+
+##### Kotlin DSL
+```kotlin
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0")
+        classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version")
+    }
+}
+
+plugins {
+    kotlin("multiplatform")
+    id("com.codingfeline.buildkonfig")
+}
+
+kotlin {
+    // your target config...
+    android()
+    iosX64('ios')
+}
+
+buildkonfig {
+    packageName = "com.example.app"
+    // objectName = "YourAwesomeConfig"
+    // exposeObjectWithName = "YourAwesomePublicConfig"
+
+    defaultConfigs {
+        buildConfigField(STRING, "name", "value")
+    }
+}
+```
+
 - `packageName` Set the package name where BuildKonfig is being placed. **Required**.
 - `objectName` Set the name of the generated object. Defaults to `BuildKonfig`.
 - `exposeObjectWithName` Set the name of the generated object, and make it public.
@@ -97,7 +135,7 @@ internal object BuildKonfig {
 
 If you want to change value depending on your targets, you can use `targetConfigs` to define target-dependent values.
 
-
+##### Groovy DSL
 ```gradle
 buildScript {
     repositories {
@@ -128,7 +166,7 @@ buildkonfig {
     }
     
     targetConfigs {
-        // this name should be same as target names you specified
+        // this name should be the same as target names you specified
         android {
             buildConfigField 'STRING', 'name2', 'value2'
             buildConfigNullableField 'STRING', 'nullableField', 'NonNull-value'
@@ -138,6 +176,54 @@ buildkonfig {
             buildConfigField 'STRING', 'name', 'valueForNative'
         }
     }
+}
+```
+
+##### Kotlin DSL
+```kotlin
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.
+import com.codingfeline.buildkonfig.gradle.TargetConfigDsl
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0")
+        classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version")
+    }
+}
+
+plugins {
+    kotlin("multiplatform")
+    id("com.codingfeline.buildkonfig")
+}
+
+kotlin {
+    // your target config...
+    android()
+    iosX64('ios')
+}
+
+buildkonfig {
+    packageName = "com.example.app"
+
+    // default config is required
+    defaultConfigs {
+        buildConfigField(STRING, "name", "value")
+    }
+
+    targetConfigs(closureOf<NamedDomainObjectContainer<TargetConfigDsl>> {
+        // names in create should be the same as target names you specified
+        create("android") {
+            buildConfigField(STRING, "name2", "value2")
+            buildConfigNullableField(STRING, "nullableField", "NonNull-value")
+        }
+
+        create("ios") {
+            buildConfigField(STRING, "name", "valueForNative")
+        }
+    })
 }
 ```
 
@@ -203,6 +289,7 @@ Specify default flavor in your `gradle.properties`
 buildkonfig.flavor=dev
 ```
 
+##### Groovy DSL
 ```gradle
 // ./mpp_project/build.gradle
 
@@ -233,6 +320,41 @@ buildkonfig {
             buildConfigField 'STRING', 'name', 'devValueIos'
         }
     }
+}
+```
+
+##### Kotlin DSL
+```kotlin
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.
+import com.codingfeline.buildkonfig.gradle.TargetConfigDsl
+
+buildkonfig {
+    packageName = "com.example.app"
+
+    // default config is required
+    defaultConfigs {
+        buildConfigField(STRING, "name", "value")
+    }
+    // flavor is passed as a first argument of defaultConfigs 
+    defaultConfigs("dev") {
+        buildConfigField(STRING, "name", "devValue")
+    }
+
+    targetConfigs(closureOf<NamedDomainObjectContainer<TargetConfigDsl>> {
+        create("android") {
+            buildConfigField(STRING, "name2", "value2")
+        }
+        
+        create("ios") {
+            buildConfigField(STRING, "name", "valueIos")
+        }
+    })
+    // flavor is passed as a first argument of targetConfigs
+    targetConfigs("dev", closureOf<NamedDomainObjectContainer<TargetConfigDsl>> {
+        create("ios") {
+            buildConfigField(STRING, "name", "devValueIos")
+        }
+    })
 }
 ```
 
