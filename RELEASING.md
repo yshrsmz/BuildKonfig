@@ -9,7 +9,8 @@ RELEASING
 6. Change the version in `gradle.properties` to a new SNAPSHOT version
 7. `git commit -am "Prepare for next development iteration"`
 8. `git push && git push --tags`
-9. Wait until the `Publish a release` action completes, then visit [bintrary.com](https://bintray.com/yshrsmz/maven) and promote the artifact.
+9. Wait until the `Publish a release` action completes, then
+   Visit [Sonatype](https://oss.sonatype.org/#stagingRepositories) and promote the artifact.
 
 
 
