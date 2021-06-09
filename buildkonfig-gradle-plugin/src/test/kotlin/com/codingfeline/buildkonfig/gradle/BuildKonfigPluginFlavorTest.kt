@@ -32,7 +32,7 @@ class BuildKonfigPluginFlavorTest {
     private val buildFileMPPConfig = """
         |kotlin {
         |  jvm()
-        |  js {
+        |  js(IR) {
         |    browser()
         |    nodejs()
         |  }
@@ -44,25 +44,7 @@ class BuildKonfigPluginFlavorTest {
     fun setup() {
         buildFile = projectDir.newFile("build.gradle")
         settingFile = projectDir.newFile("settings.gradle")
-        settingFile.writeText(
-            """
-            |pluginManagement {
-            |   resolutionStrategy {
-            |       eachPlugin {
-            |           if (requested.id.id == "kotlin-multiplatform") {
-            |               useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${'$'}{requested.version}")
-            |           }
-            |       }
-            |   }
-            |
-            |   repositories {
-            |       mavenCentral()
-            |       jcenter()
-            |       maven { url 'https://plugins.gradle.org/m2/' }
-            |   }
-            |}
-        """.trimMargin()
-        )
+        settingFile.writeText(settingsGradle)
     }
 
     @Test

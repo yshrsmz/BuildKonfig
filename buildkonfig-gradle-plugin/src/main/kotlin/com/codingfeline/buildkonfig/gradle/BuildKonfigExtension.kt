@@ -1,7 +1,6 @@
 package com.codingfeline.buildkonfig.gradle
 
 import com.codingfeline.buildkonfig.compiler.DEFAULT_KONFIG_OBJECT_NAME
-import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
@@ -38,17 +37,17 @@ open class BuildKonfigExtension(
     }
 
     @Suppress("unused")
-    fun targetConfigs(config: Closure<*>) {
-        targetConfigs.computeIfAbsent("") { createTargetConfigContainer() }
-            .configure(config)
-            .forEach { it.flavor = "" }
+    fun targetConfigs(config: Action<NamedDomainObjectContainer<TargetConfigDsl>>) {
+        val container = targetConfigs.computeIfAbsent("") { createTargetConfigContainer() }
+        config.execute(container)
+        container.forEach { it.flavor = "" }
     }
 
     @Suppress("unused")
-    fun targetConfigs(flavor: String, config: Closure<*>) {
-        targetConfigs.computeIfAbsent(flavor) { createTargetConfigContainer() }
-            .configure(config)
-            .forEach { it.flavor = flavor }
+    fun targetConfigs(flavor: String, config: Action<NamedDomainObjectContainer<TargetConfigDsl>>) {
+        val container = targetConfigs.computeIfAbsent(flavor) { createTargetConfigContainer() }
+        config.execute(container)
+        container.forEach { it.flavor = flavor }
     }
 
     private fun createNewTargetConfig(): TargetConfigDsl {

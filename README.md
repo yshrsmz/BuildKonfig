@@ -10,10 +10,10 @@ It currently supports embedding values from gradle file.
 
 - [Motivation](#motivation)
 - [Usage](#usage)
-  - [Requirements](#requirements)
-  - [Gradle Configuration](#gradle-configuration)
-  - [Product Flavor?](#product-flavor)
-  - [Overwriting Values](#overwriting-values)
+    - [Requirements](#requirements)
+    - [Gradle Configuration](#gradle-configuration)
+    - [Product Flavor?](#product-flavor)
+    - [Overwriting Values](#overwriting-values)
 - [Supported Types](#supported-types)
 - [Try out the sample](#try-out-the-sample)
 
@@ -45,6 +45,7 @@ Rather I'd like to do it once.
 #### Simple configuration
 
 ##### Groovy DSL
+
 ```gradle
 buildScript {
     repositories {
@@ -77,6 +78,7 @@ buildkonfig {
 ```
 
 ##### Kotlin DSL
+
 ```kotlin
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 
@@ -136,6 +138,7 @@ internal object BuildKonfig {
 If you want to change value depending on your targets, you can use `targetConfigs` to define target-dependent values.
 
 ##### Groovy DSL
+
 ```gradle
 buildScript {
     repositories {
@@ -180,9 +183,9 @@ buildkonfig {
 ```
 
 ##### Kotlin DSL
+
 ```kotlin
-import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.
-import com.codingfeline.buildkonfig.gradle.TargetConfigDsl
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 
 buildscript {
     repositories {
@@ -213,7 +216,7 @@ buildkonfig {
         buildConfigField(STRING, "name", "value")
     }
 
-    targetConfigs(closureOf<NamedDomainObjectContainer<TargetConfigDsl>> {
+    targetConfigs {
         // names in create should be the same as target names you specified
         create("android") {
             buildConfigField(STRING, "name2", "value2")
@@ -223,7 +226,7 @@ buildkonfig {
         create("ios") {
             buildConfigField(STRING, "name", "valueForNative")
         }
-    })
+    }
 }
 ```
 
@@ -270,16 +273,17 @@ internal actual object BuildKonfig {
 
 #### Note about the hierarchical project structure
 
-Kotlin 1.4.0 adds support for the hierarchical project structure, but BuildKonfig currently does not support this.
-You can use the hierarchical project structure, but intermediate SourceSets can only see fields defined in `defaultConfigs` block.
-See details and progress at [here](https://github.com/yshrsmz/BuildKonfig/issues/38).
+Kotlin 1.4.0 adds support for the hierarchical project structure, but BuildKonfig currently does not support this. You
+can use the hierarchical project structure, but intermediate SourceSets can only see fields defined in `defaultConfigs`
+block. See details and progress at [here](https://github.com/yshrsmz/BuildKonfig/issues/38).
 
 <a name="product-flavor"/>
 
 ### Product Flavor?
 
 Yes(sort of).  
-Kotlin Multiplatform Project does not support product flavor. Kotlin/Native part of the project has release/debug distinction, but it's not global.  
+Kotlin Multiplatform Project does not support product flavor. Kotlin/Native part of the project has release/debug
+distinction, but it's not global.  
 So to mimick product flavor capability of Android, we need to provide additional property in order to determine flavors.
 
 Specify default flavor in your `gradle.properties`
@@ -290,6 +294,7 @@ buildkonfig.flavor=dev
 ```
 
 ##### Groovy DSL
+
 ```gradle
 // ./mpp_project/build.gradle
 
@@ -324,6 +329,7 @@ buildkonfig {
 ```
 
 ##### Kotlin DSL
+
 ```kotlin
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.
 import com.codingfeline.buildkonfig.gradle.TargetConfigDsl
@@ -344,7 +350,7 @@ buildkonfig {
         create("android") {
             buildConfigField(STRING, "name2", "value2")
         }
-        
+
         create("ios") {
             buildConfigField(STRING, "name", "valueIos")
         }
@@ -369,10 +375,10 @@ In CI environment, you can pass value via CLI `$ ./gradlew build -Pbuildkonfig.f
 If you configure same field across multiple defaultConfigs and targetConfigs, flavored targetConfigs is the strongest.
 
 Lefter the stronger.
+
 ```
 Flavored TargetConfig > TargetConfig > Flavored DefaultConfig > DefaultConfig
 ```
-
 
 <a name="supported-types"/>
 
@@ -383,7 +389,6 @@ Flavored TargetConfig > TargetConfig > Flavored DefaultConfig > DefaultConfig
 - Long
 - Float
 - Boolean
-
 
 <a name="try-out-the-sample"/>
 
