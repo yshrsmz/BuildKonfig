@@ -49,34 +49,11 @@ class BuildKonfigPluginTest {
         |}
     """.trimMargin()
 
-    private val androidManifest = """
-        |<?xml version="1.0" encoding="utf-8"?>
-        |<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.sample"/>
-    """.trimMargin()
-
     @Before
     fun setup() {
         buildFile = projectDir.newFile("build.gradle")
         settingFile = projectDir.newFile("settings.gradle")
-        settingFile.writeText(
-            """
-            |pluginManagement {
-            |   resolutionStrategy {
-            |       eachPlugin {
-            |           if (requested.id.id == "kotlin-multiplatform") {
-            |               useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${'$'}{requested.version}")
-            |           }
-            |       }
-            |   }
-            |
-            |   repositories {
-            |       mavenCentral()
-            |       jcenter()
-            |       maven { url 'https://plugins.gradle.org/m2/' }
-            |   }
-            |}
-        """.trimMargin()
-        )
+        settingFile.writeText(settingsGradle)
     }
 
     @Test
@@ -268,9 +245,7 @@ class BuildKonfigPluginTest {
             """.trimMargin()
         )
 
-        projectDir.newFolder("src", "androidMain")
-        val androidManifestFile = projectDir.newFile("src/androidMain/AndroidManifest.xml")
-        androidManifestFile.writeText(androidManifest)
+        createAndroidManifest(projectDir)
 
         val buildDir = File(projectDir.root, "build/buildkonfig")
         buildDir.deleteRecursively()
@@ -413,9 +388,7 @@ class BuildKonfigPluginTest {
             """.trimMargin()
         )
 
-        projectDir.newFolder("src", "androidMain")
-        val androidManifestFile = projectDir.newFile("src/androidMain/AndroidManifest.xml")
-        androidManifestFile.writeText(androidManifest)
+        createAndroidManifest(projectDir)
 
         val buildDir = File(projectDir.root, "build/buildkonfig")
         buildDir.deleteRecursively()
@@ -427,6 +400,8 @@ class BuildKonfigPluginTest {
         val result = runner
             .withArguments("generateBuildKonfig", "--stacktrace", "--info")
             .build()
+
+        println("result: ${result.output}")
 
         assertThat(result.output)
             .contains("BUILD SUCCESSFUL")
@@ -570,9 +545,7 @@ class BuildKonfigPluginTest {
             """.trimMargin()
         )
 
-        projectDir.newFolder("src", "androidMain")
-        val androidManifestFile = projectDir.newFile("src/androidMain/AndroidManifest.xml")
-        androidManifestFile.writeText(androidManifest)
+        createAndroidManifest(projectDir)
 
         val buildDir = File(projectDir.root, "build/buildkonfig")
         buildDir.deleteRecursively()
@@ -673,9 +646,7 @@ class BuildKonfigPluginTest {
             """.trimMargin()
         )
 
-        projectDir.newFolder("src", "androidMain")
-        val androidManifestFile = projectDir.newFile("src/androidMain/AndroidManifest.xml")
-        androidManifestFile.writeText(androidManifest)
+        createAndroidManifest(projectDir)
 
         val buildDir = File(projectDir.root, "build/buildkonfig")
         buildDir.deleteRecursively()
@@ -775,9 +746,7 @@ class BuildKonfigPluginTest {
             """.trimMargin()
         )
 
-        projectDir.newFolder("src", "androidMain")
-        val androidManifestFile = projectDir.newFile("src/androidMain/AndroidManifest.xml")
-        androidManifestFile.writeText(androidManifest)
+        createAndroidManifest(projectDir)
 
         val buildDir = File(projectDir.root, "build/buildkonfig")
         buildDir.deleteRecursively()
@@ -793,4 +762,6 @@ class BuildKonfigPluginTest {
         assertThat(result.output)
             .contains("generateBuildKonfig")
     }
+
+
 }
