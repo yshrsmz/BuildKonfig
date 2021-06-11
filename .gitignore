@@ -59,3 +59,5 @@ secret.properties
 
 .envrc
 *-sec.asc
+
+*.hprof
