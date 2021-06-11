@@ -57,7 +57,7 @@ class BuildKonfigPluginFlavorTest {
             |   packageName = "com.example"
             |
             |   defaultConfigs {
-            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |}
             |$buildFileMPPConfig
@@ -87,7 +87,7 @@ class BuildKonfigPluginFlavorTest {
                 |import kotlin.String
                 |
                 |internal object BuildKonfig {
-                |  val value: String = "defaultValue"
+                |  public val stringValue: String = "defaultValue"
                 |}
                 |
             """.trimMargin()
@@ -113,10 +113,10 @@ class BuildKonfigPluginFlavorTest {
             |   packageName = "com.example"
             |
             |   defaultConfigs {
-            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |   defaultConfigs("dev") {
-            |       buildConfigField 'STRING', 'value', 'devDefaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'devDefaultValue'
             |   }
             |}
             |$buildFileMPPConfig
@@ -142,7 +142,7 @@ class BuildKonfigPluginFlavorTest {
 
         val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
         Truth.assertThat(commonResult.readText())
-            .contains("val value: String = \"devDefaultValue\"")
+            .contains("val stringValue: String = \"devDefaultValue\"")
 
         val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
         Truth.assertThat(jvmResult.exists()).isFalse()
@@ -164,13 +164,13 @@ class BuildKonfigPluginFlavorTest {
             |   packageName = "com.example"
             |
             |   defaultConfigs {
-            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |   defaultConfigs("dev") {
-            |       buildConfigField 'STRING', 'value', 'devDefaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'devDefaultValue'
             |   }
             |   defaultConfigs("release") {
-            |       buildConfigField 'STRING', 'value', 'releaseDefaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'releaseDefaultValue'
             |   }
             |}
             |$buildFileMPPConfig
@@ -196,7 +196,7 @@ class BuildKonfigPluginFlavorTest {
 
         val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
         Truth.assertThat(commonResult.readText())
-            .contains("val value: String = \"releaseDefaultValue\"")
+            .contains("val stringValue: String = \"releaseDefaultValue\"")
 
         val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
         Truth.assertThat(jvmResult.exists()).isFalse()
@@ -218,14 +218,14 @@ class BuildKonfigPluginFlavorTest {
             |   packageName = "com.example"
             |
             |   defaultConfigs {
-            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |   defaultConfigs("dev") {
-            |       buildConfigField 'STRING', 'value', 'devDefaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'devDefaultValue'
             |   }
             |   targetConfigs {
             |       jvm {
-            |           buildConfigField 'STRING', 'value', 'jvmDefaultValue'
+            |           buildConfigField 'STRING', 'stringValue', 'jvmDefaultValue'
             |       }
             |   }
             |}
@@ -273,14 +273,14 @@ class BuildKonfigPluginFlavorTest {
             |   packageName = "com.example"
             |
             |   defaultConfigs {
-            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |   defaultConfigs("dev") {
-            |       buildConfigField 'STRING', 'value', 'devDefaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'devDefaultValue'
             |   }
             |   targetConfigs("dev") {
             |       js {
-            |           buildConfigField 'STRING', 'value', 'devJsValue'
+            |           buildConfigField 'STRING', 'stringValue', 'devJsValue'
             |       }
             |   }
             |}
@@ -328,7 +328,7 @@ class BuildKonfigPluginFlavorTest {
             |   packageName = "com.example"
             |
             |   defaultConfigs {
-            |       buildConfigNullableField 'STRING', 'value', 'defaultValue'
+            |       buildConfigNullableField 'STRING', 'stringValue', 'defaultValue'
             |       buildConfigNullableField 'INT', 'intValue', '10'
             |   }
             |}
@@ -355,8 +355,7 @@ class BuildKonfigPluginFlavorTest {
 
         val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
         Truth.assertThat(commonResult.readText()).apply {
-            contains("String?")
-            contains("defaultValue")
+            contains("stringValue: String? = \"defaultValue\"")
             contains("intValue: Int? = 10")
         }
     }
@@ -371,7 +370,7 @@ class BuildKonfigPluginFlavorTest {
             |   packageName = "com.example"
             |
             |   defaultConfigs {
-            |       buildConfigNullableField 'STRING', 'value', null
+            |       buildConfigNullableField 'STRING', 'stringValue', null
             |       buildConfigNullableField 'INT', 'intValue', null
             |   }
             |}
@@ -398,7 +397,7 @@ class BuildKonfigPluginFlavorTest {
 
         val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
         Truth.assertThat(commonResult.readText()).apply {
-            contains("value: String? = null")
+            contains("stringValue: String? = null")
             contains("intValue: Int? = null")
         }
     }
@@ -413,16 +412,16 @@ class BuildKonfigPluginFlavorTest {
             |   packageName = "com.example"
             |
             |   defaultConfigs {
-            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |       buildConfigField 'STRING', 'key', 'defaultValue'
             |   }
             |   targetConfigs {
             |       js {
-            |           buildConfigField 'STRING', 'value', 'defaultJsValue'
+            |           buildConfigField 'STRING', 'key', 'defaultJsValue'
             |       }
             |   }
             |   targetConfigs("dev") {
             |       js {
-            |           buildConfigField 'STRING', 'value', 'devJsValue'
+            |           buildConfigField 'STRING', 'key', 'devJsValue'
             |       }
             |   }
             |}
@@ -470,16 +469,16 @@ class BuildKonfigPluginFlavorTest {
             |   packageName = "com.example"
             |
             |   defaultConfigs {
-            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |   targetConfigs {
             |       js {
-            |           buildConfigField 'STRING', 'value', 'defaultJsValue'
+            |           buildConfigField 'STRING', 'stringValue', 'defaultJsValue'
             |       }
             |   }
             |   targetConfigs("dev") {
             |       js {
-            |           buildConfigField 'STRING', 'value', 'devJsValue'
+            |           buildConfigField 'STRING', 'stringValue', 'devJsValue'
             |       }
             |   }
             |}
@@ -528,7 +527,7 @@ class BuildKonfigPluginFlavorTest {
             |   objectName = "AwesomeConfig"
             |
             |   defaultConfigs {
-            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |}
             |$buildFileMPPConfig
@@ -569,11 +568,11 @@ class BuildKonfigPluginFlavorTest {
             |   objectName = "AwesomeConfig"
             |
             |   defaultConfigs {
-            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |   targetConfigs {
             |       js {
-            |         buildConfigField 'STRING', 'value', 'jsValue'
+            |         buildConfigField 'STRING', 'stringValue', 'jsValue'
             |       }
             |   }
             |}
@@ -627,7 +626,7 @@ class BuildKonfigPluginFlavorTest {
             |   exposeObjectWithName = "AwesomeConfig"
             |
             |   defaultConfigs {
-            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |}
             |$buildFileMPPConfig
@@ -670,11 +669,11 @@ class BuildKonfigPluginFlavorTest {
             |   exposeObjectWithName = "AwesomeConfig"
             |
             |   defaultConfigs {
-            |       buildConfigField 'STRING', 'value', 'defaultValue'
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |   targetConfigs {
             |       js {
-            |         buildConfigField 'STRING', 'value', 'jsValue'
+            |         buildConfigField 'STRING', 'stringValue', 'jsValue'
             |       }
             |   }
             |}
