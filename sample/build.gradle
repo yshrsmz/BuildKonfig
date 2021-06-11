@@ -5,18 +5,18 @@ buildscript {
     repositories {
         // Use 'gradle install' to install latest
         mavenLocal()
-//        mavenCentral()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.10'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:+'
     }
 }
 
 kotlin {
     jvm {}
-    js {
+    js(IR) {
         browser()
         nodejs()
     }
