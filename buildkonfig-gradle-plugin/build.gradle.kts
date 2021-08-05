@@ -50,7 +50,7 @@ tasks.pluginUnderTestMetadata {
 
 dependencies {
     implementation(project(":buildkonfig-compiler"))
-    implementation(kotlin("stdlib-jdk8", Versions.kotlin))
+//    implementation(kotlin("stdlib-jdk8", Versions.kotlin))
 
     compileOnly(gradleApi())
     implementation(kotlin("gradle-plugin", Versions.kotlin))

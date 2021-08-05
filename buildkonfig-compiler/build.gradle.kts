@@ -13,7 +13,7 @@ sourceSets {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8", Versions.kotlin))
+//    implementation(kotlin("stdlib-jdk8", Versions.kotlin))
     implementation(Dependencies.kotlinPoet)
 }
 
