@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2021-08-05
+
+### Changed
+
+- Kotlin 1.5.21
+- Android Gradle Plugin 4.2.2
+- Gradle Wrapper 7.1.1
+
 ## [0.8.0] - 2021-06-11
 
 ### Changed
