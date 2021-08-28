@@ -258,6 +258,9 @@ class BuildKonfigPluginTest {
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
 
+        println("---------")
+        println(result.output)
+
         assertThat(result.output)
             .contains("BUILD SUCCESSFUL")
 

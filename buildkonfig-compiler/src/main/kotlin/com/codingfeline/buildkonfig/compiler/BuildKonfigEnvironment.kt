@@ -42,9 +42,7 @@ class BuildKonfigEnvironment(
         val errors = mutableListOf<String>()
         try {
             BuildKonfigCompiler.compileCommonObject(
-                data.packageName,
-                data.objectName,
-                data.exposeObject,
+                data.objectProperties,
                 data.commonConfig,
                 data.hasJsTarget,
                 writer,
@@ -60,9 +58,7 @@ class BuildKonfigEnvironment(
         val errors = mutableListOf<String>()
         try {
             BuildKonfigCompiler.compileCommon(
-                data.packageName,
-                data.objectName,
-                data.exposeObject,
+                data.objectProperties,
                 data.commonConfig,
                 writer,
                 logger
@@ -75,9 +71,7 @@ class BuildKonfigEnvironment(
             .forEach { config ->
                 try {
                     BuildKonfigCompiler.compileTarget(
-                        data.packageName,
-                        data.objectName,
-                        data.exposeObject,
+                        data.objectProperties,
                         config,
                         writer,
                         logger

@@ -1,5 +1,6 @@
 package com.codingfeline.buildkonfig.compiler.generator
 
+import com.codingfeline.buildkonfig.compiler.BuildKonfigObjectProperties
 import com.codingfeline.buildkonfig.compiler.Logger
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.squareup.kotlinpoet.FileSpec
@@ -10,64 +11,60 @@ typealias FileAppender = (fileName: String) -> Appendable
 object BuildKonfigCompiler {
 
     fun compileCommonObject(
-        packageName: String,
-        objectName: String,
-        exposeObject: Boolean,
+        objectProps: BuildKonfigObjectProperties,
         configFile: TargetConfigFile,
         hasJsTarget: Boolean,
         output: FileAppender,
         logger: Logger
     ) {
-        val outputDirectory = getOutputDirectory(configFile, packageName)
+        val outputDirectory = getOutputDirectory(configFile, objectProps.packageName)
 
-        val konfigType = BuildKonfigGenerator.ofCommonObject(configFile, exposeObject, hasJsTarget, logger)
-            .generateType(objectName)
+        val konfigType = BuildKonfigGenerator.ofCommonObject(configFile, objectProps.exposeObject, hasJsTarget, logger)
+            .generateType(objectProps.objectName)
 
-        FileSpec.builder(packageName, objectName)
+        FileSpec.builder(objectProps.packageName, objectProps.objectName)
             .apply {
                 addType(konfigType)
             }
             .build()
-            .writeToAndClose(output("$outputDirectory/$objectName.kt"))
+            .writeToAndClose(output("$outputDirectory/${objectProps.objectName}.kt"))
     }
 
     fun compileCommon(
-        packageName: String,
-        objectName: String,
-        exposeObject: Boolean,
+        objectProps: BuildKonfigObjectProperties,
         configFile: TargetConfigFile,
         output: FileAppender,
         logger: Logger
     ) {
-        val outputDirectory = getOutputDirectory(configFile, packageName)
+        val outputDirectory = getOutputDirectory(configFile, objectProps.packageName)
 
-        val konfigType = BuildKonfigGenerator.ofCommon(configFile, exposeObject, logger).generateType(objectName)
+        val konfigType = BuildKonfigGenerator.ofCommon(configFile, objectProps.exposeObject, logger)
+            .generateType(objectProps.objectName)
 
-        FileSpec.builder(packageName, objectName)
+        FileSpec.builder(objectProps.packageName, objectProps.objectName)
             .apply {
                 addType(konfigType)
             }
             .build()
-            .writeToAndClose(output("$outputDirectory/$objectName.kt"))
+            .writeToAndClose(output("$outputDirectory/${objectProps.objectName}.kt"))
     }
 
     fun compileTarget(
-        packageName: String,
-        objectName: String,
-        exposeObject: Boolean,
+        objectProps: BuildKonfigObjectProperties,
         configFile: TargetConfigFile,
         output: FileAppender,
         logger: Logger
     ) {
-        val outputDirectory = getOutputDirectory(configFile, packageName)
-        val konfigType = BuildKonfigGenerator.ofTarget(configFile, exposeObject, logger).generateType(objectName)
+        val outputDirectory = getOutputDirectory(configFile, objectProps.packageName)
+        val konfigType = BuildKonfigGenerator.ofTarget(configFile, objectProps.exposeObject, logger)
+            .generateType(objectProps.objectName)
 
-        FileSpec.builder(packageName, objectName)
+        FileSpec.builder(objectProps.packageName, objectProps.objectName)
             .apply {
                 addType(konfigType)
             }
             .build()
-            .writeToAndClose(output("$outputDirectory/$objectName.kt"))
+            .writeToAndClose(output("$outputDirectory/${objectProps.objectName}.kt"))
     }
 
     private fun FileSpec.writeToAndClose(appendable: Appendable) {

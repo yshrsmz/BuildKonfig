@@ -15,7 +15,7 @@ import org.gradle.api.tasks.TaskAction
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import java.io.File
 
-const val FLAVOR_PROPERTY = "buildkonfig.flavor"
+private const val FLAVOR_PROPERTY = "buildkonfig.flavor"
 
 open class BuildKonfigTask : DefaultTask() {
 
@@ -82,11 +82,13 @@ open class BuildKonfigTask : DefaultTask() {
         val mergedConfigFiles = getMergedTargetConfigFiles(flavorName, defaultConfig)
 
         val data = BuildKonfigData(
-            packageName = packageName,
-            objectName = objectName,
-            exposeObject = exposeObject,
+            objectProperties = BuildKonfigObjectPropertiesImpl(
+                packageName = packageName,
+                objectName = objectName,
+                exposeObject = exposeObject,
+            ),
             commonConfig = TargetConfigFile(
-                TargetName("common", KotlinPlatformType.common.toKgqlPlatformType()),
+                TargetName("common", KotlinPlatformType.common.toPlatformType()),
                 commonOutputDirectory,
                 defaultConfig
             ),

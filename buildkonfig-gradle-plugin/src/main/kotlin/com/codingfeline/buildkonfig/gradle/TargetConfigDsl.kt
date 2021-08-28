@@ -2,14 +2,16 @@ package com.codingfeline.buildkonfig.gradle
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import com.codingfeline.buildkonfig.compiler.TargetConfig
-import org.gradle.api.logging.Logger
+import org.gradle.api.Project
 import java.io.Serializable
 import javax.inject.Inject
 
 open class TargetConfigDsl @Inject constructor(
     name: String,
-    private val logger: Logger
+    project: Project,
 ) : TargetConfig(name), Serializable {
+
+    private val logger = project.logger
 
     companion object {
         const val serialVersionUID = 1L
@@ -51,5 +53,9 @@ open class TargetConfigDsl @Inject constructor(
                 it.flavor = flavor
                 it.fieldSpecs.putAll(fieldSpecs)
             }
+    }
+
+    internal fun registerTask() {
+
     }
 }
