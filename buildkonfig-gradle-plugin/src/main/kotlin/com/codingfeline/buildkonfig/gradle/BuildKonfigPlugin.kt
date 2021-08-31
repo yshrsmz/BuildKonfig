@@ -8,12 +8,11 @@ import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmAndroidCompilation
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 import java.io.File
 
 @Suppress("unused")
-open class BuildKonfigPlugin : Plugin<Project> {
+abstract class BuildKonfigPlugin : Plugin<Project> {
 
     override fun apply(target: Project) {
 
@@ -44,22 +43,13 @@ open class BuildKonfigPlugin : Plugin<Project> {
 
         val mppExtension = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
         val targets = mppExtension.targets
-        val sourceSets = mppExtension.sourceSets
 
         val outputDirectoryMap = mutableMapOf<TargetName, File>()
 
-        sourceSets.getByName("commonMain").kotlin
-            .srcDirs(commonOutputDirectory.toRelativeString(project.projectDir))
-
-        targets.filter { it.name != "metadata" }.forEach { target ->
+        targets.filterIsInstance<KotlinMetadataTarget>().forEach { target ->
             val name = "${target.name}Main"
-            val sourceSetMain = sourceSets.getByName(name)
-
             val outDirMain = File(outputDirectory, name).also { it.mkdirs() }
-
-            sourceSetMain.kotlin.srcDirs(outDirMain.toRelativeString(project.projectDir))
-
-            outputDirectoryMap[TargetName(target.name, target.platformType.toKgqlPlatformType())] = outDirMain
+            outputDirectoryMap[TargetName(target.name, target.platformType.toPlatformType())] = outDirMain
         }
 
         project.afterEvaluate { p ->
@@ -86,31 +76,23 @@ open class BuildKonfigPlugin : Plugin<Project> {
                 it.description = "generate BuildKonfig"
             }
 
-            p.extensions.getByType(KotlinMultiplatformExtension::class.java).targets.forEach { target ->
-                target.compilations.forEach { compilationUnit ->
-                    when (compilationUnit) {
-                        is KotlinNativeCompilation -> {
-
-                            p.tasks.named(compilationUnit.compileAllTaskName).configure { it.dependsOn(task) }
-                            p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(task) }
-
-                            compilationUnit.target.binaries.forEach { binary ->
-                                p.tasks.named(binary.linkTaskName).configure { it.dependsOn(task) }
-                            }
+            targets.forEach { target ->
+                target.compilations.filter { !it.name.endsWith(suffix = "Text", ignoreCase = true) }
+                    .forEach { compilation ->
+                        val outputDirs = task.map { t ->
+                            listOfNotNull(
+                                t.commonOutputDirectory,
+                                t.targetOutputDirectories[target.name]
+                            )
                         }
-                        is KotlinJvmAndroidCompilation -> {
-                            p.tasks.named(compilationUnit.compileKotlinTaskName)
-                                .configure { it.dependsOn(task) }
-                        }
-                        else -> p.tasks.named(compilationUnit.compileKotlinTaskName).configure { it.dependsOn(task) }
+                        compilation.defaultSourceSet.kotlin.srcDirs(outputDirs)
                     }
-                }
             }
         }
     }
 }
 
-internal fun KotlinPlatformType.toKgqlPlatformType(): PlatformType {
+internal fun KotlinPlatformType.toPlatformType(): PlatformType {
     return when (this) {
         KotlinPlatformType.common -> PlatformType.common
         KotlinPlatformType.jvm -> PlatformType.jvm

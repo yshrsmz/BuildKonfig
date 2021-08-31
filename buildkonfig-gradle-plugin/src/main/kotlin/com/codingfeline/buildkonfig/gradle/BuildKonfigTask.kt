@@ -25,10 +25,10 @@ open class BuildKonfigTask : DefaultTask() {
     val pluginVersion: String
         get() = VERSION
 
-    @Input
+    @get:Input
     lateinit var packageName: String
 
-    @Input
+    @get:Input
     lateinit var objectName: String
 
     @Input
@@ -55,10 +55,10 @@ open class BuildKonfigTask : DefaultTask() {
 
     @Suppress("unused")
     @get:OutputDirectories
-    val targetOutputDirectories: List<File>
-        get() = outputDirectories.values.toList()
+    val targetOutputDirectories: Map<String, File>
+        get() = outputDirectories.mapKeys { it.key.name }
 
-    @OutputDirectory
+    @get:OutputDirectory
     lateinit var commonOutputDirectory: File
 
     @Internal
@@ -75,7 +75,7 @@ open class BuildKonfigTask : DefaultTask() {
 
         // clean up output directories
         commonOutputDirectory.cleanupDirectory()
-        targetOutputDirectories.forEach { it.cleanupDirectory() }
+        targetOutputDirectories.forEach { it.value.cleanupDirectory() }
 
         val defaultConfig = getMergedDefaultConfig(flavorName)
 
@@ -86,7 +86,7 @@ open class BuildKonfigTask : DefaultTask() {
             objectName = objectName,
             exposeObject = exposeObject,
             commonConfig = TargetConfigFile(
-                TargetName("common", KotlinPlatformType.common.toKgqlPlatformType()),
+                TargetName("common", KotlinPlatformType.common.toPlatformType()),
                 commonOutputDirectory,
                 defaultConfig
             ),
