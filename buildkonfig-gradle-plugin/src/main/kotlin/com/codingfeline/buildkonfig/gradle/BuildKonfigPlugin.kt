@@ -46,7 +46,8 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
         val outputDirectoryMap = mutableMapOf<TargetName, File>()
 
-        targets.filterIsInstance<KotlinMetadataTarget>().forEach { target ->
+
+        targets.filter { it !is KotlinMetadataTarget }.forEach { target ->
             val name = "${target.name}Main"
             val outDirMain = File(outputDirectory, name).also { it.mkdirs() }
             outputDirectoryMap[TargetName(target.name, target.platformType.toPlatformType())] = outDirMain
