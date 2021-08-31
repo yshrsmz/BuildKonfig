@@ -77,7 +77,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             }
 
             targets.forEach { target ->
-                target.compilations.filter { !it.name.endsWith(suffix = "Text", ignoreCase = true) }
+                target.compilations.filter { !it.name.endsWith(suffix = "Test", ignoreCase = true) }
                     .forEach { compilation ->
                         val outputDirs = task.map { t ->
                             listOfNotNull(
