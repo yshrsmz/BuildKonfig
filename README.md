@@ -36,7 +36,7 @@ Rather I'd like to do it once.
 
 - Kotlin **1.5.0** or later
 - Kotlin Multiplatform Project
-- Gradle 6.5 or later
+- Gradle 7 or later
 
 <a name="gradle-configuration"/>
 
@@ -52,7 +52,7 @@ buildScript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
 }
@@ -87,7 +87,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30")
         classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version")
     }
 }
@@ -145,7 +145,7 @@ buildScript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
 }
@@ -192,7 +192,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30")
         classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version")
     }
 }
