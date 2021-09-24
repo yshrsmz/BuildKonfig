@@ -4,6 +4,7 @@ apply plugin: 'com.codingfeline.buildkonfig'
 buildscript {
     repositories {
         // Use 'gradle install' to install latest
+        maven { url "file://${projectDir.absolutePath}/../build/localMaven" }
         mavenLocal()
         mavenCentral()
     }
@@ -34,5 +35,20 @@ buildkonfig {
 
     defaultConfigs {
         buildConfigField 'STRING', 'test', 'testvalue'
+        buildConfigField 'STRING', 'target', 'common'
+    }
+
+    targetConfigs {
+        jvm {
+            buildConfigField 'STRING', 'target', 'jvm'
+        }
+        // KMP plugin internally creates iosArm64 and iosX64 targets
+        // when we use `ios()`. So we need to configure both targets.
+        iosArm64 {
+            buildConfigField 'STRING', 'target', 'iosArm64'
+        }
+        iosX64 {
+            buildConfigField 'STRING', 'target', 'iosX64'
+        }
     }
 }
