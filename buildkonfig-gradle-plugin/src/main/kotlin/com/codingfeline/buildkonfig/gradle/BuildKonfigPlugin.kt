@@ -81,10 +81,12 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
                 target.compilations.filter { !it.name.endsWith(suffix = "Test", ignoreCase = true) }
                     .forEach { compilation ->
                         val outputDirs = task.map { t ->
-                            listOfNotNull(
-                                t.commonOutputDirectory,
+                            val src = if (target is KotlinMetadataTarget) {
+                                t.commonOutputDirectory
+                            } else {
                                 t.targetOutputDirectories[target.name]
-                            )
+                            }
+                            listOfNotNull(src)
                         }
                         compilation.defaultSourceSet.kotlin.srcDirs(outputDirs)
                     }
