@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-      
+
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
@@ -26,3 +26,11 @@ jobs:
 
       - name: execute test cases
         run: ./gradlew test
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-reports
+          path: ./*/build/reports/tests/
+
