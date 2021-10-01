@@ -154,6 +154,9 @@ open class BuildKonfigTask : DefaultTask() {
 
     private fun getMergedDefaultConfig(flavor: String): TargetConfig {
         val default = defaultConfigs.getValue("")
+        if (flavor.isEmpty()) {
+            return default
+        }
         val flavored = defaultConfigs[flavor]
 
         return mergeDefaultConfigs(flavor, default, flavored)
@@ -172,9 +175,12 @@ open class BuildKonfigTask : DefaultTask() {
             // get non-flavored config first
             targetConfigs.getOrDefault("", emptyList()).filter { it.name == targetName.name }
                 .let { sortedConfigs.addAll(it) }
-            // get flavored config
-            targetConfigs.getOrDefault(flavorName, emptyList()).filter { it.name == targetName.name }
-                .let { sortedConfigs.addAll(it) }
+
+            if (flavorName.isNotEmpty()) {
+                // get flavored config
+                targetConfigs.getOrDefault(flavorName, emptyList()).filter { it.name == targetName.name }
+                    .let { sortedConfigs.addAll(it) }
+            }
 
             val defaultConfigsForTarget = defaultConfig
                 .let { base ->
