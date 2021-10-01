@@ -77,14 +77,9 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             }
 
             targets.forEach { target ->
-                println("target: ${target.name}, ${target::class}")
                 target.compilations
                     .filter { !it.name.endsWith(suffix = "Test", ignoreCase = true) }
                     .forEach eachCompilation@{ compilation ->
-                        println("compilation: ${compilation.name}, ${compilation::class}, ${compilation.compileKotlinTask}, ${compilation.compileAllTaskName}")
-                        println("compilation: defaultSourceSet: ${compilation.defaultSourceSet}, ${compilation.defaultSourceSet.dependsOn}")
-                        println("compilation: allKotlinSourceSets: ${compilation.allKotlinSourceSets}")
-                        println("------")
                         if (target is KotlinMetadataTarget && compilation.defaultSourceSet.dependsOn.isNotEmpty()) {
                             // When `kotlin.mpp.enableGranularSourceSetsMetadata` is set to true,
                             // shared SourceSet have its dedicated compilation in KotlinMetadataTarget
