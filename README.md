@@ -34,7 +34,7 @@ Rather I'd like to do it once.
 
 ### Requirements
 
-- Kotlin **1.5.0** or later
+- Kotlin **1.5.30** or later
 - Kotlin Multiplatform Project
 - Gradle 7 or later
 
