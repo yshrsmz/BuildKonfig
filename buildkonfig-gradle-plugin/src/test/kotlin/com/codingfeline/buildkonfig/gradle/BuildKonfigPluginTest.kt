@@ -462,6 +462,126 @@ class BuildKonfigPluginTest {
     }
 
     @Test
+    fun `Applying the plugin works fine for the complex hierarchical multiplatform project`() {
+        buildFile.writeText(
+            """
+            |plugins {
+            |   id 'kotlin-multiplatform'
+            |   id 'com.android.library'
+            |   id 'com.codingfeline.buildkonfig'
+            |}
+            |
+            |repositories {
+            |   google()
+            |   mavenCentral()
+            |}
+            |
+            |android {
+            |    compileSdkVersion 28
+            |
+            |    defaultConfig {
+            |        minSdkVersion 21
+            |        targetSdkVersion 28
+            |        versionCode 1
+            |        versionName "1.0"
+            |    }
+            |    buildTypes {
+            |        release {
+            |            minifyEnabled false
+            |            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            |        }
+            |    }
+            |
+            |    sourceSets {
+            |        main {
+            |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
+            |        }
+            |    }
+            |}
+            |buildkonfig {
+            |    packageName = "com.sample"
+            |
+            |    defaultConfigs {
+            |        buildConfigField 'STRING', 'platform', 'unknown'
+            |    }
+            |
+            |    targetConfigs {
+            |        jvm {
+            |            buildConfigField 'STRING', 'platform', 'jvm'
+            |            buildConfigField 'STRING', 'jvm', 'jvmvalue'
+            |        }
+            |        android {
+            |            buildConfigField 'String', 'platform', 'android'
+            |            buildConfigField 'String', 'android', 'androidvalue'
+            |        }
+            |        iosX64 {
+            |            buildConfigField 'String', 'platform', 'iosX64'
+            |            buildConfigField 'String', 'native', 'nativevalue'
+            |        }
+            |    }
+            |}
+            |
+            |kotlin {
+            |    android()
+            |    jvm()
+            |    js {
+            |       browser()
+            |    }
+            |    ios()
+            |    macosX64()
+            |    linuxX64()
+            |    mingwX64()
+            |
+            |    sourceSets {
+            |     commonMain {}
+            |     androidMain {}
+            |     jvmMain {}
+            |     
+            |     desktopMain {
+            |       dependsOn(commonMain)
+            |     }
+            |     macosX64 {
+            |       dependsOn(desktopMain)
+            |     }
+            |     linuxX64 {
+            |       dependsOn(desktopMain)
+            |     }
+            |     mingwX64 {
+            |       dependsOn(desktopMain)
+            |     }
+            |   }
+            |}
+            """.trimMargin()
+        )
+        val propFile = projectDir.newFile("gradle.properties")
+        propFile.writeText(
+            """
+        |kotlin.mpp.enableGranularSourceSetsMetadata=true
+        |kotlin.native.enableDependencyPropagation=false
+        """.trimMargin()
+        )
+
+        createAndroidManifest(projectDir)
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace", "--info")
+            .build()
+
+        println("result: ${result.output}")
+
+        assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+    }
+
+    @Test
     fun `The generate task is a dependency of multiplatform jvm target`() {
 
         buildFile.writeText(

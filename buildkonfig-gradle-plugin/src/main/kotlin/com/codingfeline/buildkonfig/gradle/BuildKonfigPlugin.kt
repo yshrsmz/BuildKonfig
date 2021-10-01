@@ -46,7 +46,6 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
         val outputDirectoryMap = mutableMapOf<TargetName, File>()
 
-
         targets.filter { it !is KotlinMetadataTarget }.forEach { target ->
             val name = "${target.name}Main"
             val outDirMain = File(outputDirectory, name).also { it.mkdirs() }
@@ -78,8 +77,16 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             }
 
             targets.forEach { target ->
-                target.compilations.filter { !it.name.endsWith(suffix = "Test", ignoreCase = true) }
-                    .forEach { compilation ->
+                target.compilations
+                    .filter { !it.name.endsWith(suffix = "Test", ignoreCase = true) }
+                    .forEach eachCompilation@{ compilation ->
+                        if (target is KotlinMetadataTarget && compilation.defaultSourceSet.dependsOn.isNotEmpty()) {
+                            // When `kotlin.mpp.enableGranularSourceSetsMetadata` is set to true,
+                            // shared SourceSet have its dedicated compilation in KotlinMetadataTarget
+                            // So we check if its defaultSourceSet has any dependency to check if it's commonMain
+                            // https://github.com/yshrsmz/BuildKonfig/issues/56
+                            return@eachCompilation
+                        }
                         val outputDirs = task.map { t ->
                             val src = if (target is KotlinMetadataTarget) {
                                 t.commonOutputDirectory
