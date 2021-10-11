@@ -77,7 +77,7 @@ open class BuildKonfigTask : DefaultTask() {
         commonOutputDirectory.cleanupDirectory()
         targetOutputDirectories.forEach { it.value.cleanupDirectory() }
 
-        val defaultConfig = getMergedDefaultConfig(flavorName)
+        val defaultConfig = mergeDefaultConfigs(logger::info, flavorName, defaultConfigs)
 
         val mergedConfigFiles = getMergedTargetConfigFiles(flavorName, defaultConfig)
 
@@ -96,52 +96,6 @@ open class BuildKonfigTask : DefaultTask() {
         BuildKonfigEnvironment(data).generateConfigs { info -> logger.info(info) }
     }
 
-    private fun mergeDefaultConfigs(
-        flavor: String,
-        baseConfig: TargetConfig,
-        newConfig: TargetConfig?
-    ): TargetConfig {
-        val result = TargetConfig(baseConfig.name)
-
-        listOf(
-            baseConfig.fieldSpecs,
-            newConfig?.fieldSpecs ?: emptyMap()
-        ).forEach { specs ->
-            specs.forEach { (name, value) ->
-                val alreadyPresent = result.fieldSpecs[name]
-                if (alreadyPresent != null) {
-                    logger.info("Default BuildKonfig: buildConfigField '$name' is being replaced with flavored($flavor): ${alreadyPresent.value} -> ${value.value}")
-                }
-                result.fieldSpecs[name] = value.copy()
-            }
-        }
-
-        return result
-    }
-
-    private fun mergeConfigs(
-        targetName: String,
-        defaultConfig: TargetConfig,
-        baseConfig: TargetConfig,
-        newConfig: TargetConfig
-    ): TargetConfig {
-        val result = TargetConfig(targetName)
-
-        baseConfig.fieldSpecs.forEach { (name, value) ->
-            result.fieldSpecs[name] = value.copy(isTargetSpecific = !defaultConfig.fieldSpecs.contains(name))
-        }
-
-        newConfig.fieldSpecs.forEach { (name, value) ->
-            val alreadyPresent = result.fieldSpecs[name]
-            if (alreadyPresent != null) {
-                logger.info("BuildKonfig for $targetName: buildConfigField '$name' is being replaced: ${alreadyPresent.value} -> ${value.value}")
-            }
-            result.fieldSpecs[name] = value.copy(isTargetSpecific = !defaultConfig.fieldSpecs.contains(name))
-        }
-
-        return result
-    }
-
     private fun findFlavor(): String {
         val flavor = project.findProperty(FLAVOR_PROPERTY) ?: ""
         return if (flavor is String) {
@@ -152,52 +106,26 @@ open class BuildKonfigTask : DefaultTask() {
         }
     }
 
-    private fun getMergedDefaultConfig(flavor: String): TargetConfig {
-        val default = defaultConfigs.getValue("")
-        if (flavor.isEmpty()) {
-            return default
-        }
-        val flavored = defaultConfigs[flavor]
-
-        return mergeDefaultConfigs(flavor, default, flavored)
-    }
-
     private fun getMergedTargetConfigFiles(
         flavorName: String,
         defaultConfig: TargetConfig
     ): List<TargetConfigFile> {
+        val merged = mergeTargetConfigs(logger::info, flavorName, targetConfigs)
         return targetNames.map { targetName ->
-            if (targetConfigs.isEmpty()) {
+            if (merged.isEmpty()) {
                 return@map TargetConfigFile(targetName, outputDirectories.getValue(targetName), null)
             }
-            val sortedConfigs = mutableListOf<TargetConfig>()
 
-            // get non-flavored config first
-            targetConfigs.getOrDefault("", emptyList()).filter { it.name == targetName.name }
-                .let { sortedConfigs.addAll(it) }
-
-            if (flavorName.isNotEmpty()) {
-                // get flavored config
-                targetConfigs.getOrDefault(flavorName, emptyList()).filter { it.name == targetName.name }
-                    .let { sortedConfigs.addAll(it) }
-            }
-
-            val defaultConfigsForTarget = defaultConfig
-                .let { base ->
-                    TargetConfig(targetName.name)
-                        .also { it.fieldSpecs.putAll(base.fieldSpecs) }
+            val targetConfig = merged[targetName.name]
+            TargetConfigFile(
+                targetName = targetName,
+                outputDirectory = outputDirectories.getValue(targetName),
+                config = if (targetConfig != null) {
+                    mergeConfigs(defaultConfig, checkTargetSpecificFields(defaultConfig, targetConfig))
+                } else {
+                    defaultConfig.copy()
                 }
-
-            sortedConfigs
-                .fold(defaultConfigsForTarget) { previous, current ->
-                    mergeConfigs(
-                        targetName.name,
-                        defaultConfigsForTarget,
-                        previous,
-                        current
-                    )
-                }
-                .let { TargetConfigFile(targetName, outputDirectories.getValue(targetName), it) }
+            )
         }
     }
 
