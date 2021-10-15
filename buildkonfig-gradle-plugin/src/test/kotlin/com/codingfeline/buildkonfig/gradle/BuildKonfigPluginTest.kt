@@ -159,7 +159,7 @@ class BuildKonfigPluginTest {
             .buildAndFail()
 
         assertThat(result.output)
-            .contains("non flavored defaultConfigs must be provided")
+            .contains("non-flavored defaultConfigs must be provided")
     }
 
     @Test

@@ -2,19 +2,25 @@ package com.codingfeline.buildkonfig.gradle
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import com.codingfeline.buildkonfig.compiler.TargetConfig
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import com.codingfeline.buildkonfig.compiler.TargetConfigFile
+import com.codingfeline.buildkonfig.compiler.TargetName
+import com.codingfeline.buildkonfig.gradle.kotlin.Source
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import java.io.File
 
-data class BuildKonfigSpec(
-    val commonSpec: TargetConfigSpec,
-    val targetSpecs: Map<String, TargetConfigSpec>
+data class TargetConfigSource(
+    val configFile: TargetConfigFileImpl,
+    val sourceSet: KotlinSourceSet,
+    val source: Source
 )
 
-data class TargetConfigSpec(
-    val platformType: KotlinPlatformType,
-    val outputDirectory: File,
-    val fields: Set<FieldSpec>
-)
+data class TargetConfigFileImpl(
+    @Input override val targetName: TargetName,
+    @Internal override val outputDirectory: File,
+    @Input override val config: TargetConfig?
+) : TargetConfigFile
 
 fun BuildKonfigExtension.mergeConfigs(
     logger: (String) -> Unit,
