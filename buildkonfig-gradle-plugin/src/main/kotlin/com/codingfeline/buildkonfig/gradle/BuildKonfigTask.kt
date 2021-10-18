@@ -52,15 +52,15 @@ open class BuildKonfigTask : DefaultTask() {
     fun generateBuildKonfigFiles() {
 
         // clean up output directories
-        outputDirectories.getValue("commonMain").parentFile.cleanupDirectory()
+        outputDirectories.getValue(COMMON_SOURCESET_NAME).parentFile.cleanupDirectory()
         outputDirectories.forEach { it.value.mkdirs() }
 
         val data = BuildKonfigData(
             packageName = packageName,
             objectName = objectName,
             exposeObject = exposeObject,
-            commonConfig = targetConfigFiles.getValue("commonMain"),
-            targetConfigs = targetConfigFiles.filter { it.key !== "commonMain" }.values.toList(),
+            commonConfig = targetConfigFiles.getValue(COMMON_SOURCESET_NAME),
+            targetConfigs = targetConfigFiles.filter { it.key !== COMMON_SOURCESET_NAME }.values.toList(),
             hasJsTarget = hasJsTarget
         )
 
