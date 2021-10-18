@@ -52,7 +52,6 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             val flavor = p.findFlavor()
 
             val targetConfigs = extension.mergeConfigs(project.logger::info, flavor)
-                .mapKeys { (key, _) -> "${key}Main" }
                 .toMutableMap()
 
             val targetConfigSources = decideOutputs(project, mppExtension, targetConfigs, outputDirectory)
@@ -96,13 +95,14 @@ fun decideOutputs(
 ): Map<String, TargetConfigSource> {
     return mppExtension.sources()
         // Map<SourceName, TargetConfigSource
-        .fold(emptyMap<String, TargetConfigSource>()) { acc, source ->
+        .fold(emptyMap()) { acc, source ->
             if (targetConfigs.size == 1 && source.name != COMMON_SOURCESET_NAME) {
                 // there's only common config
                 return@fold acc
             }
 
-            val dependentsWithConfig = source.sourceSets.filter { it.name != COMMON_SOURCESET_NAME }
+            val dependentsWithConfig = source.sourceSets
+                .filter { it.name != COMMON_SOURCESET_NAME }
                 .filter { targetConfigs.containsKey(it.name) }
 
             val sourceHasConfig = targetConfigs.containsKey(source.name)

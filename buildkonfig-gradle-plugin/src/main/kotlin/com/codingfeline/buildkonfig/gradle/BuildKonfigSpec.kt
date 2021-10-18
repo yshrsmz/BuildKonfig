@@ -41,7 +41,7 @@ fun BuildKonfigExtension.mergeConfigs(
                 defaultConfig,
                 checkTargetSpecificFields(defaultConfig, config)
             )
-        } + ("common" to defaultConfig)
+        } + (COMMON_SOURCESET_NAME to defaultConfig)
 }
 
 fun checkTargetSpecificFields(defaultConfig: TargetConfig, targetConfig: TargetConfig): TargetConfig {
@@ -107,12 +107,12 @@ fun mergeTargetConfigs(
     val defaultTargetConfigs = targetConfigs
         .getOrDefault(DEFAULT_FLAVOR, emptyList())
         // convert to Map<name, TargetConfig>
-        .associateBy { it.name }
+        .associateBy { "${it.name}Main" }
 
     val flavoredConfigs = if (flavor !== DEFAULT_FLAVOR) {
         targetConfigs.getOrDefault(flavor, emptyList())
             // convert to Map<name, TargetConfig>
-            .associateBy { it.name }
+            .associateBy { "${it.name}Main" }
     } else {
         // we don't want to merge the same configs
         emptyMap()
