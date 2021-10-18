@@ -37,6 +37,11 @@ allprojects {
         maven { url = uri("https://dl.bintray.com/kotlin/kotlin-eap") }
     }
 
+    tasks.withType(JavaCompile::class.java) {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
+    }
+
     group = GROUP
     version = VERSION_NAME
 }
