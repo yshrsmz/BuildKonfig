@@ -122,13 +122,13 @@ fun decideOutputs(
 
                     // if not available, create it.
                     val tcs = TargetConfigSource(
+                        name = firstDependent.name,
                         configFile = TargetConfigFileImpl(
                             targetName = TargetName(firstDependent.name, source.type.toPlatformType()),
                             outputDirectory = File(outputDirectory, firstDependent.name),
                             config = targetConfigs.getValue(firstDependent.name)
                         ),
-                        sourceSet = firstDependent,
-                        source = source
+                        sourceSet = firstDependent
                     )
 
                     return@fold acc + (firstDependent.name to tcs)
@@ -145,13 +145,13 @@ fun decideOutputs(
                 dependentsWithConfig.first()
             }
             val tcs = TargetConfigSource(
+                name = source.name,
                 configFile = TargetConfigFileImpl(
                     targetName = TargetName(source.name, source.type.toPlatformType()),
                     outputDirectory = File(outputDirectory, targetSourceSet.name),
                     config = targetConfigs[source.name] ?: targetConfigs.getValue(COMMON_SOURCESET_NAME).copy(),
                 ),
-                sourceSet = targetSourceSet,
-                source = source
+                sourceSet = targetSourceSet
             )
 
             acc + (source.name to tcs)
