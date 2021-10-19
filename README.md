@@ -407,8 +407,8 @@ a.k.a `Intermediate SourceSets`. (see [Share code on platforms](https://kotlinla
 for detail.)  
 BuildKonfig supports HMPP. However there's some limitations.
 
-**When you add a targetConfigs for a intermediate source set, you can't define another targetConfigs for children of the
-intermediate source set.**
+**When you add a targetConfigs for a intermediate source set, you can't define another targetConfigs for its children
+source sets.**
 
 For example, say you configured your source set structure like below.
 
