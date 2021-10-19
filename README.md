@@ -403,7 +403,8 @@ Flavored TargetConfig > TargetConfig > Flavored DefaultConfig > DefaultConfig
 
 ### HMPP Support
 
-a.k.a `Intermediate SourceSets`.  
+a.k.a `Intermediate SourceSets`. (see [Share code on platforms](https://kotlinlang.org/docs/mpp-share-on-platforms.html)
+for detail.)  
 BuildKonfig supports HMPP. However there's some limitations.
 
 **When you add a targetConfigs for a intermediate source set, you can't define another targetConfigs for children of the
