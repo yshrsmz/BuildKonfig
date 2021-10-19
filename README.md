@@ -410,7 +410,7 @@ BuildKonfig supports HMPP. However there's some limitations.
 **When you add a targetConfigs for a intermediate source set, you can't define another targetConfigs for its children
 source sets.**
 
-For example, say you configured your source set structure like below.
+For example, say your have a source set structure like below.
 
 ```
 - commonMain
