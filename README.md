@@ -44,7 +44,8 @@ Rather I'd like to do it once.
 
 #### Simple configuration
 
-##### Groovy DSL
+<details open>
+<summary>Groovy DSL</summary>
 
 ```gradle
 buildScript {
@@ -77,7 +78,10 @@ buildkonfig {
 }
 ```
 
-##### Kotlin DSL
+</details>
+
+<details>
+<summary>Kotlin DSL</summary>
 
 ```kotlin
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
@@ -114,6 +118,8 @@ buildkonfig {
 }
 ```
 
+</details>
+
 - `packageName` Set the package name where BuildKonfig is being placed. **Required**.
 - `objectName` Set the name of the generated object. Defaults to `BuildKonfig`.
 - `exposeObjectWithName` Set the name of the generated object, and make it public.
@@ -137,7 +143,8 @@ internal object BuildKonfig {
 
 If you want to change value depending on your targets, you can use `targetConfigs` to define target-dependent values.
 
-##### Groovy DSL
+<details open>
+<summary>Groovy DSL</summary>
 
 ```gradle
 buildScript {
@@ -182,7 +189,10 @@ buildkonfig {
 }
 ```
 
-##### Kotlin DSL
+</details>
+
+<details>
+<summary>Kotlin DSL</summary>
 
 ```kotlin
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
@@ -229,6 +239,8 @@ buildkonfig {
     }
 }
 ```
+
+</details>
 
 - `packageName` Set the package name where BuildKonfig is being placed. **Required**.
 - `objectName` Set the name of the generated object. Defaults to `BuildKonfig`.
@@ -293,7 +305,8 @@ Specify default flavor in your `gradle.properties`
 buildkonfig.flavor=dev
 ```
 
-##### Groovy DSL
+<details open>
+<summary>Groovy DSL</summary>
 
 ```gradle
 // ./mpp_project/build.gradle
@@ -328,7 +341,10 @@ buildkonfig {
 }
 ```
 
-##### Kotlin DSL
+</details>
+
+<details>
+<summary>Kotlin DSL</summary>
 
 ```kotlin
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.
@@ -363,6 +379,8 @@ buildkonfig {
     })
 }
 ```
+
+</details>
 
 In a development phase you can change value in `gradle.properties` as you like.  
 In CI environment, you can pass value via CLI `$ ./gradlew build -Pbuildkonfig.flavor=release`
