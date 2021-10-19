@@ -14,6 +14,7 @@ It currently supports embedding values from gradle file.
     - [Gradle Configuration](#gradle-configuration)
     - [Product Flavor?](#product-flavor)
     - [Overwriting Values](#overwriting-values)
+    - [HMPP](#hmpp)
 - [Supported Types](#supported-types)
 - [Try out the sample](#try-out-the-sample)
 
@@ -397,6 +398,40 @@ Lefter the stronger.
 ```
 Flavored TargetConfig > TargetConfig > Flavored DefaultConfig > DefaultConfig
 ```
+
+<a name="hmpp"/>
+
+### HMPP Support
+
+a.k.a `Intermediate SourceSets`.  
+BuildKonfig supports HMPP. However there's some limitations.
+
+**When you add a targetConfigs for a intermediate source set, you can't define another targetConfigs for children of the
+intermediate source set.**
+
+For example, say you configured your source set structure like below.
+
+```
+- commonMain
+  - appMain
+    - androidMain
+    - desktopMain
+      - macosX64Main
+      - linuxX64Main
+      - mingwX64Main
+  - jsCommonMain
+    - browserMain
+    - nodeMain
+  - iosMain
+    - iosArm64Main
+    - iosX64Main
+```
+
+If you add a targetConfigs for `appMain`, you can't add configs for androidMain, desktopMain, or children of
+desktopMain. This is because BuildKonfig uses expect/actual to provide different values for each BuildKonfig object.
+When you provide a configuration for `appMain`, actual declaration of BuildKonfig object is created in `appMain. So any
+additional actual declarations in children SourceSets leads to compile-time error.
+
 
 <a name="supported-types"/>
 
