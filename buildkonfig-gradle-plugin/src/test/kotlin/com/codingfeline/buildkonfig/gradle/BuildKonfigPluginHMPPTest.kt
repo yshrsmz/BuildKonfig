@@ -144,7 +144,7 @@ class BuildKonfigPluginHMPPTest {
             .withArguments("generateBuildKonfig", "--stacktrace", "--info")
             .build()
 
-        println("result: ${result.output}")
+//        println("result: ${result.output}")
 
         Truth.assertThat(result.output)
             .contains("BUILD SUCCESSFUL")
@@ -353,6 +353,8 @@ class BuildKonfigPluginHMPPTest {
         Truth.assertThat(appKonfig.readText()).apply {
             contains("actual")
             doesNotContain("expect")
+
+            contains("val platform: String = \"app\"")
         }
 
         val androidKonfig = File(buildDir, "androidMain/com/sample/BuildKonfig.kt")
@@ -451,6 +453,7 @@ class BuildKonfigPluginHMPPTest {
             |    targetConfigs {
             |       app {
             |          buildConfigField 'STRING', 'platform', 'app'
+            |          buildConfigField 'STRING', 'app', 'appvalue'
             |       }
             |       android {
             |           buildConfigField 'String', 'platform', 'android'
@@ -504,10 +507,15 @@ class BuildKonfigPluginHMPPTest {
         Truth.assertThat(result.output)
             .contains("BUILD SUCCESSFUL")
 
-        println(buildDir.listFiles())
-
         val appKonfig = File(buildDir, "appMain/com/sample/BuildKonfig.kt")
         Truth.assertThat(appKonfig.exists()).isTrue()
+        Truth.assertThat(appKonfig.readText()).apply {
+            contains("actual")
+            doesNotContain("expect")
+
+            contains("val platform: String = \"app\"")
+            contains("val app: String = \"appvalue\"")
+        }
 
         val androidKonfig = File(buildDir, "androidMain/com/sample/BuildKonfig.kt")
         Truth.assertThat(androidKonfig.exists()).isFalse()

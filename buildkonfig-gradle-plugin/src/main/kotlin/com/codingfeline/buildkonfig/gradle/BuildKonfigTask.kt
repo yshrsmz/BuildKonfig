@@ -50,7 +50,6 @@ open class BuildKonfigTask : DefaultTask() {
     @Suppress("unused")
     @TaskAction
     fun generateBuildKonfigFiles() {
-
         // clean up output directories
         outputDirectories.getValue(COMMON_SOURCESET_NAME).parentFile.cleanupDirectory()
         outputDirectories.forEach { it.value.mkdirs() }

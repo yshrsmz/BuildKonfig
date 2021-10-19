@@ -107,32 +107,32 @@ fun decideOutputs(
 
             val sourceHasConfig = targetConfigs.containsKey(source.name)
 
-            if (sourceHasConfig) {
-                if (dependentsWithConfig.isNotEmpty()) {
+            if (dependentsWithConfig.isNotEmpty()) {
+                if (sourceHasConfig) {
                     project.logger.warn(
                         "BuildKonfig configuration for SourceSet(${source.name}) is ignored, " +
                                 "as its dependent SourceSets(${dependentsWithConfig.map { it.name }}) also have configurations"
                     )
-
-                    val firstDependent = dependentsWithConfig.first()
-                    if (acc.containsKey(firstDependent.name)) {
-                        // common source set should be available earlier, as sources are sorted by the number of dependent SourceSets
-                        return@fold acc
-                    }
-
-                    // if not available, create it.
-                    val tcs = TargetConfigSource(
-                        name = firstDependent.name,
-                        configFile = TargetConfigFileImpl(
-                            targetName = TargetName(firstDependent.name, source.type.toPlatformType()),
-                            outputDirectory = File(outputDirectory, firstDependent.name),
-                            config = targetConfigs.getValue(firstDependent.name)
-                        ),
-                        sourceSet = firstDependent
-                    )
-
-                    return@fold acc + (firstDependent.name to tcs)
                 }
+
+                val firstDependent = dependentsWithConfig.first()
+                if (acc.containsKey(firstDependent.name)) {
+                    // common source set should be available earlier, as sources are sorted by the number of dependent SourceSets
+                    return@fold acc
+                }
+
+                // if not available, create it.
+                val tcs = TargetConfigSource(
+                    name = firstDependent.name,
+                    configFile = TargetConfigFileImpl(
+                        targetName = TargetName(firstDependent.name, source.type.toPlatformType()),
+                        outputDirectory = File(outputDirectory, firstDependent.name),
+                        config = targetConfigs.getValue(firstDependent.name)
+                    ),
+                    sourceSet = firstDependent
+                )
+
+                return@fold acc + (firstDependent.name to tcs)
             }
 
             if (source.type == KotlinPlatformType.common && !sourceHasConfig) {
@@ -157,7 +157,6 @@ fun decideOutputs(
 
             acc + (source.name to tcs)
         }
-
 }
 
 internal fun Project.findFlavor(): String {
