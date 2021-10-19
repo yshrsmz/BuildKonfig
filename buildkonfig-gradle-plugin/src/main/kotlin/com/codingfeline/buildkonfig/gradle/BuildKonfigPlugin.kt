@@ -113,10 +113,10 @@ fun decideOutputs(
                         "BuildKonfig configuration for SourceSet(${source.name}) is ignored, " +
                                 "as its dependent SourceSets(${dependentsWithConfig.map { it.name }}) also have configurations"
                     )
-                    // TODO: target/compilation に存在しない SourceSet の場合
+
                     val firstDependent = dependentsWithConfig.first()
                     if (acc.containsKey(firstDependent.name)) {
-                        // common source set should be available earlier, as sources are sorted by dependents size
+                        // common source set should be available earlier, as sources are sorted by the number of dependent SourceSets
                         return@fold acc
                     }
 
@@ -136,6 +136,7 @@ fun decideOutputs(
             }
 
             if (source.type == KotlinPlatformType.common && !sourceHasConfig) {
+                // Intermediate SourceSets without config
                 return@fold acc
             }
 
