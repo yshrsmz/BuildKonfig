@@ -14,6 +14,7 @@ It currently supports embedding values from gradle file.
     - [Gradle Configuration](#gradle-configuration)
     - [Product Flavor?](#product-flavor)
     - [Overwriting Values](#overwriting-values)
+    - [HMPP](#hmpp)
 - [Supported Types](#supported-types)
 - [Try out the sample](#try-out-the-sample)
 
@@ -44,7 +45,8 @@ Rather I'd like to do it once.
 
 #### Simple configuration
 
-##### Groovy DSL
+<details open>
+<summary>Groovy DSL</summary>
 
 ```gradle
 buildScript {
@@ -77,7 +79,10 @@ buildkonfig {
 }
 ```
 
-##### Kotlin DSL
+</details>
+
+<details>
+<summary>Kotlin DSL</summary>
 
 ```kotlin
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
@@ -114,6 +119,8 @@ buildkonfig {
 }
 ```
 
+</details>
+
 - `packageName` Set the package name where BuildKonfig is being placed. **Required**.
 - `objectName` Set the name of the generated object. Defaults to `BuildKonfig`.
 - `exposeObjectWithName` Set the name of the generated object, and make it public.
@@ -137,7 +144,8 @@ internal object BuildKonfig {
 
 If you want to change value depending on your targets, you can use `targetConfigs` to define target-dependent values.
 
-##### Groovy DSL
+<details open>
+<summary>Groovy DSL</summary>
 
 ```gradle
 buildScript {
@@ -182,7 +190,10 @@ buildkonfig {
 }
 ```
 
-##### Kotlin DSL
+</details>
+
+<details>
+<summary>Kotlin DSL</summary>
 
 ```kotlin
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
@@ -229,6 +240,8 @@ buildkonfig {
     }
 }
 ```
+
+</details>
 
 - `packageName` Set the package name where BuildKonfig is being placed. **Required**.
 - `objectName` Set the name of the generated object. Defaults to `BuildKonfig`.
@@ -293,7 +306,8 @@ Specify default flavor in your `gradle.properties`
 buildkonfig.flavor=dev
 ```
 
-##### Groovy DSL
+<details open>
+<summary>Groovy DSL</summary>
 
 ```gradle
 // ./mpp_project/build.gradle
@@ -328,7 +342,10 @@ buildkonfig {
 }
 ```
 
-##### Kotlin DSL
+</details>
+
+<details>
+<summary>Kotlin DSL</summary>
 
 ```kotlin
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.
@@ -364,6 +381,8 @@ buildkonfig {
 }
 ```
 
+</details>
+
 In a development phase you can change value in `gradle.properties` as you like.  
 In CI environment, you can pass value via CLI `$ ./gradlew build -Pbuildkonfig.flavor=release`
 
@@ -379,6 +398,41 @@ Lefter the stronger.
 ```
 Flavored TargetConfig > TargetConfig > Flavored DefaultConfig > DefaultConfig
 ```
+
+<a name="hmpp"/>
+
+### HMPP Support
+
+a.k.a `Intermediate SourceSets`. (see [Share code on platforms](https://kotlinlang.org/docs/mpp-share-on-platforms.html)
+for detail.)  
+BuildKonfig supports HMPP. However there's some limitations.
+
+**When you add a targetConfigs for a intermediate source set, you can't define another targetConfigs for its children
+source sets.**
+
+For example, say your have a source set structure like below.
+
+```
+- commonMain
+  - appMain
+    - androidMain
+    - desktopMain
+      - macosX64Main
+      - linuxX64Main
+      - mingwX64Main
+  - jsCommonMain
+    - browserMain
+    - nodeMain
+  - iosMain
+    - iosArm64Main
+    - iosX64Main
+```
+
+If you add a targetConfigs for `appMain`, you can't add configs for androidMain, desktopMain, or children of
+desktopMain. This is because BuildKonfig uses expect/actual to provide different values for each BuildKonfig object.
+When you provide a configuration for `appMain`, actual declaration of BuildKonfig object is created in `appMain. So any
+additional actual declarations in children SourceSets leads to compile-time error.
+
 
 <a name="supported-types"/>
 

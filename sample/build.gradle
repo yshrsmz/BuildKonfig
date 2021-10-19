@@ -10,7 +10,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:+'
     }
 }
@@ -25,9 +25,66 @@ kotlin {
     jvm {}
     js(IR) {
         browser()
+    }
+    js("node") {
         nodejs()
     }
     ios()
+    macosX64()
+    linuxX64()
+    mingwX64()
+
+    /**
+     * - commonMain
+     *   - appMain
+     *     - jvmMain
+     *     - desktopMain
+     *       - macosX64Main
+     *       - linuxX64Main
+     *       - mingwX64Main
+     *   - jsCommonMain
+     *     - jsMain
+     *     - nodeMain
+     *   - iosMain
+     *     - iosArm64Main
+     *     - iosX64Main
+     */
+    sourceSets {
+        commonMain {}
+        commonTest {}
+
+        appMain {
+            dependsOn(commonMain)
+        }
+
+        jvmMain {
+            dependsOn(appMain)
+        }
+
+        desktopMain {
+            dependsOn(appMain)
+        }
+
+        macosX64Main {
+            dependsOn(desktopMain)
+        }
+        linuxX64Main {
+            dependsOn(desktopMain)
+        }
+        mingwX64Main {
+            dependsOn(desktopMain)
+        }
+
+        jsCommonMain {
+            dependsOn(commonMain)
+        }
+        jsMain {
+            dependsOn(jsCommonMain)
+        }
+        nodeMain {
+            dependsOn(jsCommonMain)
+        }
+    }
 }
 
 buildkonfig {
@@ -44,11 +101,14 @@ buildkonfig {
         }
         // KMP plugin internally creates iosArm64 and iosX64 targets
         // when we use `ios()`. So we need to configure both targets.
-        iosArm64 {
-            buildConfigField 'STRING', 'target', 'iosArm64'
+        ios {
+            buildConfigField 'STRING', 'target', 'ios'
         }
-        iosX64 {
-            buildConfigField 'STRING', 'target', 'iosX64'
+        desktop {
+            buildConfigField 'STRING', 'desktopvalue', 'desktop'
+        }
+        jsCommon {
+            buildConfigField 'STRING', 'target', 'jsCommon'
         }
     }
 }

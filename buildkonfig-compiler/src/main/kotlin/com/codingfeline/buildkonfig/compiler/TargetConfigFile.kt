@@ -1,11 +1,10 @@
 package com.codingfeline.buildkonfig.compiler
 
 import java.io.File
+import java.io.Serializable
 
-data class TargetConfigFile(
-    val targetName: TargetName,
-    val outputDirectory: File,
+interface TargetConfigFile : Serializable {
+    val targetName: TargetName
+    val outputDirectory: File
     val config: TargetConfig?
-) {
-    val isJsTarget: Boolean = targetName.platformType == PlatformType.js
 }

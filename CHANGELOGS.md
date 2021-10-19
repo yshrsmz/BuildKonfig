@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.11.0] - TBD
 
+### Added
+
+- Support intermediate SourceSets(a.k.a. HMPP) [#38](https://github.com/yshrsmz/BuildKonfig/issues/38)
+
 ### Fixed
 
 - Java version compatibility [#60](https://github.com/yshrsmz/BuildKonfig/issues/60)

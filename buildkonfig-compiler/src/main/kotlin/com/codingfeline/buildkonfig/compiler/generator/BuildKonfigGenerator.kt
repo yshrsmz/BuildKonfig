@@ -2,6 +2,7 @@ package com.codingfeline.buildkonfig.compiler.generator
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import com.codingfeline.buildkonfig.compiler.Logger
+import com.codingfeline.buildkonfig.compiler.PlatformType
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
@@ -85,7 +86,11 @@ abstract class BuildKonfigGenerator(
          */
         fun ofTarget(file: TargetConfigFile, exposeObject: Boolean, logger: Logger): BuildKonfigGenerator {
             val objectModifiers = listOf(KModifier.ACTUAL, getVisibilityModifier(exposeObject))
-            val annotations = if (exposeObject && file.isJsTarget) getJsObjectAnnotations() else emptyList()
+            val annotations = if (exposeObject && file.targetName.platformType == PlatformType.js) {
+                getJsObjectAnnotations()
+            } else {
+                emptyList()
+            }
             return object : BuildKonfigGenerator(
                 file = file,
                 objectAnnotations = annotations,
