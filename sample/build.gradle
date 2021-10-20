@@ -99,8 +99,6 @@ buildkonfig {
         jvm {
             buildConfigField 'STRING', 'target', 'jvm'
         }
-        // KMP plugin internally creates iosArm64 and iosX64 targets
-        // when we use `ios()`. So we need to configure both targets.
         ios {
             buildConfigField 'STRING', 'target', 'ios'
         }
