@@ -12,5 +12,5 @@ data class TargetName(
  * see org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
  */
 enum class PlatformType {
-    common, jvm, js, androidJvm, native;
+    common, jvm, js, androidJvm, native, wasm;
 }

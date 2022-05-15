@@ -72,7 +72,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
                 it.exposeObject = exposeObject
                 it.hasJsTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.js }
                 it.flavor = flavor
-                it.targetConfigFiles = targetConfigSources.mapValues { (key, value) -> value.configFile }
+                it.targetConfigFiles = targetConfigSources.mapValues { (_, value) -> value.configFile }
 
                 it.group = "buildkonfig"
                 it.description = "generate BuildKonfig"
@@ -175,6 +175,7 @@ internal fun KotlinPlatformType.toPlatformType(): PlatformType {
         KotlinPlatformType.js -> PlatformType.js
         KotlinPlatformType.androidJvm -> PlatformType.androidJvm
         KotlinPlatformType.native -> PlatformType.native
+        KotlinPlatformType.wasm -> PlatformType.wasm
     }
 }
 
