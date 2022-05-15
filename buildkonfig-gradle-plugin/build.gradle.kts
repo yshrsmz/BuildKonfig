@@ -1,6 +1,3 @@
-import com.codingfeline.buildkonfig.buildsrc.Dependencies
-import com.codingfeline.buildkonfig.buildsrc.Versions
-
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.mavenPublish)
@@ -50,24 +47,24 @@ tasks.pluginUnderTestMetadata {
 }
 
 dependencies {
-    implementation(project(":buildkonfig-compiler"))
+    implementation(projects.buildkonfigCompiler)
 //    implementation(kotlin("stdlib-jdk8", Versions.kotlin))
 
     compileOnly(gradleApi())
-    implementation(kotlin("gradle-plugin", Versions.kotlin))
+    implementation(libs.kotlin.plugin)
 
-    testImplementation(Dependencies.junit)
-    testImplementation(Dependencies.truth)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 
-    fixtureClasspath(kotlin("gradle-plugin", Versions.kotlin))
-    fixtureClasspath(Dependencies.androidPlugin)
+    fixtureClasspath(libs.kotlin.plugin)
+    fixtureClasspath(libs.android.plugin)
 }
 
 tasks.compileKotlin {
-    kotlinOptions.jvmTarget = Versions.jvmTarget
+    kotlinOptions.jvmTarget = libs.versions.jvmTarget.get()
 }
 tasks.compileTestKotlin {
-    kotlinOptions.jvmTarget = Versions.jvmTarget
+    kotlinOptions.jvmTarget = libs.versions.jvmTarget.get()
 }
 
 apply(from = "$rootDir/gradle/maven-publish.gradle")
