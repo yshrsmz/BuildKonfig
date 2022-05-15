@@ -1,12 +1,20 @@
 pluginManagement {
     repositories {
-        maven { url = uri("https://dl.bintray.com/kotlin/kotlin-eap") }
-
         mavenCentral()
-
-        maven { url = uri("https://plugins.gradle.org/m2/") }
+        google()
+        gradlePluginPortal()
     }
 }
+
+dependencyResolutionManagement {
+//    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        google()
+    }
+}
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 rootProject.name = "BuildKonfig"
 
 include("buildkonfig-compiler")

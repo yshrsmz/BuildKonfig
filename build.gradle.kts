@@ -1,27 +1,11 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
-buildscript {
-    repositories {
-        mavenCentral()
-        google()
-        jcenter()
-        gradlePluginPortal()
-        maven { url = uri("https://dl.bintray.com/kotlin/kotlinx") }
-        maven { url = uri("https://dl.bintray.com/kotlin/kotlin-eap") }
-        maven { url = uri("https://dl.bintray.com/jetbrains/kotlin-native-dependencies") }
-    }
-
-    dependencies {
-        classpath(com.codingfeline.buildkonfig.buildsrc.Dependencies.kotlinPlugin)
-        classpath(com.codingfeline.buildkonfig.buildsrc.Dependencies.dokkaPlugin)
-        classpath(com.codingfeline.buildkonfig.buildsrc.Dependencies.gradleVersionsPlugin)
-        classpath(com.codingfeline.buildkonfig.buildsrc.Dependencies.pluginPublishPlugin)
-        classpath(com.codingfeline.buildkonfig.buildsrc.Dependencies.mavenPublishPlugin)
-    }
-}
-
 plugins {
-    id("com.github.ben-manes.versions") version com.codingfeline.buildkonfig.buildsrc.Versions.benManesVersionsPlugin
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.dokka) apply false
+    alias(libs.plugins.pluginPublish) apply false
+    alias(libs.plugins.mavenPublish) apply false
+    alias(libs.plugins.versions)
 }
 
 
@@ -32,9 +16,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter()
-        maven { url = uri("https://dl.bintray.com/kotlin/kotlinx") }
-        maven { url = uri("https://dl.bintray.com/kotlin/kotlin-eap") }
     }
 
     tasks.withType(JavaCompile::class.java) {
@@ -51,7 +32,7 @@ tasks.register("clean", Delete::class.java) {
 }
 
 tasks.wrapper {
-    gradleVersion = com.codingfeline.buildkonfig.buildsrc.Versions.gradle
+    gradleVersion = libs.versions.gradle.get()
     distributionType = Wrapper.DistributionType.ALL
 }
 

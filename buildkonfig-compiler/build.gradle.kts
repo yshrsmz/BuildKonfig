@@ -1,9 +1,6 @@
-import com.codingfeline.buildkonfig.buildsrc.Dependencies
-import com.codingfeline.buildkonfig.buildsrc.Versions
-
 plugins {
-    id("org.jetbrains.kotlin.jvm")
-    id("maven-publish")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.mavenPublish)
 }
 
 sourceSets {
@@ -13,8 +10,7 @@ sourceSets {
 }
 
 dependencies {
-//    implementation(kotlin("stdlib-jdk8", Versions.kotlin))
-    implementation(Dependencies.kotlinPoet)
+    implementation(libs.kotlinPoet)
 }
 
 tasks.create("pluginVersion") {
@@ -40,10 +36,10 @@ tasks.create("pluginVersion") {
 tasks.getByName("compileKotlin").dependsOn("pluginVersion")
 
 tasks.compileKotlin {
-    kotlinOptions.jvmTarget = Versions.jvmTarget
+    kotlinOptions.jvmTarget = libs.versions.jvmTarget.get()
 }
 tasks.compileTestKotlin {
-    kotlinOptions.jvmTarget = Versions.jvmTarget
+    kotlinOptions.jvmTarget = libs.versions.jvmTarget.get()
 }
 
 apply(from = "$rootDir/gradle/maven-publish.gradle")
