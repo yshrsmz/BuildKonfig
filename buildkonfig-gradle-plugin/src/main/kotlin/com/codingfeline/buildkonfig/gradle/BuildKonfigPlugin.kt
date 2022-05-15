@@ -73,7 +73,6 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
                 it.hasJsTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.js }
                 it.flavor = flavor
                 it.targetConfigFiles = targetConfigSources.mapValues { (key, value) -> value.configFile }
-                it.extension = extension
 
                 it.group = "buildkonfig"
                 it.description = "generate BuildKonfig"

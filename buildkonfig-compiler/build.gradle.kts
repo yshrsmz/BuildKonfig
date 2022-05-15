@@ -33,7 +33,11 @@ tasks.create("pluginVersion") {
     }
 }
 
-tasks.getByName("compileKotlin").dependsOn("pluginVersion")
+afterEvaluate {
+    tasks.named("compileKotlin").configure { dependsOn("pluginVersion") }
+    tasks.named("dokkaHtml").configure { dependsOn("pluginVersion") }
+    tasks.named("sourcesJar").configure { dependsOn("pluginVersion") }
+}
 
 tasks.compileKotlin {
     kotlinOptions.jvmTarget = libs.versions.jvmTarget.get()

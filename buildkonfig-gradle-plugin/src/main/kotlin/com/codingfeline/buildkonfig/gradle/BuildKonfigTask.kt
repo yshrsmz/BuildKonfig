@@ -5,7 +5,6 @@ import com.codingfeline.buildkonfig.compiler.BuildKonfigData
 import com.codingfeline.buildkonfig.compiler.BuildKonfigEnvironment
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectories
 import org.gradle.api.tasks.TaskAction
@@ -38,9 +37,6 @@ open class BuildKonfigTask : DefaultTask() {
 
     @get:Nested
     lateinit var targetConfigFiles: Map<String, TargetConfigFileImpl>
-
-    @Internal
-    lateinit var extension: BuildKonfigExtension
 
     @Suppress("unused")
     @get:OutputDirectories
