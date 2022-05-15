@@ -2,8 +2,8 @@ import com.codingfeline.buildkonfig.buildsrc.Dependencies
 import com.codingfeline.buildkonfig.buildsrc.Versions
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
-    id("maven-publish")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.mavenPublish)
 }
 
 sourceSets {

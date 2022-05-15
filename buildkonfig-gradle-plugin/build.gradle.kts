@@ -2,9 +2,10 @@ import com.codingfeline.buildkonfig.buildsrc.Dependencies
 import com.codingfeline.buildkonfig.buildsrc.Versions
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.mavenPublish)
+    alias(libs.plugins.pluginPublish)
     id("java-gradle-plugin")
-    id("com.gradle.plugin-publish")
 }
 
 java {

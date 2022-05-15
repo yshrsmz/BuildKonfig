@@ -1,0 +1,21 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        google()
+        gradlePluginPortal()
+        maven { url "../build/localMaven" }
+        mavenLocal()
+    }
+}
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        deps {
+//            from(files("../gradle/libs.versions.toml"))
+        }
+    }
+    repositories {
+        mavenCentral()
+        google()
+    }
+}

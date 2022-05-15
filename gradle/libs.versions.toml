@@ -1,0 +1,14 @@
+[versions]
+gradle = "7.4.2"
+kotlin = "1.5.31"
+dokka = "1.5.31"
+
+[libraries]
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+versions = { id = "com.github.ben-manes.versions", version = "0.42.0" }
+pluginPublish = { id = "com.gradle.plugin-publish", version = "0.18.0" }
+mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.14.2" }
