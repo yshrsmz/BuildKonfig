@@ -15,35 +15,44 @@ open class TargetConfigDsl @Inject constructor(
         const val serialVersionUID = 1L
     }
 
+    private fun registerField(field: FieldSpec) {
+        val name = field.name
+        val alreadyPresent = fieldSpecs[name]
+
+        if (alreadyPresent != null) {
+            logger.info("TargetConfig: buildConfigField '$name' is being replaced: ${alreadyPresent.value} -> ${field.value}")
+        }
+
+        fieldSpecs[name] = field
+    }
+
     @Suppress("unused")
     fun buildConfigField(
         type: FieldSpec.Type,
         name: String,
         value: String
-    ) {
-
-        val alreadyPresent = fieldSpecs[name]
-
-        if (alreadyPresent != null) {
-            logger.info("TargetConfig: buildConfigField '$name' is being replaced: ${alreadyPresent.value} -> $value")
-        }
-        fieldSpecs[name] = FieldSpec(type, name, value)
-    }
+    ) = registerField(FieldSpec(type, name, value))
 
     @Suppress("unused")
     fun buildConfigNullableField(
         type: FieldSpec.Type,
         name: String,
         value: String?
-    ) {
+    ) = registerField(FieldSpec(type, name, value, nullable = true))
 
-        val alreadyPresent = fieldSpecs[name]
+    @Suppress("unused")
+    fun buildConfigConstField(
+        type: FieldSpec.Type,
+        name: String,
+        value: String
+    ) = registerField(FieldSpec(type, name, value, const = true))
 
-        if (alreadyPresent != null) {
-            logger.info("TargetConfig: buildConfigField '$name' is being replaced: ${alreadyPresent.value} -> $value")
-        }
-        fieldSpecs[name] = FieldSpec(type, name, value, nullable = true)
-    }
+    @Suppress("unused")
+    fun buildConfigConstNullableField(
+        type: FieldSpec.Type,
+        name: String,
+        value: String
+    ) = registerField(FieldSpec(type, name, value, nullable = true, const = true))
 
     fun toTargetConfig(): TargetConfig {
         return TargetConfig(name)

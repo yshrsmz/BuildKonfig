@@ -9,7 +9,8 @@ data class FieldSpec(
     val name: String,
     val value: String?,
     val isTargetSpecific: Boolean = false,
-    val nullable: Boolean = false
+    val nullable: Boolean = false,
+    val const: Boolean = false,
 ) : Serializable {
 
     enum class Type(val _typeName: TypeName, val _template: String = "%L") {
