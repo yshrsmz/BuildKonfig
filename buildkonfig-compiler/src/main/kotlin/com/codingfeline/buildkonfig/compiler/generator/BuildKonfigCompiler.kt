@@ -20,15 +20,10 @@ object BuildKonfigCompiler {
     ) {
         val outputDirectory = getOutputDirectory(configFile, packageName)
 
-        val konfigType = BuildKonfigGenerator.ofCommonObject(configFile, exposeObject, hasJsTarget, logger)
-            .generateType(objectName)
+        val konfigFile = BuildKonfigGenerator.ofCommonObject(configFile, exposeObject, hasJsTarget, logger)
+            .generateFile(packageName, objectName)
 
-        FileSpec.builder(packageName, objectName)
-            .apply {
-                addType(konfigType)
-            }
-            .build()
-            .writeToAndClose(output("$outputDirectory/$objectName.kt"))
+        konfigFile.writeToAndClose(output("$outputDirectory/$objectName.kt"))
     }
 
     fun compileCommon(
@@ -41,14 +36,10 @@ object BuildKonfigCompiler {
     ) {
         val outputDirectory = getOutputDirectory(configFile, packageName)
 
-        val konfigType = BuildKonfigGenerator.ofCommon(configFile, exposeObject, logger).generateType(objectName)
+        val konfigFile = BuildKonfigGenerator.ofCommon(configFile, exposeObject, logger)
+            .generateFile(packageName, objectName)
 
-        FileSpec.builder(packageName, objectName)
-            .apply {
-                addType(konfigType)
-            }
-            .build()
-            .writeToAndClose(output("$outputDirectory/$objectName.kt"))
+        konfigFile.writeToAndClose(output("$outputDirectory/$objectName.kt"))
     }
 
     fun compileTarget(
@@ -60,14 +51,11 @@ object BuildKonfigCompiler {
         logger: Logger
     ) {
         val outputDirectory = getOutputDirectory(configFile, packageName)
-        val konfigType = BuildKonfigGenerator.ofTarget(configFile, exposeObject, logger).generateType(objectName)
 
-        FileSpec.builder(packageName, objectName)
-            .apply {
-                addType(konfigType)
-            }
-            .build()
-            .writeToAndClose(output("$outputDirectory/$objectName.kt"))
+        val konfigFile = BuildKonfigGenerator.ofTarget(configFile, exposeObject, logger)
+            .generateFile(packageName, objectName)
+
+        konfigFile.writeToAndClose(output("$outputDirectory/$objectName.kt"))
     }
 
     private fun FileSpec.writeToAndClose(appendable: Appendable) {

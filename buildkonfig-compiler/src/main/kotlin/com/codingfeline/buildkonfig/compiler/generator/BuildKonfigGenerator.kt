@@ -6,6 +6,7 @@ import com.codingfeline.buildkonfig.compiler.PlatformType
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
@@ -17,8 +18,13 @@ abstract class BuildKonfigGenerator(
     val propertyModifiers: List<KModifier>,
     val logger: Logger
 ) {
+    fun generateFile(packageName: String, objectName: String): FileSpec {
+        val builder = FileSpec.builder(packageName, objectName)
+        builder.addType(generateType(objectName))
+        return builder.build()
+    }
 
-    fun generateType(objectName: String): TypeSpec {
+    private fun generateType(objectName: String): TypeSpec {
         val obj = TypeSpec.objectBuilder(objectName)
             .addModifiers(*objectModifiers.toTypedArray())
             .addAnnotations(objectAnnotations)
@@ -53,10 +59,13 @@ abstract class BuildKonfigGenerator(
                 logger = logger
             ) {
                 override fun generateProp(fieldSpec: FieldSpec): PropertySpec {
-                    return PropertySpec.builder(fieldSpec.name, fieldSpec.typeName)
+                    val spec = PropertySpec.builder(fieldSpec.name, fieldSpec.typeName)
                         .initializer(fieldSpec.template, fieldSpec.value)
                         .addModifiers(*propertyModifiers.toTypedArray())
-                        .build()
+                    if (fieldSpec.const) {
+                        spec.addModifiers(KModifier.CONST)
+                    }
+                    return spec.build()
                 }
             }
         }
@@ -74,9 +83,15 @@ abstract class BuildKonfigGenerator(
                 logger = logger
             ) {
                 override fun generateProp(fieldSpec: FieldSpec): PropertySpec {
-                    return PropertySpec.builder(fieldSpec.name, fieldSpec.typeName)
+                    val spec = PropertySpec.builder(fieldSpec.name, fieldSpec.typeName)
                         .addModifiers(*propertyModifiers.toTypedArray())
-                        .build()
+                    if (fieldSpec.const) {
+                        spec.addModifiers(KModifier.CONST)
+                            .addAnnotation(AnnotationSpec.builder(ClassName("kotlin", "Suppress"))
+                            .addMember("%S", "CONST_VAL_WITHOUT_INITIALIZER")
+                            .build())
+                    }
+                    return spec.build()
                 }
             }
         }
@@ -104,6 +119,10 @@ abstract class BuildKonfigGenerator(
 
                     if (!fieldSpec.isTargetSpecific) {
                         spec.addModifiers(*propertyModifiers.toTypedArray())
+                    }
+
+                    if (fieldSpec.const) {
+                        spec.addModifiers(KModifier.CONST)
                     }
 
                     return spec.build()
