@@ -18,16 +18,9 @@ abstract class BuildKonfigGenerator(
     val propertyModifiers: List<KModifier>,
     val logger: Logger
 ) {
-    protected var suppressConstExpect: Boolean = false
-
     fun generateFile(packageName: String, objectName: String): FileSpec {
         val builder = FileSpec.builder(packageName, objectName)
         builder.addType(generateType(objectName))
-        if (suppressConstExpect) {
-            builder.addAnnotation(AnnotationSpec.builder(ClassName("kotlin", "Suppress"))
-                .addMember("%S", "CONST_VAL_WITHOUT_INITIALIZER")
-                .build())
-        }
         return builder.build()
     }
 
@@ -94,7 +87,9 @@ abstract class BuildKonfigGenerator(
                         .addModifiers(*propertyModifiers.toTypedArray())
                     if (fieldSpec.const) {
                         spec.addModifiers(KModifier.CONST)
-                        suppressConstExpect = true
+                            .addAnnotation(AnnotationSpec.builder(ClassName("kotlin", "Suppress"))
+                            .addMember("%S", "CONST_VAL_WITHOUT_INITIALIZER")
+                            .build())
                     }
                     return spec.build()
                 }

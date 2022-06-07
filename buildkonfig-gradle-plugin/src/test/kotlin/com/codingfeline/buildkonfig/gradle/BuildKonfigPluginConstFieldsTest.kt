@@ -86,7 +86,7 @@ class BuildKonfigPluginConstFieldsTest {
 
         val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
         Truth.assertThat(commonResult.readText()).apply {
-            contains("@file:Suppress(\"CONST_VAL_WITHOUT_INITIALIZER\")")
+            contains("@Suppress(\"CONST_VAL_WITHOUT_INITIALIZER\")")
             contains("const val foo: String")
         }
 
