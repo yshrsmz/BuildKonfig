@@ -19,6 +19,12 @@ data class FieldSpec(
         FLOAT(Float::class.asTypeName()),
         LONG(Long::class.asTypeName()),
         BOOLEAN(Boolean::class.asTypeName());
+
+        companion object {
+            fun of(name: String): Type? {
+                return values().firstOrNull { it.name == name }
+            }
+        }
     }
 
     val typeName: TypeName
