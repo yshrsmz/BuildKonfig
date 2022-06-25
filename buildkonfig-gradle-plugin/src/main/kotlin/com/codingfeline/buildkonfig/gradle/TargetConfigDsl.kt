@@ -33,6 +33,7 @@ open class TargetConfigDsl @Inject constructor(
         value: String
     ) = registerField(FieldSpec(type, name, value))
 
+    @Deprecated("Use buildConfigField instead")
     @Suppress("unused")
     fun buildConfigNullableField(
         type: FieldSpec.Type,
@@ -40,6 +41,7 @@ open class TargetConfigDsl @Inject constructor(
         value: String?
     ) = registerField(FieldSpec(type, name, value, nullable = true))
 
+    @Deprecated("Use buildConfigField instead")
     @Suppress("unused")
     fun buildConfigConstField(
         type: FieldSpec.Type,
@@ -47,6 +49,7 @@ open class TargetConfigDsl @Inject constructor(
         value: String
     ) = registerField(FieldSpec(type, name, value, const = true))
 
+    @Deprecated("Use buildConfigField instead")
     @Suppress("unused")
     fun buildConfigConstNullableField(
         type: FieldSpec.Type,
