@@ -15,7 +15,6 @@ open class TargetConfigDsl @Inject constructor(
         const val serialVersionUID = 1L
     }
 
-
     private fun registerField(field: FieldSpec) {
         val name = field.name
         val alreadyPresent = fieldSpecs[name]
@@ -61,39 +60,38 @@ open class TargetConfigDsl @Inject constructor(
      * This method is for groovy.
      *
      * The following options are available:
-     * - type: REQUIRED: type of the field. should be [String] or [FieldSpec.Type].
-     * - name: REQUIRED: name of the field. should be [String].
-     * - value: REQUIRED: value of the field. should be [String].
      * - nullable: pass true to make the field nullable. Defaults to false.
      * - const: pass true to declare the field as `const`. Defaults to false
      */
     @Suppress("unused")
-    fun buildConfigField(args: Map<String, Any>) {
+    fun buildConfigField(
+        args: Map<String, Any>,
+        type: FieldSpec.Type,
+        name: String,
+        value: String?
+    ) {
         val options = mapOf("nullable" to false, "const" to false) + args
 
-        val type = kotlin.run {
-            @Suppress("MoveVariableDeclarationIntoWhen")
-            val maybeType = requireNotNull(options["type"]) { "type is required" }
-            val result = when (maybeType) {
-                is String -> FieldSpec.Type.of(maybeType.uppercase())
-                is FieldSpec.Type -> maybeType
-                else -> null
-            }
-
-            requireNotNull(result) { "type is provided, but not FieldSpec.Type or String" }
-        }
-        val name = requireNotNull(options["name"] as? String) { "name is required" }
         val nullable = options["nullable"] as? Boolean ?: false
         val const = options["const"] as? Boolean ?: false
 
-        val value = kotlin.run {
-            @Suppress("MoveVariableDeclarationIntoWhen")
-            val maybeValue = options["value"]
-            when {
-                maybeValue is String -> maybeValue
-                maybeValue == null && nullable -> null
-                else -> throw IllegalArgumentException("value is required for the non-nullable field")
-            }
+        if (value == null && !nullable) {
+            throw IllegalArgumentException("value is required for the non-nullable field")
+        }
+
+        registerField(FieldSpec(type = type, name = name, value = value, nullable = nullable, const = const))
+    }
+
+    @Suppress("unused")
+    fun buildConfigField(
+        type: FieldSpec.Type,
+        name: String,
+        value: String?,
+        nullable: Boolean = false,
+        const: Boolean = false
+    ) {
+        if (value == null && !nullable) {
+            throw IllegalArgumentException("value is required for the non-nullable field")
         }
 
         registerField(FieldSpec(type = type, name = name, value = value, nullable = nullable, const = const))
