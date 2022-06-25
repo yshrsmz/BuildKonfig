@@ -73,16 +73,10 @@ open class TargetConfigDsl @Inject constructor(
         name: String,
         value: String?
     ) {
-        val options = mapOf("nullable" to false, "const" to false) + args
+        val nullable = args["nullable"] as? Boolean ?: false
+        val const = args["const"] as? Boolean ?: false
 
-        val nullable = options["nullable"] as? Boolean ?: false
-        val const = options["const"] as? Boolean ?: false
-
-        if (value == null && !nullable) {
-            throw IllegalArgumentException("value is required for the non-nullable field")
-        }
-
-        registerField(FieldSpec(type = type, name = name, value = value, nullable = nullable, const = const))
+        buildConfigField(type = type, name = name, value = value, nullable = nullable, const = const)
     }
 
     @Suppress("unused")
