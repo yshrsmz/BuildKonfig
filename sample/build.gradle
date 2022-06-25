@@ -75,7 +75,9 @@ buildkonfig {
     defaultConfigs {
         buildConfigField 'STRING', 'test', 'testvalue'
         buildConfigField 'STRING', 'target', 'common'
-        buildConfigField type: 'STRING', name: 'test2', value: null, nullable: true
+        buildConfigField 'STRING', 'testKey1', null, nullable: true
+        buildConfigField 'STRING', 'testKey2', "testValue2", nullable: false
+        buildConfigField 'STRING', 'testKey3', "testValue3", nullable: false, const: true
     }
 
     targetConfigs {

@@ -363,7 +363,7 @@ buildkonfig {
         buildConfigField(STRING, "name", "devValue")
     }
 
-    targetConfigs(closureOf<NamedDomainObjectContainer<TargetConfigDsl>> {
+    targetConfigs {
         create("android") {
             buildConfigField(STRING, "name2", "value2")
         }
@@ -371,13 +371,13 @@ buildkonfig {
         create("ios") {
             buildConfigField(STRING, "name", "valueIos")
         }
-    })
+    }
     // flavor is passed as a first argument of targetConfigs
-    targetConfigs("dev", closureOf<NamedDomainObjectContainer<TargetConfigDsl>> {
+    targetConfigs("dev") {
         create("ios") {
             buildConfigField(STRING, "name", "devValueIos")
         }
-    })
+    }
 }
 ```
 
@@ -448,11 +448,14 @@ additional actual declarations in children SourceSets leads to compile-time erro
 
 ## Try out the sample
 
+There are two samples; `sample` and `sample-kts`.
+As its name implies, `sample-kts` a Kotlin DSL sample, and the other is a traditional Groovy DSL.
+
 Have a look at `./sample` directory.
 
 ```
-# Publish the latest version of the plugin to mavenLocal()
-$ ./gradlew publishToMavenLocal
+# Publish the latest version of the plugin to test maven repository(./build/localMaven)
+$ ./gradlew publishAllPublicationsToTestMavenRepository
 
 # Try out the samples.
 # BuildKonfig will be generated in ./sample/build/buildkonfig
