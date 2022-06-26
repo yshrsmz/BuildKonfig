@@ -19,3 +19,4 @@ rootProject.name = "BuildKonfig"
 
 include("buildkonfig-compiler")
 include("buildkonfig-gradle-plugin")
+//includeBuild("sample-kts")
