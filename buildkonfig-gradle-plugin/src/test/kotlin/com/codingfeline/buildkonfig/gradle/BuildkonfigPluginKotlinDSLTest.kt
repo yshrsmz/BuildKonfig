@@ -29,7 +29,7 @@ class BuildkonfigPluginKotlinDSLTest {
         buildFile.writeText(
             """
             |import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-            |import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+            |import com.codingfeline.buildkonfig.compiler.FieldSpec.Type
             |
             |plugins {
             |    kotlin("multiplatform")
@@ -73,7 +73,7 @@ class BuildkonfigPluginKotlinDSLTest {
             |    packageName = "com.sample.buildkonfig.issues"
             |
             |    defaultConfigs {
-            |        buildConfigField(STRING, "VERSION", "mysupersecretpassword")
+            |        buildConfigField(Type.STRING, "VERSION", "mysupersecretpassword")
             |    }
             |}
             |

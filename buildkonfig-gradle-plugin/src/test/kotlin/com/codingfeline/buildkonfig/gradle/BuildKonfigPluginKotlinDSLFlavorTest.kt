@@ -29,7 +29,7 @@ class BuildKonfigPluginKotlinDSLFlavorTest {
         |
     """.trimMargin()
 
-    private val buildFileMPPConfig = """
+    private val buildFileKMPConfig = """
         |kotlin {
         |  jvm()
         |  js(IR) {
@@ -63,17 +63,17 @@ class BuildKonfigPluginKotlinDSLFlavorTest {
             |   targetConfigs {
             |       create("js") {
             |           buildConfigField(Type.STRING,"value", "foobar")
-            |           buildConfigField(Type.STRING, "overwrittenValue", "defaultJsValue")
+            |           buildConfigField(type = Type.STRING, name = "overwrittenValue", value = "defaultJsValue")
             |       }
             |   }
             |   targetConfigs("dev") {
             |       create("js") {
-            |           buildConfigField(Type.STRING, "overwrittenValue", "devJsValue")
+            |           buildConfigField(type = Type.STRING, name = "overwrittenValue", value = "devJsValue")
             |       }
             |   }
             |}
             |
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
             """.trimMargin()
         )
 

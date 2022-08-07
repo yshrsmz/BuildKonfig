@@ -329,7 +329,7 @@ class BuildKonfigPluginFlavorTest {
             |
             |   defaultConfigs {
             |       buildConfigNullableField 'STRING', 'stringValue', 'defaultValue'
-            |       buildConfigNullableField 'INT', 'intValue', '10'
+            |       buildConfigField 'INT', 'intValue', '10', nullable: true
             |   }
             |}
             |$buildFileMPPConfig
@@ -370,7 +370,7 @@ class BuildKonfigPluginFlavorTest {
             |   packageName = "com.example"
             |
             |   defaultConfigs {
-            |       buildConfigNullableField 'STRING', 'stringValue', null
+            |       buildConfigField 'STRING', 'stringValue', null, nullable: true
             |       buildConfigNullableField 'INT', 'intValue', null
             |   }
             |}

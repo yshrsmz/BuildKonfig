@@ -58,10 +58,12 @@ class BuildKonfigPluginConstFieldsTest {
             |   
             |   defaultConfigs {
             |       buildConfigConstField(Type.STRING, "foo", "defaultValue")
+            |       buildConfigField(type = Type.STRING, name = "bar", value = "defaultBarValue", const = true)
             |   }
             |   targetConfigs {
             |       create("js") {
             |           buildConfigConstField(Type.STRING, "foo", "jsValue")
+            |           buildConfigField(type = Type.STRING, name = "bar", value = "jsBarValue", const = true)
             |       }
             |   }
             |}
@@ -86,16 +88,31 @@ class BuildKonfigPluginConstFieldsTest {
 
         val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
         Truth.assertThat(commonResult.readText()).apply {
-            contains("@Suppress(\"CONST_VAL_WITHOUT_INITIALIZER\")")
-            contains("const val foo: String")
+            contains(
+                """
+                |  @Suppress("CONST_VAL_WITHOUT_INITIALIZER")
+                |  public const val foo
+            """.trimMargin()
+            )
+
+            contains(
+                """
+                |  @Suppress("CONST_VAL_WITHOUT_INITIALIZER")
+                |  public const val bar
+            """.trimMargin()
+            )
         }
 
         val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jvmResult.readText())
-            .contains("const val foo: String = \"defaultValue\"")
+        Truth.assertThat(jvmResult.readText()).apply {
+            contains("const val foo: String = \"defaultValue\"")
+            contains("const val bar: String = \"defaultBarValue\"")
+        }
 
         val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jsResult.readText())
-            .contains("const val foo: String = \"jsValue\"")
+        Truth.assertThat(jsResult.readText()).apply {
+            contains("const val foo: String = \"jsValue\"")
+            contains("const val bar: String = \"jsBarValue\"")
+        }
     }
 }
