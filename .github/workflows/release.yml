@@ -25,7 +25,7 @@ jobs:
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_PRIVATE_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: ./gradlew clean build publishAllPublicationsToMavenCentralRepository --no-daemon --no-parallel
+        run: ./gradlew clean build publish --no-daemon --no-parallel
 
       - name: Publish the plugin to Gradle Plugin portal
         env:
