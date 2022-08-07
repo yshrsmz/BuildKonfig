@@ -13,6 +13,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Android Gradle Plugin 7.2.2
 - Unified API. `buildConfigField` can now configure if it's nullable or const.
 - Deprecated some methods. use `buildConfigField` with optional parameters.
 
