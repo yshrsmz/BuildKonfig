@@ -173,14 +173,14 @@ buildkonfig {
     // default config is required
     defaultConfigs {
         buildConfigField 'STRING', 'name', 'value'
-        buildConfigNullableField 'STRING', 'nullableField', null
+        buildConfigField 'STRING', 'nullableField', null, nullable: true
     }
     
     targetConfigs {
         // this name should be the same as target names you specified
         android {
             buildConfigField 'STRING', 'name2', 'value2'
-            buildConfigNullableField 'STRING', 'nullableField', 'NonNull-value'
+            buildConfigField 'STRING', 'nullableField', 'NonNull-value', nullable: true
         }
         
         ios {
@@ -231,7 +231,7 @@ buildkonfig {
         // names in create should be the same as target names you specified
         create("android") {
             buildConfigField(STRING, "name2", "value2")
-            buildConfigNullableField(STRING, "nullableField", "NonNull-value")
+            buildConfigField(STRING, "nullableField", "NonNull-value", nullable = true)
         }
 
         create("ios") {
@@ -243,13 +243,20 @@ buildkonfig {
 
 </details>
 
-- `packageName` Set the package name where BuildKonfig is being placed. **Required**.
-- `objectName` Set the name of the generated object. Defaults to `BuildKonfig`.
-- `exposeObjectWithName` Set the name of the generated object, and make it public.
-- `defaultConfigs` Set values which you want to have in common. **Required**.
-- `targetConfigs` Set target specific values as closure. You can overwrite values specified in `defaultConfigs`.
-- `buildConfigField(String type, String name, String value)` Add new value or overwrite existing one.
-- `buildConfigNullableField((String type, String name, String value)` Add new nullable value or overwrite existing one.
+- `packageName`
+  - Sets the package name where BuildKonfig is being placed. **Required**.
+- `objectName` 
+  - Sets the name of the generated object. Defaults to `BuildKonfig`.
+- `exposeObjectWithName`
+  - Sets the name of the generated object, and make it public.
+- `defaultConfigs`
+  - Sets values which you want to have in common. **Required**.
+- `targetConfigs` 
+  - Sets target specific values as closure. You can overwrite values specified in `defaultConfigs`.
+- `buildConfigField(type: String, name: String, value: String)`
+  - Adds new value or overwrite existing one.
+- `buildConfigField(type: String, name: String, value: String, nullable: Boolean = false, const: Boolean = false)` 
+  - In addition to above method, this can configure `nullable` and `const` declarations.
 
 Above configuration will generate following codes.
 
