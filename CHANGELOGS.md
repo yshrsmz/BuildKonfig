@@ -9,7 +9,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- const value support ([#42](https://github.com/yshrsmz/BuildKonfig/issues/42))
+- const value support by [@Prototik](https://github.com/Prototik) ([#42](https://github.com/yshrsmz/BuildKonfig/issues/42), [#70](https://github.com/yshrsmz/BuildKonfig/pull/70))
 
 ### Changed
 
