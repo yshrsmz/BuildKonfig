@@ -10,7 +10,7 @@ sourceSets {
 }
 
 dependencies {
-    implementation(libs.kotlinPoet)
+    implementation(libs.kotlinpoet)
 }
 
 tasks.create("pluginVersion") {

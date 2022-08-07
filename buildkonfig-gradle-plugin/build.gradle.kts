@@ -19,6 +19,7 @@ gradlePlugin {
         create("buildKonfig") {
             id = "com.codingfeline.buildkonfig"
             implementationClass = "com.codingfeline.buildkonfig.gradle.BuildKonfigPlugin"
+            displayName = POM_NAME
         }
     }
 }
@@ -28,12 +29,6 @@ pluginBundle {
     vcsUrl = "https://github.com/yshrsmz/BuildKonfig.git"
     description = POM_DESCRIPTION
     tags = listOf("BuildConfig", "Kotlin", "Kotlin Multiplatform")
-
-    (plugins) {
-        "buildKonfig" {
-            displayName = POM_NAME
-        }
-    }
 }
 
 val fixtureClasspath by configurations.creating
