@@ -20,6 +20,7 @@ gradlePlugin {
             id = "com.codingfeline.buildkonfig"
             implementationClass = "com.codingfeline.buildkonfig.gradle.BuildKonfigPlugin"
             displayName = POM_NAME
+            description = POM_DESCRIPTION
         }
     }
 }
