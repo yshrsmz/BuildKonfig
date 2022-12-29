@@ -291,12 +291,6 @@ internal actual object BuildKonfig {
 }
 ```
 
-#### Note about the hierarchical project structure
-
-Kotlin 1.4.0 adds support for the hierarchical project structure, but BuildKonfig currently does not support this. You
-can use the hierarchical project structure, but intermediate SourceSets can only see fields defined in `defaultConfigs`
-block. See details and progress at [here](https://github.com/yshrsmz/BuildKonfig/issues/38).
-
 <a name="product-flavor"/>
 
 ### Product Flavor?
