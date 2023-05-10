@@ -39,9 +39,8 @@ class BuildKonfigPluginHMPPTest {
             .also {
                 it.writeText(
                     """
-                        kotlin.mpp.stability.nowarn=true
-                        kotlin.mpp.enableGranularSourceSetsMetadata=true
-                        kotlin.native.enableDependencyPropagation=false
+                        kotlin.mpp.androidSourceSetLayoutVersion=2
+                        kotlin.js.compiler=ir
                         """.trimMargin()
                 )
             }
@@ -84,6 +83,8 @@ class BuildKonfigPluginHMPPTest {
             |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
             |        }
             |    }
+            |    
+            |    namespace = "com.sample"
             |}
             |buildkonfig {
             |    packageName = "com.sample"
@@ -110,7 +111,7 @@ class BuildKonfigPluginHMPPTest {
             |kotlin {
             |   android('customAndroid')
             |   jvm()
-            |   js {
+            |   js(IR) {
             |    browser()
             |    nodejs()
             |   }
@@ -240,6 +241,8 @@ class BuildKonfigPluginHMPPTest {
             |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
             |        }
             |    }
+            |    
+            |    namespace = "com.sample"
             |}
             |buildkonfig {
             |    packageName = "com.sample"
@@ -442,6 +445,8 @@ class BuildKonfigPluginHMPPTest {
             |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
             |        }
             |    }
+            |    
+            |    namespace = "com.sample"
             |}
             |buildkonfig {
             |    packageName = "com.sample"

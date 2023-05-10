@@ -84,6 +84,8 @@ class BuildkonfigPluginKotlinDSLTest {
             |        minSdkVersion(21)
             |        targetSdkVersion(30)
             |    }
+            |    
+            |    namespace = "com.sample"
             |}
             """.trimMargin()
         )

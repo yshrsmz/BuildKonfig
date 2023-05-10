@@ -4,7 +4,7 @@ import org.junit.rules.TemporaryFolder
 
 val androidManifest = """
         |<?xml version="1.0" encoding="utf-8"?>
-        |<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.sample"/>
+        |<manifest xmlns:android="http://schemas.android.com/apk/res/android" />
     """.trimMargin()
 
 fun createAndroidManifest(projectDir: TemporaryFolder, sourceSetName: String = "androidMain") {

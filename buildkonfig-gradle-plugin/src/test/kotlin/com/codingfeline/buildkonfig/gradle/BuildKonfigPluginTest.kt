@@ -54,6 +54,16 @@ class BuildKonfigPluginTest {
         buildFile = projectDir.newFile("build.gradle")
         settingFile = projectDir.newFile("settings.gradle")
         settingFile.writeText(settingsGradle)
+
+        projectDir.newFile("gradle.properties")
+            .also {
+                it.writeText(
+                    """
+                        kotlin.mpp.androidSourceSetLayoutVersion=2
+                        kotlin.js.compiler=ir
+                        """.trimMargin()
+                )
+            }
     }
 
     @Test
@@ -198,6 +208,8 @@ class BuildKonfigPluginTest {
             |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
             |        }
             |    }
+            |    
+            |    namespace = "com.sample"
             |}
             |buildkonfig {
             |    packageName = "com.sample"
@@ -224,7 +236,7 @@ class BuildKonfigPluginTest {
             |kotlin {
             |   android('customAndroid')
             |   jvm()
-            |   js {
+            |   js(IR) {
             |    browser()
             |    nodejs()
             |   }
@@ -342,6 +354,8 @@ class BuildKonfigPluginTest {
             |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
             |        }
             |    }
+            |    
+            |    namespace = "com.sample"
             |}
             |buildkonfig {
             |    packageName = "com.sample"
@@ -443,6 +457,8 @@ class BuildKonfigPluginTest {
             |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
             |        }
             |    }
+            |    
+            |    namespace = "com.sample"
             |}
             |buildkonfig {
             |    packageName = "com.sample"
@@ -543,6 +559,8 @@ class BuildKonfigPluginTest {
             |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
             |        }
             |    }
+            |    
+            |    namespace = "com.sample"
             |}
             |buildkonfig {
             |    packageName = "com.sample"
