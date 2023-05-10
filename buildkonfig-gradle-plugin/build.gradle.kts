@@ -15,21 +15,17 @@ val POM_DESCRIPTION: String by project
 val POM_NAME: String by project
 
 gradlePlugin {
+    website.set(POM_URL)
+    vcsUrl.set("https://github.com/yshrsmz/BuildKonfig.git")
     plugins {
         create("buildKonfig") {
             id = "com.codingfeline.buildkonfig"
             implementationClass = "com.codingfeline.buildkonfig.gradle.BuildKonfigPlugin"
             displayName = POM_NAME
             description = POM_DESCRIPTION
+            tags.set(listOf("BuildConfig", "Kotlin", "Kotlin Multiplatform"))
         }
     }
-}
-
-pluginBundle {
-    website = POM_URL
-    vcsUrl = "https://github.com/yshrsmz/BuildKonfig.git"
-    description = POM_DESCRIPTION
-    tags = listOf("BuildConfig", "Kotlin", "Kotlin Multiplatform")
 }
 
 val fixtureClasspath by configurations.creating
