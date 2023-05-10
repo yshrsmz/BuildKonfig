@@ -26,14 +26,14 @@ internal fun KotlinMultiplatformExtension.sources(): List<Source> {
                             val all = compilation.allKotlinSourceSets
                                 .filter {
                                     it.name != "${target.name}Main" &&
-                                            it.name != compilation.defaultSourceSetName
+                                            it.name != compilation.defaultSourceSet.name
                                 }
 
                             default to all
                         }
                         else -> {
                             compilation.defaultSourceSet to compilation.allKotlinSourceSets
-                                .filter { it.name != compilation.defaultSourceSetName }
+                                .filter { it.name != compilation.defaultSourceSet.name }
                         }
                     }
                     Source(
