@@ -7,9 +7,10 @@ import com.codingfeline.buildkonfig.compiler.TargetName
 import com.codingfeline.buildkonfig.gradle.kotlin.sources
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.targets
 import java.io.File
 
 typealias Flavor = String
@@ -46,7 +47,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
     private fun configure(project: Project, extension: BuildKonfigExtension) {
         val outputDirectory = File(project.buildDir, "buildkonfig")
 
-        val mppExtension = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+        val kotlinExtension = project.extensions.getByType(KotlinProjectExtension::class.java)
 
         project.afterEvaluate(fun(project: Project) {
             val flavor = project.findFlavor()
@@ -54,7 +55,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             val targetConfigs = extension.mergeConfigs(project.logger::info, flavor)
                 .toMutableMap()
 
-            val targetConfigSources = decideOutputs(project, mppExtension, targetConfigs, outputDirectory)
+            val targetConfigSources = decideOutputs(project, kotlinExtension, targetConfigs, outputDirectory)
 
             val task = project.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
                 it.packageName = requireNotNull(extension.packageName) { "packageName must be provided" }
@@ -70,7 +71,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
                 it.objectName = objectName
                 it.exposeObject = exposeObject
-                it.hasJsTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.js }
+                it.hasJsTarget = kotlinExtension.targets.any { t -> t.platformType == KotlinPlatformType.js }
                 it.flavor = flavor
                 it.targetConfigFiles = targetConfigSources.mapValues { (_, value) -> value.configFile }
 
@@ -88,12 +89,12 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
 fun decideOutputs(
     project: Project,
-    mppExtension: KotlinMultiplatformExtension,
+    kotlinExtension: KotlinProjectExtension,
     targetConfigs: MutableMap<String, TargetConfig>,
     outputDirectory: File
 ): Map<String, TargetConfigSource> {
     val acc = linkedMapOf<String, TargetConfigSource>()
-    for (source in mppExtension.sources()) {
+    for (source in kotlinExtension.sources()) {
         if (targetConfigs.size == 1 && source.name != COMMON_SOURCESET_NAME) {
             // there's only common config
             continue
