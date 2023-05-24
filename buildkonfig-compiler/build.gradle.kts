@@ -1,6 +1,9 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.mavenPublish)
+    @Suppress("DSL_SCOPE_VIOLATION") // See also, https://github.com/gradle/gradle/issues/22797#issuecomment-1517046458
+    run {
+        alias(libs.plugins.kotlin.jvm)
+        alias(libs.plugins.mavenPublish)
+    }
 }
 
 sourceSets {

@@ -1,11 +1,14 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
-    alias(libs.plugins.kotlin.jvm) apply false
-    alias(libs.plugins.dokka) apply false
-    alias(libs.plugins.pluginPublish) apply false
-    alias(libs.plugins.mavenPublish) apply false
-    alias(libs.plugins.versions)
+    @Suppress("DSL_SCOPE_VIOLATION") // See also, https://github.com/gradle/gradle/issues/22797#issuecomment-1517046458
+    run {
+        alias(libs.plugins.kotlin.jvm) apply false
+        alias(libs.plugins.dokka) apply false
+        alias(libs.plugins.pluginPublish) apply false
+        alias(libs.plugins.mavenPublish) apply false
+        alias(libs.plugins.versions)
+    }
 }
 
 
