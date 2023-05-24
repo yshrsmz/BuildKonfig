@@ -1,5 +1,5 @@
 [versions]
-gradle = "8.0.1"
+gradle = "8.0.2"
 android = "8.0.1"
 kotlin = "1.8.21"
 dokka = "1.8.10"
