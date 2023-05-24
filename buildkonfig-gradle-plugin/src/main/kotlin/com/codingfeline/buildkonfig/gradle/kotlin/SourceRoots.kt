@@ -33,20 +33,25 @@ private fun sourcesForTarget(target: KotlinTarget) = target.compilations
     .map { compilation ->
         val (defaultSourceSet, sourceSets) = when (target.platformType) {
             KotlinPlatformType.androidJvm -> {
+                val defaultSourceSetName = "${target.name}Main"
                 val default = compilation.allKotlinSourceSets
-                    .first { it.name == "${target.name}Main" }
+                    .first { it.name == defaultSourceSetName }
 
+                val compilationDefaultSourceSetName = compilation.defaultSourceSet.name
                 val all = compilation.allKotlinSourceSets
                     .filter {
-                        it.name != "${target.name}Main" &&
-                                it.name != compilation.defaultSourceSet.name
+                        val name = it.name
+                        name != defaultSourceSetName &&
+                                name != compilationDefaultSourceSetName
                     }
 
                 default to all
             }
             else -> {
-                compilation.defaultSourceSet to compilation.allKotlinSourceSets
-                    .filter { it.name != compilation.defaultSourceSet.name }
+                val defaultSourceSet = compilation.defaultSourceSet
+                val defaultSourceSetName = defaultSourceSet.name
+                defaultSourceSet to compilation.allKotlinSourceSets
+                    .filter { it.name != defaultSourceSetName }
             }
         }
         Source(
