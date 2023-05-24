@@ -7,8 +7,11 @@ import com.codingfeline.buildkonfig.compiler.TargetName
 import com.codingfeline.buildkonfig.gradle.kotlin.sources
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.targets
 import java.io.File
@@ -23,22 +26,30 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
     override fun apply(target: Project) {
 
-        var isMultiplatform = false
-        target.plugins.all { p ->
-            if (p is KotlinMultiplatformPluginWrapper) {
-                isMultiplatform = true
+        var isSupported = false
+        target.plugins.all { plugin ->
+            if (plugin is KotlinBasePluginWrapper) when (plugin.projectExtensionClass) {
+                KotlinJvmProjectExtension::class,
+                KotlinAndroidProjectExtension::class,
+                KotlinMultiplatformExtension::class -> {
+                    isSupported = true
+                }
             }
         }
 
         val extension = target.extensions.create("buildkonfig", BuildKonfigExtension::class.java, target)
 
         target.afterEvaluate {
-            if (!isMultiplatform) {
-                throw IllegalStateException(
-                    "BuildKonfig Gradle plugin applied in project '${target.path}' " +
-                            "but no supported Kotlin multiplatform plugin was found"
-                )
-            }
+            if (!isSupported) error(
+                """
+                BuildKonfig Gradle plugin applied in project '${target.path}' but no supported Kotlin plugin was found.
+
+                Only the following plugins are currently supported at the moment:
+                - `kotlin("jvm")` or `id("org.jetbrains.kotlin.jvm")`
+                - `kotlin("android")` or `id("org.jetbrains.kotlin.android")`
+                - `kotlin("multiplatform")` or `id("org.jetbrains.kotlin.multiplatform")`
+                """.trimIndent()
+            )
 
             configure(target, extension)
         }
