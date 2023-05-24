@@ -92,70 +92,71 @@ fun decideOutputs(
     targetConfigs: MutableMap<String, TargetConfig>,
     outputDirectory: File
 ): Map<String, TargetConfigSource> {
-    return mppExtension.sources()
-        // Map<SourceName, TargetConfigSource
-        .fold(emptyMap()) { acc, source ->
-            if (targetConfigs.size == 1 && source.name != COMMON_SOURCESET_NAME) {
-                // there's only common config
-                return@fold acc
-            }
+    val acc = linkedMapOf<String, TargetConfigSource>()
+    for (source in mppExtension.sources()) {
+        if (targetConfigs.size == 1 && source.name != COMMON_SOURCESET_NAME) {
+            // there's only common config
+            continue
+        }
 
-            val dependentsWithConfig = source.sourceSets
-                .filter { it.name != COMMON_SOURCESET_NAME }
-                .filter { targetConfigs.containsKey(it.name) }
+        val dependentsWithConfig = source.sourceSets
+            .filter { it.name != COMMON_SOURCESET_NAME }
+            .filter { targetConfigs.containsKey(it.name) }
 
-            val sourceHasConfig = targetConfigs.containsKey(source.name)
+        val sourceHasConfig = targetConfigs.containsKey(source.name)
 
-            if (dependentsWithConfig.isNotEmpty()) {
-                if (sourceHasConfig) {
-                    project.logger.warn(
-                        "BuildKonfig configuration for SourceSet(${source.name}) is ignored, " +
-                                "as its dependent SourceSets(${dependentsWithConfig.map { it.name }}) also have configurations"
-                    )
-                }
-
-                val firstDependent = dependentsWithConfig.first()
-                if (acc.containsKey(firstDependent.name)) {
-                    // common source set should be available earlier, as sources are sorted by the number of dependent SourceSets
-                    return@fold acc
-                }
-
-                // if not available, create it.
-                val tcs = TargetConfigSource(
-                    name = firstDependent.name,
-                    configFile = TargetConfigFileImpl(
-                        targetName = TargetName(firstDependent.name, source.type.toPlatformType()),
-                        outputDirectory = File(outputDirectory, firstDependent.name),
-                        config = targetConfigs.getValue(firstDependent.name)
-                    ),
-                    sourceSet = firstDependent
+        if (dependentsWithConfig.isNotEmpty()) {
+            if (sourceHasConfig) {
+                project.logger.warn(
+                    "BuildKonfig configuration for SourceSet(${source.name}) is ignored, " +
+                            "as its dependent SourceSets(${dependentsWithConfig.map { it.name }}) also have configurations"
                 )
-
-                return@fold acc + (firstDependent.name to tcs)
             }
 
-            if (source.type == KotlinPlatformType.common && !sourceHasConfig) {
-                // Intermediate SourceSets without config
-                return@fold acc
+            val firstDependent = dependentsWithConfig.first()
+            if (acc.containsKey(firstDependent.name)) {
+                // common source set should be available earlier, as sources are sorted by the number of dependent SourceSets
+                continue
             }
 
-            val targetSourceSet = if (sourceHasConfig || dependentsWithConfig.isEmpty()) {
-                source.defaultSourceSet
-            } else {
-                dependentsWithConfig.first()
-            }
+            // if not available, create it.
             val tcs = TargetConfigSource(
-                name = source.name,
+                name = firstDependent.name,
                 configFile = TargetConfigFileImpl(
-                    targetName = TargetName(source.name, source.type.toPlatformType()),
-                    outputDirectory = File(outputDirectory, targetSourceSet.name),
-                    config = targetConfigs[source.name] ?: targetConfigs.getValue(COMMON_SOURCESET_NAME).copy(),
+                    targetName = TargetName(firstDependent.name, source.type.toPlatformType()),
+                    outputDirectory = File(outputDirectory, firstDependent.name),
+                    config = targetConfigs.getValue(firstDependent.name)
                 ),
-                sourceSet = targetSourceSet
+                sourceSet = firstDependent
             )
 
-            acc + (source.name to tcs)
+            acc[firstDependent.name] = tcs
+            continue
         }
+
+        if (source.type == KotlinPlatformType.common && !sourceHasConfig) {
+            // Intermediate SourceSets without config
+            continue
+        }
+
+        val targetSourceSet = if (sourceHasConfig || dependentsWithConfig.isEmpty()) {
+            source.defaultSourceSet
+        } else {
+            dependentsWithConfig.first()
+        }
+        val tcs = TargetConfigSource(
+            name = source.name,
+            configFile = TargetConfigFileImpl(
+                targetName = TargetName(source.name, source.type.toPlatformType()),
+                outputDirectory = File(outputDirectory, targetSourceSet.name),
+                config = targetConfigs[source.name] ?: targetConfigs.getValue(COMMON_SOURCESET_NAME).copy(),
+            ),
+            sourceSet = targetSourceSet
+        )
+
+        acc[source.name] = tcs
+    }
+    return acc
 }
 
 internal fun Project.findFlavor(): String {
