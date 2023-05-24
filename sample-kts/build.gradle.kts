@@ -9,8 +9,10 @@ kotlin {
     jvm()
     js(IR) {
         browser()
+        // See, https://kotlinlang.org/docs/multiplatform-set-up-targets.html#distinguish-several-targets-for-one-platform
+        attributes.attribute(Attribute.of("com.example.target", String::class.java), "browser")
     }
-    js("node") {
+    js("node", IR) {
         nodejs()
     }
     ios()
