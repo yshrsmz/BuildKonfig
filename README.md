@@ -349,7 +349,7 @@ buildkonfig {
 <summary>Kotlin DSL</summary>
 
 ```kotlin
-import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.String
 import com.codingfeline.buildkonfig.gradle.TargetConfigDsl
 
 buildkonfig {
