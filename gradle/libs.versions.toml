@@ -1,5 +1,6 @@
 [versions]
 gradle = "8.0.1"
+android = "8.0.1"
 kotlin = "1.8.21"
 dokka = "1.8.10"
 
@@ -14,6 +15,8 @@ kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.
 android-plugin = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 
 [plugins]
+android-library = { id = "com.android.library", version.ref = "android" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
