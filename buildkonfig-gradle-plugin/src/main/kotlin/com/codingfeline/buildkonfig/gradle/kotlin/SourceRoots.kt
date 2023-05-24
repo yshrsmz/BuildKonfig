@@ -1,4 +1,4 @@
-package com.codingfeline.buildkonfig.gradle.kotlin
+﻿package com.codingfeline.buildkonfig.gradle.kotlin
 
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
@@ -17,14 +17,13 @@ data class Source(
 
 internal fun KotlinSingleTargetExtension<out KotlinTarget>.sources(): List<Source> {
     return sourcesForTarget(target)
-        .distinct()
+        .toMutableSet() // Same as `.distinct()` but without converting into a `List`
         .sortedBy { it.sourceSets.size }
 }
 
 internal fun KotlinMultiplatformExtension.sources(): List<Source> {
     return targets
-        .flatMap { sourcesForTarget(it) }
-        .distinct()
+        .flatMapTo(LinkedHashSet()) { sourcesForTarget(it) } // Same as `flatMap { … }.distinct().toMutableSet()` without creating intermediate collections
         .sortedBy { it.sourceSets.size }
 }
 
@@ -52,9 +51,8 @@ private fun sourcesForTarget(target: KotlinTarget) = target.compilations
             }
             else -> {
                 val defaultSourceSet = compilation.defaultSourceSet
-                val defaultSourceSetName = defaultSourceSet.name
                 defaultSourceSet to compilation.allKotlinSourceSets
-                    .filter { it.name != defaultSourceSetName }
+                    .filter { it != defaultSourceSet }
             }
         }
         Source(
