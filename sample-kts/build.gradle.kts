@@ -3,12 +3,19 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec
 plugins {
     @Suppress("DSL_SCOPE_VIOLATION") // See also, https://github.com/gradle/gradle/issues/22797#issuecomment-1517046458
     run {
+        alias(libs.plugins.android.library)
         alias(libs.plugins.kotlin.multiplatform)
     }
     id("com.codingfeline.buildkonfig") version "+"
 }
 
+android {
+    namespace = "com.example.namespace"
+    compileSdk = 33
+}
+
 kotlin {
+    android()
     jvm()
     js(IR) {
         browser()
@@ -26,6 +33,7 @@ kotlin {
     /**
      * - commonMain
      *   - appMain
+     *     - androidMain
      *     - jvmMain
      *     - desktopMain
      *       - macosX64Main
@@ -46,6 +54,9 @@ kotlin {
             dependsOn(commonMain)
         }
 
+        val androidMain by getting {
+            dependsOn(appMain)
+        }
         val jvmMain by getting {
             dependsOn(appMain)
         }
@@ -88,6 +99,9 @@ buildkonfig {
     }
 
     targetConfigs {
+        create("android") {
+            buildConfigField(FieldSpec.Type.STRING, "target", "android")
+        }
         create("jvm") {
             buildConfigField(FieldSpec.Type.STRING, "target", "jvm")
         }
