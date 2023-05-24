@@ -48,15 +48,15 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
         val mppExtension = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
-        project.afterEvaluate { p ->
-            val flavor = p.findFlavor()
+        project.afterEvaluate(fun(project: Project) {
+            val flavor = project.findFlavor()
 
             val targetConfigs = extension.mergeConfigs(project.logger::info, flavor)
                 .toMutableMap()
 
             val targetConfigSources = decideOutputs(project, mppExtension, targetConfigs, outputDirectory)
 
-            val task = p.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
+            val task = project.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
                 it.packageName = requireNotNull(extension.packageName) { "packageName must be provided" }
                 require(extension.objectName.isNotBlank()) { "objectName must not be blank" }
 
@@ -82,7 +82,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
                 val outputDirs = task.map { t -> listOfNotNull(t.outputDirectories[key]) }
                 configSource.sourceSet.kotlin.srcDirs(outputDirs)
             }
-        }
+        })
     }
 }
 
