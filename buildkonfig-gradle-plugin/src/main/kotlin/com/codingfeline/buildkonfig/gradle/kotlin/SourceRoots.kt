@@ -33,10 +33,13 @@ private fun sourcesForTarget(target: KotlinTarget) = target.compilations
     .map { compilation ->
         val (defaultSourceSet, sourceSets) = when (target.platformType) {
             KotlinPlatformType.androidJvm -> {
-                val defaultSourceSetName = "${target.name}Main"
+                val mppMainSourceSetName = "${target.name}Main"
                 val default = compilation.allKotlinSourceSets
-                    .first { it.name == defaultSourceSetName }
+                    .filter { val name = it.name; name == mppMainSourceSetName || name == "main" }
+                    // TODO Consider logging an error instead of throwing here?
+                    .run { firstOrNull { it.name == mppMainSourceSetName } ?: first() }
 
+                val defaultSourceSetName = default.name
                 val compilationDefaultSourceSetName = compilation.defaultSourceSet.name
                 val all = compilation.allKotlinSourceSets
                     .filter {
