@@ -1,6 +1,7 @@
 ﻿package com.codingfeline.buildkonfig.gradle.kotlin
 
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
@@ -15,16 +16,16 @@ data class Source(
     val sourceSets: List<KotlinSourceSet>
 )
 
-internal fun KotlinSingleTargetExtension<out KotlinTarget>.sources(): List<Source> {
-    return sourcesForTarget(target)
-        .toMutableSet() // Same as `.distinct()` but without converting into a `List`
-        .sortedBy { it.sourceSets.size }
-}
+internal fun KotlinProjectExtension.sources(): List<Source> {
+    return (when (this) {
+        is KotlinSingleTargetExtension<*> -> sourcesForTarget(target)
+            .toMutableSet() // Same as `.distinct()` but without converting into a `List`
 
-internal fun KotlinMultiplatformExtension.sources(): List<Source> {
-    return targets
-        .flatMapTo(LinkedHashSet()) { sourcesForTarget(it) } // Same as `flatMap { … }.distinct().toMutableSet()` without creating intermediate collections
-        .sortedBy { it.sourceSets.size }
+        is KotlinMultiplatformExtension -> targets
+            .flatMapTo(LinkedHashSet()) { sourcesForTarget(it) } // Same as `flatMap { … }.distinct().toMutableSet()` without creating intermediate collections
+
+        else -> error("Unexpected 'kotlin' extension $this") /** @see org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.targets */
+    }).sortedBy { it.sourceSets.size }
 }
 
 private fun sourcesForTarget(target: KotlinTarget) = target.compilations
