@@ -23,3 +23,7 @@ dependencyResolutionManagement {
 rootProject.name = "sample"
 
 include("multiplatform")
+include("android")
+include("jvm")
+
+include("multiplatform-jvm")

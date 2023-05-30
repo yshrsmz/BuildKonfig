@@ -23,3 +23,7 @@ dependencyResolutionManagement {
 rootProject.name = "sample-kts"
 
 include("multiplatform")
+include("android")
+include("jvm")
+
+include("multiplatform-jvm")
