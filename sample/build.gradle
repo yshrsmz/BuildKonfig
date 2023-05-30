@@ -1,5 +1,5 @@
 plugins {
-    id("org.jetbrains.kotlin.multiplatform") version "1.8.21"
+    alias(libs.plugins.kotlin.multiplatform)
     id("com.codingfeline.buildkonfig") version "+"
 }
 
