@@ -20,7 +20,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "sample-kts"
+rootProject.name = "sample"
 
 include("multiplatform")
 include("android")
