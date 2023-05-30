@@ -1,9 +1,16 @@
 plugins {
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.multiplatform)
     id("com.codingfeline.buildkonfig") version "+"
 }
 
+android {
+    namespace = "com.example.namespace"
+    compileSdk = 33
+}
+
 kotlin {
+    android()
     jvm {}
     js(IR) {
         browser()
@@ -21,6 +28,7 @@ kotlin {
     /**
      * - commonMain
      *   - appMain
+     *     - androidMain
      *     - jvmMain
      *     - desktopMain
      *       - macosX64Main
@@ -41,6 +49,9 @@ kotlin {
             dependsOn(commonMain)
         }
 
+        androidMain {
+            dependsOn(appMain)
+        }
         jvmMain {
             dependsOn(appMain)
         }
@@ -83,6 +94,9 @@ buildkonfig {
     }
 
     targetConfigs {
+        android {
+            buildConfigField 'STRING', 'target', 'android'
+        }
         jvm {
             buildConfigField 'STRING', 'target', 'jvm'
         }
