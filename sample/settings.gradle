@@ -20,4 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
+rootProject.name = "sample"
+
 include("multiplatform")
