@@ -791,57 +791,47 @@ class BuildKonfigPluginTest {
 
     @Test
     fun `The generate task is a dependency of kotlin jvm target`() {
-        buildFile.writeText(
-            """
+        `The generate task is a dependency of the single-target kotlin compile task`(
+            compileTaskName = "compileKotlin",
+            plugins = """
             |plugins {
             |   id 'org.jetbrains.kotlin.jvm'
             |   id 'com.codingfeline.buildkonfig'
             |}
-            |
-            |repositories {
-            |   google()
-            |   mavenCentral()
-            |}
-            |
-            |buildkonfig {
-            |    packageName = "com.sample"
-            |
-            |    defaultConfigs {
-            |        buildConfigField 'STRING', 'test', 'hoge'
-            |        buildConfigField 'INT', 'intValue', '10'
-            |    }
-            |}
-            """.trimMargin()
+            """.trimMargin(),
+            extraSetup = "",
         )
-
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
-
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
-            .withArguments("compileKotlin", "--stacktrace")
-            .build()
-
-        assertThat(result.output)
-            .contains("generateBuildKonfig")
     }
 
     @Test
     fun `The generate task is a dependency of kotlin jvm test target`() {
-        buildFile.writeText(
-            """
+        `The generate task is a dependency of the single-target kotlin compile task`(
+            compileTaskName = "compileTestKotlin",
+            plugins = """
             |plugins {
             |   id 'org.jetbrains.kotlin.jvm'
             |   id 'com.codingfeline.buildkonfig'
             |}
+            """.trimMargin(),
+            extraSetup = "",
+        )
+    }
+
+    private fun `The generate task is a dependency of the single-target kotlin compile task`(
+        compileTaskName: String,
+        plugins: String,
+        extraSetup: String,
+    ) {
+        buildFile.writeText(
+            """
+            |$plugins
             |
             |repositories {
             |   google()
             |   mavenCentral()
             |}
+            |
+            |$extraSetup
             |
             |buildkonfig {
             |    packageName = "com.sample"
@@ -862,7 +852,7 @@ class BuildKonfigPluginTest {
             .withPluginClasspath()
 
         val result = runner
-            .withArguments("compileTestKotlin", "--stacktrace")
+            .withArguments(compileTaskName, "--stacktrace")
             .build()
 
         assertThat(result.output)
