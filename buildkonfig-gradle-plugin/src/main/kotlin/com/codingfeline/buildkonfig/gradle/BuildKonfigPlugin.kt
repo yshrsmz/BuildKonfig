@@ -29,9 +29,10 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         var isSupported = false
         target.plugins.all { plugin ->
             if (plugin is KotlinBasePluginWrapper) when (plugin.projectExtensionClass) {
-                KotlinJvmProjectExtension::class,
+                KotlinMultiplatformExtension::class,
                 KotlinAndroidProjectExtension::class,
-                KotlinMultiplatformExtension::class -> {
+                KotlinJvmProjectExtension::class,
+                -> {
                     isSupported = true
                 }
             }
@@ -45,9 +46,9 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
                 BuildKonfig Gradle plugin applied in project '${target.path}' but no supported Kotlin plugin was found.
 
                 Only the following plugins are currently supported at the moment:
-                - `kotlin("jvm")` or `id("org.jetbrains.kotlin.jvm")`
-                - `kotlin("android")` or `id("org.jetbrains.kotlin.android")`
                 - `kotlin("multiplatform")` or `id("org.jetbrains.kotlin.multiplatform")`
+                - `kotlin("android")` or `id("org.jetbrains.kotlin.android")`
+                - `kotlin("jvm")` or `id("org.jetbrains.kotlin.jvm")`
                 """.trimIndent()
             )
 
