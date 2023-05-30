@@ -11,7 +11,7 @@ plugins {
 
 android {
     namespace = "com.example.namespace"
-    compileSdk = 33
+    compileSdk = 28
 }
 
 kotlin {
