@@ -6,7 +6,7 @@ plugins {
         alias(libs.plugins.android.library)
         alias(libs.plugins.kotlin.multiplatform)
     }
-    id("com.codingfeline.buildkonfig") version "+"
+    id("com.codingfeline.buildkonfig")
 }
 
 android {
