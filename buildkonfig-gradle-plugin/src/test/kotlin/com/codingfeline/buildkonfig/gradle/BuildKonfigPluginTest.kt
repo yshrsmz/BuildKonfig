@@ -1,6 +1,7 @@
 package com.codingfeline.buildkonfig.gradle
 
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Before
 import org.junit.Rule
@@ -315,6 +316,68 @@ class BuildKonfigPluginTest {
                 doesNotContain("android")
                 doesNotContain("jvm")
             }
+    }
+
+    @Test
+    fun `Applying the plugin works fine for multiplatform project with only jvm`() {
+        buildFile.writeText(
+            """
+            |plugins {
+            |   id 'kotlin-multiplatform'
+            |   id 'com.codingfeline.buildkonfig'
+            |}
+            |
+            |repositories {
+            |   google()
+            |   mavenCentral()
+            |}
+            |
+            |buildkonfig {
+            |    packageName = "com.sample"
+            |
+            |    defaultConfigs {
+            |        buildConfigField 'STRING', 'test', 'jvm'
+            |        buildConfigField 'INT', 'intValue', '10'
+            |        buildConfigField 'STRING', 'jvm', 'jvmHoge'
+            |    }
+            |}
+            |
+            |kotlin {
+            |   jvm()
+            |}
+            """.trimMargin()
+        )
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+
+        assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val commonResult = File(buildDir, "commonMain/com/sample/BuildKonfig.kt")
+        assertThat(commonResult.readText())
+            .apply {
+                contains("val intValue: Int = 10")
+                contains("val test: String = \"jvm\"")
+                contains("val jvm: String = \"jvmHoge\"")
+                doesNotContain("actual val jvm")
+
+                doesNotContain("val android: String = \"androidHoge\"")
+                doesNotContain("actual val android")
+            }
+
+        val jvmResult = File(buildDir, "jvmMain/com/sample/BuildKonfig.kt")
+        assertWithMessage("Shouldn't exist: %s", jvmResult)
+            .that(jvmResult.exists())
+            .isFalse()
     }
 
     @Test
