@@ -20,6 +20,7 @@ typealias Flavor = String
 
 const val DEFAULT_FLAVOR: Flavor = ""
 const val COMMON_SOURCESET_NAME = "commonMain"
+const val MAIN_SOURCESET_NAME = "main"
 
 @Suppress("unused")
 abstract class BuildKonfigPlugin : Plugin<Project> {
@@ -107,13 +108,13 @@ fun decideOutputs(
 ): Map<String, TargetConfigSource> {
     val acc = linkedMapOf<String, TargetConfigSource>()
     for (source in kotlinExtension.sources()) {
-        if (targetConfigs.size == 1 && source.name != COMMON_SOURCESET_NAME) {
-            // there's only common config
+        if (targetConfigs.size == 1 && !isCommonOrMainSourceSet(source.name)) {
+            // there's only common/main config
             continue
         }
 
         val dependentsWithConfig = source.sourceSets
-            .filter { it.name != COMMON_SOURCESET_NAME }
+            .filter { !isCommonOrMainSourceSet(it.name) }
             .filter { targetConfigs.containsKey(it.name) }
 
         val sourceHasConfig = targetConfigs.containsKey(source.name)
@@ -162,7 +163,7 @@ fun decideOutputs(
             configFile = TargetConfigFileImpl(
                 targetName = TargetName(source.name, source.type.toPlatformType()),
                 outputDirectory = File(outputDirectory, targetSourceSet.name),
-                config = targetConfigs[source.name] ?: targetConfigs.getValue(COMMON_SOURCESET_NAME).copy(),
+                config = targetConfigs[source.name] ?: targetConfigs.getValueForCommonOrMain().copy(),
             ),
             sourceSet = targetSourceSet
         )
@@ -181,6 +182,17 @@ internal fun Project.findFlavor(): String {
         DEFAULT_FLAVOR
     }
 }
+
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun isCommonOrMainSourceSet(name: String): Boolean =
+    name == COMMON_SOURCESET_NAME || name == MAIN_SOURCESET_NAME
+
+internal fun <T> Map<String, T>.getValueForCommonOrMain(): T =
+    getOrElse(COMMON_SOURCESET_NAME) {
+        getOrElse(MAIN_SOURCESET_NAME) {
+            throw NoSuchElementException("Neither key \"$COMMON_SOURCESET_NAME\" nor key \"$MAIN_SOURCESET_NAME\" is present in the map.")
+        }
+    }
 
 internal fun KotlinPlatformType.toPlatformType(): PlatformType {
     return when (this) {

@@ -47,15 +47,17 @@ open class BuildKonfigTask : DefaultTask() {
     @TaskAction
     fun generateBuildKonfigFiles() {
         // clean up output directories
-        outputDirectories.getValue(COMMON_SOURCESET_NAME).parentFile.cleanupDirectory()
-        outputDirectories.forEach { it.value.mkdirs() }
+        outputDirectories.run {
+            getValueForCommonOrMain().parentFile.cleanupDirectory()
+            forEach { it.value.mkdirs() }
+        }
 
         val data = BuildKonfigData(
             packageName = packageName,
             objectName = objectName,
             exposeObject = exposeObject,
-            commonConfig = targetConfigFiles.getValue(COMMON_SOURCESET_NAME),
-            targetConfigs = targetConfigFiles.filter { it.key != COMMON_SOURCESET_NAME }.values.toList(),
+            commonConfig = targetConfigFiles.getValueForCommonOrMain(),
+            targetConfigs = targetConfigFiles.filter { !isCommonOrMainSourceSet(it.key) }.values.toList(),
             hasJsTarget = hasJsTarget
         )
 
