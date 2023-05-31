@@ -29,7 +29,9 @@ internal fun KotlinProjectExtension.sources(): List<Source> {
 }
 
 private fun sourcesForTarget(target: KotlinTarget) = target.compilations
-    .filter { !it.name.endsWith(suffix = "Test", ignoreCase = true) }
+    // Excludes "*Test" and "test", but includes "*test" (e.g., "latest", "shortest", etc.)
+    .filter { !it.name.endsWith(suffix = "Test") && it.name != "test" }
+
     .map { compilation ->
         val (defaultSourceSet, sourceSets) = when (target.platformType) {
             KotlinPlatformType.androidJvm -> {
