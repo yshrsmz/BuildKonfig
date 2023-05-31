@@ -817,6 +817,42 @@ class BuildKonfigPluginTest {
         )
     }
 
+    @Test
+    fun `The generate task is a dependency of kotlin android target`() {
+        val plugins = """
+            |plugins {
+            |   id 'org.jetbrains.kotlin.android'
+            |   id 'com.android.library'
+            |   id 'com.codingfeline.buildkonfig'
+            |}
+            """.trimMargin()
+
+        val extraSetup = """
+            |android {
+            |    namespace = "com.sample"
+            |    compileSdk = 28
+            |
+            |    compileOptions {
+            |        sourceCompatibility JavaVersion.VERSION_1_8
+            |        targetCompatibility JavaVersion.VERSION_1_8
+            |    }
+            |    kotlinOptions.jvmTarget = "1.8"
+            |}
+            """.trimMargin()
+
+        `The generate task is a dependency of the single-target kotlin compile task`(
+            compileTaskName = "compileDebugKotlin",
+            plugins = plugins,
+            extraSetup = extraSetup,
+        )
+
+        `The generate task is a dependency of the single-target kotlin compile task`(
+            compileTaskName = "compileReleaseKotlin",
+            plugins = plugins,
+            extraSetup = extraSetup,
+        )
+    }
+
     private fun `The generate task is a dependency of the single-target kotlin compile task`(
         compileTaskName: String,
         plugins: String,
