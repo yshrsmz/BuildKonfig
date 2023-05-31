@@ -1,0 +1,122 @@
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.multiplatform)
+    id("com.codingfeline.buildkonfig")
+}
+
+android {
+    namespace = "com.example.namespace"
+    compileSdk = 28
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+kotlin {
+    android {
+        compilations.all {
+            kotlinOptions.jvmTarget = "1.8"
+        }
+    }
+    jvm {}
+    js(IR) {
+        browser()
+        // See, https://kotlinlang.org/docs/multiplatform-set-up-targets.html#distinguish-several-targets-for-one-platform
+        attributes.attribute(Attribute.of('com.example.target', String), 'browser')
+    }
+    js('node', IR) {
+        nodejs()
+    }
+    ios()
+    macosX64()
+    linuxX64()
+    mingwX64()
+
+    /**
+     * - commonMain
+     *   - appMain
+     *     - androidMain
+     *     - jvmMain
+     *     - desktopMain
+     *       - macosX64Main
+     *       - linuxX64Main
+     *       - mingwX64Main
+     *   - jsCommonMain
+     *     - jsMain
+     *     - nodeMain
+     *   - iosMain
+     *     - iosArm64Main
+     *     - iosX64Main
+     */
+    sourceSets {
+        commonMain {}
+        commonTest {}
+
+        appMain {
+            dependsOn(commonMain)
+        }
+
+        androidMain {
+            dependsOn(appMain)
+        }
+        jvmMain {
+            dependsOn(appMain)
+        }
+
+        desktopMain {
+            dependsOn(appMain)
+        }
+
+        macosX64Main {
+            dependsOn(desktopMain)
+        }
+        linuxX64Main {
+            dependsOn(desktopMain)
+        }
+        mingwX64Main {
+            dependsOn(desktopMain)
+        }
+
+        jsCommonMain {
+            dependsOn(commonMain)
+        }
+        jsMain {
+            dependsOn(jsCommonMain)
+        }
+        nodeMain {
+            dependsOn(jsCommonMain)
+        }
+    }
+}
+
+buildkonfig {
+    packageName = 'com.codingfeline.buildkonfigsample'
+
+    defaultConfigs {
+        buildConfigField 'STRING', 'test', 'testvalue'
+        buildConfigField 'STRING', 'target', 'common'
+        buildConfigField 'STRING', 'testKey1', null, nullable: true
+        buildConfigField 'STRING', 'testKey2', "testValue2", nullable: false
+        buildConfigField 'STRING', 'testKey3', "testValue3", nullable: false, const: true
+    }
+
+    targetConfigs {
+        android {
+            buildConfigField 'STRING', 'target', 'android'
+        }
+        jvm {
+            buildConfigField 'STRING', 'target', 'jvm'
+        }
+        ios {
+            buildConfigField 'STRING', 'target', 'ios'
+        }
+        desktop {
+            buildConfigField 'STRING', 'desktopvalue', 'desktop'
+        }
+        jsCommon {
+            buildConfigField 'STRING', 'target', 'jsCommon'
+        }
+    }
+}

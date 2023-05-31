@@ -1,0 +1,28 @@
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    id("com.codingfeline.buildkonfig")
+}
+
+android {
+    namespace = "com.example.namespace"
+    compileSdk = 28
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+buildkonfig {
+    packageName = 'com.codingfeline.buildkonfigsample'
+
+    defaultConfigs {
+        buildConfigField 'STRING', 'test', 'testvalue'
+        buildConfigField 'STRING', 'target', 'main'
+        buildConfigField 'STRING', 'testKey1', null, nullable: true
+        buildConfigField 'STRING', 'testKey2', "testValue2", nullable: false
+        buildConfigField 'STRING', 'testKey3', "testValue3", nullable: false, const: true
+    }
+}

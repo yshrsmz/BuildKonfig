@@ -1,6 +1,7 @@
 package com.codingfeline.buildkonfig.gradle
 
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Before
 import org.junit.Rule
@@ -67,11 +68,11 @@ class BuildKonfigPluginTest {
     }
 
     @Test
-    fun `Applying plugin with kotlin jvm plugin throws`() {
+    fun `Applying plugin with kotlin js plugin throws`() {
         buildFile.writeText(
             """
             |plugins {
-            |   id 'org.jetbrains.kotlin.jvm'
+            |   id 'org.jetbrains.kotlin.js'
             |   id 'com.codingfeline.buildkonfig'
             |}
             |
@@ -117,7 +118,7 @@ class BuildKonfigPluginTest {
             .buildAndFail()
 
         assertThat(result.output)
-            .contains("BuildKonfig Gradle plugin applied in project ':' but no supported Kotlin multiplatform plugin was found")
+            .contains("BuildKonfig Gradle plugin applied in project ':' but no supported Kotlin plugin was found.")
     }
 
     @Test
@@ -314,6 +315,169 @@ class BuildKonfigPluginTest {
                 doesNotContain("actual val native")
                 doesNotContain("android")
                 doesNotContain("jvm")
+            }
+    }
+
+    @Test
+    fun `Applying the plugin works fine for multiplatform project with only jvm`() {
+        buildFile.writeText(
+            """
+            |plugins {
+            |   id 'kotlin-multiplatform'
+            |   id 'com.codingfeline.buildkonfig'
+            |}
+            |
+            |repositories {
+            |   google()
+            |   mavenCentral()
+            |}
+            |
+            |buildkonfig {
+            |    packageName = "com.sample"
+            |
+            |    defaultConfigs {
+            |        buildConfigField 'STRING', 'test', 'jvm'
+            |        buildConfigField 'INT', 'intValue', '10'
+            |        buildConfigField 'STRING', 'jvm', 'jvmHoge'
+            |    }
+            |}
+            |
+            |kotlin {
+            |   jvm()
+            |}
+            """.trimMargin()
+        )
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+
+        assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val commonResult = File(buildDir, "commonMain/com/sample/BuildKonfig.kt")
+        assertThat(commonResult.readText())
+            .apply {
+                contains("val intValue: Int = 10")
+                contains("val test: String = \"jvm\"")
+                contains("val jvm: String = \"jvmHoge\"")
+                doesNotContain("actual val jvm")
+
+                doesNotContain("val android: String = \"androidHoge\"")
+                doesNotContain("actual val android")
+            }
+
+        val jvmResult = File(buildDir, "jvmMain/com/sample/BuildKonfig.kt")
+        assertWithMessage("Shouldn't exist: %s", jvmResult)
+            .that(jvmResult.exists())
+            .isFalse()
+    }
+
+    @Test
+    fun `Applying the plugin works fine for kotlin jvm project`() {
+        `Applying the plugin works fine for single-target kotlin project`(
+            plugins = """
+            |plugins {
+            |   id 'org.jetbrains.kotlin.jvm'
+            |   id 'com.codingfeline.buildkonfig'
+            |}
+            """.trimMargin(),
+            extraSetup = "",
+        )
+    }
+
+    @Test
+    fun `Applying the plugin works fine for kotlin android project`() {
+        // Special initial setup for android
+        createAndroidManifest(projectDir)
+
+        `Applying the plugin works fine for single-target kotlin project`(
+            plugins = """
+            |plugins {
+            |   id 'org.jetbrains.kotlin.android'
+            |   id 'com.android.library'
+            |   id 'com.codingfeline.buildkonfig'
+            |}
+            """.trimMargin(),
+            extraSetup = """
+            |android {
+            |    namespace = "com.sample"
+            |    compileSdk = 28
+            |}
+            """.trimMargin(),
+        )
+    }
+
+    private fun `Applying the plugin works fine for single-target kotlin project`(
+        plugins: String,
+        extraSetup: String,
+    ) {
+        buildFile.writeText(
+            """
+            |$plugins
+            |
+            |repositories {
+            |   google()
+            |   mavenCentral()
+            |}
+            |
+            |$extraSetup
+            |
+            |buildkonfig {
+            |    packageName = "com.sample"
+            |
+            |    defaultConfigs {
+            |        buildConfigField 'STRING', 'test', 'hoge'
+            |        buildConfigField 'INT', 'intValue', '10'
+            |    }
+            |
+            |    targetConfigs {
+            |        jvm {
+            |            buildConfigField 'STRING', 'test', 'jvm'
+            |            buildConfigField 'STRING', 'jvm', 'jvmHoge'
+            |        }
+            |        android {
+            |            buildConfigField 'STRING', 'test', 'android'
+            |            buildConfigField 'STRING', 'android', 'androidHoge'
+            |        }
+            |    }
+            |}
+            """.trimMargin()
+        )
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+
+        assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val mainResult = File(buildDir, "main/com/sample/BuildKonfig.kt")
+        assertThat(mainResult.readText())
+            .apply {
+                contains("val intValue: Int = 10")
+                contains("val test: String = \"hoge\"")
+                doesNotContain("expect val test")
+
+                doesNotContain("val jvm: String = \"jvmHoge\"")
+                doesNotContain("actual val jvm")
+
+                doesNotContain("val android: String = \"androidHoge\"")
+                doesNotContain("actual val android")
             }
     }
 
@@ -625,5 +789,110 @@ class BuildKonfigPluginTest {
             .contains("generateBuildKonfig")
     }
 
+    @Test
+    fun `The generate task is a dependency of kotlin jvm target`() {
+        `The generate task is a dependency of the single-target kotlin compile task`(
+            compileTaskName = "compileKotlin",
+            plugins = """
+            |plugins {
+            |   id 'org.jetbrains.kotlin.jvm'
+            |   id 'com.codingfeline.buildkonfig'
+            |}
+            """.trimMargin(),
+            extraSetup = "",
+        )
+    }
+
+    @Test
+    fun `The generate task is a dependency of kotlin jvm test target`() {
+        `The generate task is a dependency of the single-target kotlin compile task`(
+            compileTaskName = "compileTestKotlin",
+            plugins = """
+            |plugins {
+            |   id 'org.jetbrains.kotlin.jvm'
+            |   id 'com.codingfeline.buildkonfig'
+            |}
+            """.trimMargin(),
+            extraSetup = "",
+        )
+    }
+
+    @Test
+    fun `The generate task is a dependency of kotlin android target`() {
+        val plugins = """
+            |plugins {
+            |   id 'org.jetbrains.kotlin.android'
+            |   id 'com.android.library'
+            |   id 'com.codingfeline.buildkonfig'
+            |}
+            """.trimMargin()
+
+        val extraSetup = """
+            |android {
+            |    namespace = "com.sample"
+            |    compileSdk = 28
+            |
+            |    compileOptions {
+            |        sourceCompatibility JavaVersion.VERSION_1_8
+            |        targetCompatibility JavaVersion.VERSION_1_8
+            |    }
+            |    kotlinOptions.jvmTarget = "1.8"
+            |}
+            """.trimMargin()
+
+        `The generate task is a dependency of the single-target kotlin compile task`(
+            compileTaskName = "compileDebugKotlin",
+            plugins = plugins,
+            extraSetup = extraSetup,
+        )
+
+        `The generate task is a dependency of the single-target kotlin compile task`(
+            compileTaskName = "compileReleaseKotlin",
+            plugins = plugins,
+            extraSetup = extraSetup,
+        )
+    }
+
+    private fun `The generate task is a dependency of the single-target kotlin compile task`(
+        compileTaskName: String,
+        plugins: String,
+        extraSetup: String,
+    ) {
+        buildFile.writeText(
+            """
+            |$plugins
+            |
+            |repositories {
+            |   google()
+            |   mavenCentral()
+            |}
+            |
+            |$extraSetup
+            |
+            |buildkonfig {
+            |    packageName = "com.sample"
+            |
+            |    defaultConfigs {
+            |        buildConfigField 'STRING', 'test', 'hoge'
+            |        buildConfigField 'INT', 'intValue', '10'
+            |    }
+            |}
+            """.trimMargin()
+        )
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments(compileTaskName, "--stacktrace")
+            .build()
+
+        assertThat(result.output)
+            .contains("generateBuildKonfig")
+    }
 
 }

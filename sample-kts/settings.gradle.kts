@@ -19,3 +19,11 @@ dependencyResolutionManagement {
         google()
     }
 }
+
+rootProject.name = "sample"
+
+include("multiplatform")
+include("android")
+include("jvm")
+
+include("multiplatform-jvm")

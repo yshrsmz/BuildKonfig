@@ -1,8 +1,11 @@
-package com.codingfeline.buildkonfig.gradle.kotlin
+﻿package com.codingfeline.buildkonfig.gradle.kotlin
 
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 data class Source(
@@ -13,38 +16,53 @@ data class Source(
     val sourceSets: List<KotlinSourceSet>
 )
 
-internal fun KotlinMultiplatformExtension.sources(): List<Source> {
-    return targets
-        .flatMap { target ->
-            target.compilations.filter { !it.name.endsWith(suffix = "Test", ignoreCase = true) }
-                .map { compilation ->
-                    val (defaultSourceSet, sourceSets) = when (target.platformType) {
-                        KotlinPlatformType.androidJvm -> {
-                            val default = compilation.allKotlinSourceSets
-                                .first { it.name == "${target.name}Main" }
+internal fun KotlinProjectExtension.sources(): List<Source> {
+    return (when (this) {
+        is KotlinSingleTargetExtension<*> -> sourcesForTarget(target)
+            .toMutableSet() // Same as `.distinct()` but without converting into a `List`
 
-                            val all = compilation.allKotlinSourceSets
-                                .filter {
-                                    it.name != "${target.name}Main" &&
-                                            it.name != compilation.defaultSourceSet.name
-                                }
+        is KotlinMultiplatformExtension -> targets
+            .flatMapTo(LinkedHashSet()) { sourcesForTarget(it) } // Same as `flatMap { … }.distinct().toMutableSet()` without creating intermediate collections
 
-                            default to all
-                        }
-                        else -> {
-                            compilation.defaultSourceSet to compilation.allKotlinSourceSets
-                                .filter { it.name != compilation.defaultSourceSet.name }
-                        }
-                    }
-                    Source(
-                        type = compilation.platformType,
-                        nativePresetName = ((target as? KotlinNativeTarget)?.preset?.name),
-                        name = defaultSourceSet.name,
-                        defaultSourceSet = defaultSourceSet,
-                        sourceSets = sourceSets
-                    )
-                }
-        }
-        .distinct()
-        .sortedBy { it.sourceSets.size }
+        else -> error("Unexpected 'kotlin' extension $this") /** @see org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.targets */
+    }).sortedBy { it.sourceSets.size }
 }
+
+private fun sourcesForTarget(target: KotlinTarget) = target.compilations
+    // Excludes "*Test" and "test", but includes "*test" (e.g., "latest", "shortest", etc.)
+    .filter { !it.name.endsWith(suffix = "Test") && it.name != "test" }
+
+    .map { compilation ->
+        val (defaultSourceSet, sourceSets) = when (target.platformType) {
+            KotlinPlatformType.androidJvm -> {
+                val mppMainSourceSetName = "${target.name}Main"
+                val default = compilation.allKotlinSourceSets
+                    .filter { val name = it.name; name == mppMainSourceSetName || name == "main" }
+                    // TODO Consider logging an error instead of throwing here?
+                    .run { firstOrNull { it.name == mppMainSourceSetName } ?: first() }
+
+                val defaultSourceSetName = default.name
+                val compilationDefaultSourceSetName = compilation.defaultSourceSet.name
+                val all = compilation.allKotlinSourceSets
+                    .filter {
+                        val name = it.name
+                        name != defaultSourceSetName &&
+                                name != compilationDefaultSourceSetName
+                    }
+
+                default to all
+            }
+            else -> {
+                val defaultSourceSet = compilation.defaultSourceSet
+                defaultSourceSet to compilation.allKotlinSourceSets
+                    .filter { it != defaultSourceSet }
+            }
+        }
+        Source(
+            type = compilation.platformType,
+            nativePresetName = ((target as? KotlinNativeTarget)?.preset?.name),
+            name = defaultSourceSet.name,
+            defaultSourceSet = defaultSourceSet,
+            sourceSets = sourceSets
+        )
+    }
