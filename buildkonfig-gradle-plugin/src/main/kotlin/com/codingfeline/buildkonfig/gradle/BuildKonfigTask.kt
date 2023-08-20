@@ -55,7 +55,7 @@ open class BuildKonfigTask : DefaultTask() {
             objectName = objectName,
             exposeObject = exposeObject,
             commonConfig = targetConfigFiles.getValue(COMMON_SOURCESET_NAME),
-            targetConfigs = targetConfigFiles.filter { it.key !== COMMON_SOURCESET_NAME }.values.toList(),
+            targetConfigs = targetConfigFiles.filter { it.key != COMMON_SOURCESET_NAME }.values.toList(),
             hasJsTarget = hasJsTarget
         )
 
