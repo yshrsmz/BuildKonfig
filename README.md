@@ -431,7 +431,7 @@ For example, say your have a source set structure like below.
 
 If you add a targetConfigs for `appMain`, you can't add configs for androidMain, desktopMain, or children of
 desktopMain. This is because BuildKonfig uses expect/actual to provide different values for each BuildKonfig object.
-When you provide a configuration for `appMain`, actual declaration of BuildKonfig object is created in `appMain. So any
+When you provide a configuration for `appMain`, actual declaration of BuildKonfig object is created in `appMain`. So any
 additional actual declarations in children SourceSets leads to compile-time error.
 
 
