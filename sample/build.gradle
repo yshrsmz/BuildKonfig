@@ -5,9 +5,9 @@ plugins {
 
 kotlin {
     jvm {}
-    js(IR) {
-        browser()
-    }
+//    js(IR) {
+//        browser()
+//    }
     js("node") {
         nodejs()
     }
@@ -63,9 +63,9 @@ kotlin {
         jsCommonMain {
             dependsOn(commonMain)
         }
-        jsMain {
-            dependsOn(jsCommonMain)
-        }
+//        jsMain {
+//            dependsOn(jsCommonMain)
+//        }
         nodeMain {
             dependsOn(jsCommonMain)
         }
