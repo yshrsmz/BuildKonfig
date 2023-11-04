@@ -456,7 +456,7 @@ Have a look at `./sample` directory.
 
 ```
 # Publish the latest version of the plugin to test maven repository(./build/localMaven)
-$ ./gradlew publishAllPublicationsToTestMavenRepository
+$ ./gradlew publishAllPublicationsToTestMavenRepository -PRELEASE_SIGNING_ENABLED=false
 
 # Try out the samples.
 # BuildKonfig will be generated in ./sample/build/buildkonfig

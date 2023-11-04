@@ -11,10 +11,13 @@ kotlin {
     js("node") {
         nodejs()
     }
-    ios()
+    iosArm64()
+    iosSimulatorArm64()
     macosX64()
     linuxX64()
     mingwX64()
+
+    applyDefaultHierarchyTemplate()
 
     /**
      * - commonMain
