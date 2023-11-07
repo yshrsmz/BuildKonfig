@@ -5,10 +5,8 @@ plugins {
 
 kotlin {
     jvm {}
-//    js(IR) {
-//        browser()
-//    }
-    js("node") {
+    js("jsCommon", IR) {
+        browser()
         nodejs()
     }
     iosArm64()
@@ -28,8 +26,6 @@ kotlin {
      *       - linuxX64Main
      *       - mingwX64Main
      *   - jsCommonMain
-     *     - jsMain
-     *     - nodeMain
      *   - iosMain
      *     - iosArm64Main
      *     - iosX64Main
@@ -37,19 +33,15 @@ kotlin {
     sourceSets {
         commonMain {}
         commonTest {}
-
         appMain {
             dependsOn(commonMain)
         }
-
         jvmMain {
             dependsOn(appMain)
         }
-
         desktopMain {
             dependsOn(appMain)
         }
-
         macosX64Main {
             dependsOn(desktopMain)
         }
@@ -59,15 +51,8 @@ kotlin {
         mingwX64Main {
             dependsOn(desktopMain)
         }
-
         jsCommonMain {
             dependsOn(commonMain)
-        }
-//        jsMain {
-//            dependsOn(jsCommonMain)
-//        }
-        nodeMain {
-            dependsOn(jsCommonMain)
         }
     }
 }
