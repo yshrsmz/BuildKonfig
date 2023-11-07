@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.mavenPublish)
     alias(libs.plugins.pluginPublish)
     id("java-gradle-plugin")
-    id("signing")
 }
 
 java {
