@@ -26,7 +26,6 @@ val settingsGradle = """
             |
             |   repositories {
             |       mavenCentral()
-            |       jcenter()
             |       maven { url 'https://plugins.gradle.org/m2/' }
             |   }
             |}

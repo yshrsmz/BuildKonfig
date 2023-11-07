@@ -93,7 +93,7 @@ fun decideOutputs(
     outputDirectory: File
 ): Map<String, TargetConfigSource> {
     return mppExtension.sources()
-        // Map<SourceName, TargetConfigSource
+        // Map<SourceName, TargetConfigSource>
         .fold(emptyMap()) { acc, source ->
             if (targetConfigs.size == 1 && source.name != COMMON_SOURCESET_NAME) {
                 // there's only common config

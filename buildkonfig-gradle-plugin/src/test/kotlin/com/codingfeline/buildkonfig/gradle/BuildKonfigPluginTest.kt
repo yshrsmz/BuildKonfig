@@ -36,7 +36,7 @@ class BuildKonfigPluginTest {
         |    browser()
         |    nodejs()
         |  }
-        |  iosX64('ios')
+        |  iosX64()
         |
         |  sourceSets {
         |    commonMain {
