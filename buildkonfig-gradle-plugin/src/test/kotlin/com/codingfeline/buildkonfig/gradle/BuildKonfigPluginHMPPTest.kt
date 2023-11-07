@@ -115,7 +115,9 @@ class BuildKonfigPluginHMPPTest {
             |    browser()
             |    nodejs()
             |   }
-            |   ios()
+            |   iosX64()
+            |   iosArm64()
+            |   iosSimulatorArm64() 
             |
             |   sourceSets {
             |     commonMain {
@@ -276,16 +278,18 @@ class BuildKonfigPluginHMPPTest {
             |kotlin {
             |    jvm {}
             |    android {}
-            |    js("browser") {
+            |    js("jsCommon", IR) {
             |        browser()
-            |    }
-            |    js("node") {
             |        nodejs()
             |    }
-            |    ios()
+            |    iosX64()
+            |    iosArm64()
+            |    iosSimulatorArm64()
             |    macosX64()
             |    linuxX64()
             |    mingwX64()
+            |    
+            |    applyDefaultHierarchyTemplate()
             |
             |    sourceSets {
             |     commonMain {}
@@ -314,12 +318,6 @@ class BuildKonfigPluginHMPPTest {
             |     
             |     jsCommonMain {
             |       dependsOn(commonMain)
-            |     }
-            |     browserMain {
-            |       dependsOn(jsCommonMain)
-            |     }
-            |     nodeMain {
-            |       dependsOn(jsCommonMain)
             |     }
             |   }
             |}

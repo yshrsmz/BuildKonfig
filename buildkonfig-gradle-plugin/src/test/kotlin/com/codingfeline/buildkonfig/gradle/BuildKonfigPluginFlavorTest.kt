@@ -36,7 +36,7 @@ class BuildKonfigPluginFlavorTest {
         |    browser()
         |    nodejs()
         |  }
-        |  iosX64('ios')
+        |  iosX64()
         |}
     """.trimMargin()
 
@@ -99,7 +99,7 @@ class BuildKonfigPluginFlavorTest {
         val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
         Truth.assertThat(jsResult.exists()).isFalse()
 
-        val iosResult = File(buildDir, "iosMain/com/example/BuildKonfig.kt")
+        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
         Truth.assertThat(iosResult.exists()).isFalse()
     }
 
@@ -150,7 +150,7 @@ class BuildKonfigPluginFlavorTest {
         val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
         Truth.assertThat(jsResult.exists()).isFalse()
 
-        val iosResult = File(buildDir, "iosMain/com/example/BuildKonfig.kt")
+        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
         Truth.assertThat(iosResult.exists()).isFalse()
     }
 
@@ -204,7 +204,7 @@ class BuildKonfigPluginFlavorTest {
         val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
         Truth.assertThat(jsResult.exists()).isFalse()
 
-        val iosResult = File(buildDir, "iosMain/com/example/BuildKonfig.kt")
+        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
         Truth.assertThat(iosResult.exists()).isFalse()
     }
 
@@ -258,7 +258,7 @@ class BuildKonfigPluginFlavorTest {
         Truth.assertThat(jsResult.readText())
             .contains("devDefaultValue")
 
-        val iosResult = File(buildDir, "iosMain/com/example/BuildKonfig.kt")
+        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
         Truth.assertThat(iosResult.readText())
             .contains("devDefaultValue")
     }
@@ -313,7 +313,7 @@ class BuildKonfigPluginFlavorTest {
         Truth.assertThat(jsResult.readText())
             .contains("devJsValue")
 
-        val iosResult = File(buildDir, "iosMain/com/example/BuildKonfig.kt")
+        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
         Truth.assertThat(iosResult.readText())
             .contains("devDefaultValue")
     }
@@ -454,7 +454,7 @@ class BuildKonfigPluginFlavorTest {
         Truth.assertThat(jsResult.readText())
             .contains("devJsValue")
 
-        val iosResult = File(buildDir, "iosMain/com/example/BuildKonfig.kt")
+        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
         Truth.assertThat(iosResult.readText())
             .contains("defaultValue")
     }
@@ -511,7 +511,7 @@ class BuildKonfigPluginFlavorTest {
         Truth.assertThat(jsResult.readText())
             .contains("defaultJsValue")
 
-        val iosResult = File(buildDir, "iosMain/com/example/BuildKonfig.kt")
+        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
         Truth.assertThat(iosResult.readText())
             .contains("defaultValue")
     }
@@ -610,7 +610,7 @@ class BuildKonfigPluginFlavorTest {
         Truth.assertThat(jvmResult.readText())
             .contains("internal actual object AwesomeConfig")
 
-        val iosResult = File(buildDir, "iosMain/com/example/AwesomeConfig.kt")
+        val iosResult = File(buildDir, "iosX64Main/com/example/AwesomeConfig.kt")
         Truth.assertThat(iosResult.readText())
             .contains("internal actual object AwesomeConfig")
     }
@@ -715,7 +715,7 @@ class BuildKonfigPluginFlavorTest {
         Truth.assertThat(jvmResult.readText())
             .contains("object AwesomeConfig")
 
-        val iosResult = File(buildDir, "iosMain/com/example/AwesomeConfig.kt")
+        val iosResult = File(buildDir, "iosX64Main/com/example/AwesomeConfig.kt")
         Truth.assertThat(iosResult.readText())
             .contains("object AwesomeConfig")
     }

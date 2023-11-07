@@ -40,23 +40,15 @@ class BuildkonfigPluginKotlinDSLTest {
             |kotlin {
             |    android()
             |
-            |    val iosTarget: (String, KotlinNativeTarget.() -> Unit) -> KotlinNativeTarget =
-            |        if (System.getenv("SDK_NAME")?.startsWith("iphoneos") == true)
-            |            ::iosArm64
-            |        else
-            |            ::iosX64
-            |
-            |    iosTarget("ios") {
-            |        binaries {
-            |            framework {
-            |                baseName = "shared"
-            |            }
-            |        }
-            |   }
+            |    iosX64()
+            |    iosArm64()
+            |    iosSimulatorArm64()
             |
             |    js(IR) {
             |        browser()
             |    }
+            |    
+            |    applyDefaultHierarchyTemplate()
             |
             |    sourceSets {
             |        val commonMain by getting
@@ -102,6 +94,8 @@ class BuildkonfigPluginKotlinDSLTest {
         val result = runner
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+
+//        println(result.output)
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
 

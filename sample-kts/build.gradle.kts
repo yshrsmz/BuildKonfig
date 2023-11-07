@@ -7,16 +7,18 @@ plugins {
 
 kotlin {
     jvm()
-    js(IR) {
+    js("jsCommon", IR) {
         browser()
-    }
-    js("node") {
         nodejs()
     }
     ios()
+    iosArm64()
+    iosSimulatorArm64()
     macosX64()
     linuxX64()
     mingwX64()
+
+    applyDefaultHierarchyTemplate()
 
     /**
      * - commonMain
@@ -27,8 +29,6 @@ kotlin {
      *       - linuxX64Main
      *       - mingwX64Main
      *   - jsCommonMain
-     *     - jsMain
-     *     - nodeMain
      *   - iosMain
      *     - iosArm64Main
      *     - iosX64Main
@@ -59,14 +59,8 @@ kotlin {
             dependsOn(desktopMain)
         }
 
-        val jsCommonMain by creating {
+        val jsCommonMain by getting {
             dependsOn(commonMain)
-        }
-        val jsMain by getting {
-            dependsOn(jsCommonMain)
-        }
-        val nodeMain by getting {
-            dependsOn(jsCommonMain)
         }
     }
 }

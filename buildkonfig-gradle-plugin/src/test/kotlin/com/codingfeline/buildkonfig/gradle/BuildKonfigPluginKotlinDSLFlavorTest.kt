@@ -36,7 +36,9 @@ class BuildKonfigPluginKotlinDSLFlavorTest {
         |    browser()
         |    nodejs()
         |  }
-        |  iosX64("ios")
+        |  iosX64()
+        |  iosArm64()
+        |  iosSimulatorArm64()
         |}
     """.trimMargin()
 
@@ -105,7 +107,7 @@ class BuildKonfigPluginKotlinDSLFlavorTest {
                 contains("devJsValue")
             }
 
-        val iosResult = File(buildDir, "iosMain/com/example/BuildKonfig.kt")
+        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
         Truth.assertThat(iosResult.readText())
             .contains("defaultValue")
     }
