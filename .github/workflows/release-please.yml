@@ -29,5 +29,5 @@ jobs:
             ]
           release-type: simple
           extra-files: |
-            ./gradle.properties
+            gradle.properties
           token: ${{ secrets.WORKFLOW_TOKEN }}
