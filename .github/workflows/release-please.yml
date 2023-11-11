@@ -5,8 +5,6 @@ on:
     branches:
       - main
 
-permissions: {}
-
 jobs:
   release_please:
 
@@ -16,7 +14,7 @@ jobs:
       release_created: ${{ steps.release.outputs.release_created }}
 
     steps:
-      - uses: google-github-actions/release-please-action@v3.7.11
+      - uses: google-github-actions/release-please-action@v3.7.13
         id: release
         with:
           changelog-types: |
