@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.1](https://github.com/yshrsmz/BuildKonfig/compare/v0.15.0...v0.15.1) (2023-11-27)
+
+
+### Miscellaneous
+
+* **ci:** configure concurrency for pullrequest.yml ([#112](https://github.com/yshrsmz/BuildKonfig/issues/112)) ([6a87881](https://github.com/yshrsmz/BuildKonfig/commit/6a87881b4a90835aa01cb0ad91c8e262bd4267ab))
+* **deps:** update google-github-actions/release-please-action action to v3.7.13 ([#111](https://github.com/yshrsmz/BuildKonfig/issues/111)) ([d747cfc](https://github.com/yshrsmz/BuildKonfig/commit/d747cfc508c519894843275ce1e45e27722fdc80))
+* **deps:** update kotlin monorepo to v1.9.21 ([#118](https://github.com/yshrsmz/BuildKonfig/issues/118)) ([1cf4888](https://github.com/yshrsmz/BuildKonfig/commit/1cf488866083635b3a59b75e85a6b16332b119d2))
+* **deps:** update plugin versions to v0.50.0 ([#116](https://github.com/yshrsmz/BuildKonfig/issues/116)) ([493547c](https://github.com/yshrsmz/BuildKonfig/commit/493547c0924ded821d2cec56796eac4f4353b94f))
+* **docs:** rename CHANGELOGS.md -&gt; CHANGELOG.md ([#115](https://github.com/yshrsmz/BuildKonfig/issues/115)) ([8873b01](https://github.com/yshrsmz/BuildKonfig/commit/8873b01bb2d15dbbfa26d10d3d2b58ed1319150b))
+
+
+### Bug Fixes
+
+* **ci:** fix extra-fIles config in release-please action ([#113](https://github.com/yshrsmz/BuildKonfig/issues/113)) ([65288b2](https://github.com/yshrsmz/BuildKonfig/commit/65288b2560402d02a8b07b417932898dcabf4bb7))
+* **deps:** update dependency com.squareup:kotlinpoet to v1.15.1 ([#117](https://github.com/yshrsmz/BuildKonfig/issues/117)) ([2c40f50](https://github.com/yshrsmz/BuildKonfig/commit/2c40f504022bb7f779e96e8d22954f4aec46eea1))
+
 ## [0.15.0] - 2023-11-08
 
 ### Changed
