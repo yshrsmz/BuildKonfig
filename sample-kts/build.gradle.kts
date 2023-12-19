@@ -1,11 +1,50 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
+import java.util.regex.Pattern
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("com.codingfeline.buildkonfig") version "+"
 }
+println("test")
+data class BuildConfigs(
+    val buildType: String = "",
+    val flavour: String = "",
+    val buildVarient: String = ""
+)
+
+var buildConfigs = BuildConfigs()
+
+fun getCurrentBuildConfigs(): BuildConfigs {
+    val iOSFlavor = project.findProperty("ios.flavor")
+println("iosflavor: $iOSFlavor")
+    if (iOSFlavor != null) {
+//        return iOSBuildConfigs(iOSFlavor)
+    }
+    val taskRequestsStr = gradle.startParameter.taskRequests.toString()
+    val pattern: Pattern = if (taskRequestsStr.contains("assemble")) {
+        Pattern.compile("assemble(\\w+)(Release|Debug)")
+    } else {
+        Pattern.compile("bundle(\\w+)(Release|Debug)")
+    }
+    val matcher = pattern.matcher(taskRequestsStr)
+    val buildConfigs = if (matcher.find()) {
+        val flavour = matcher.group(1).lowercase()
+        val buildType = matcher.group(2)
+        BuildConfigs(
+            flavour = flavour,
+            buildType = buildType.lowercase(),
+            buildVarient = "${flavour}$buildType"
+        )
+    } else {
+        println("No android product-flavour found!")
+        BuildConfigs()
+    }
+    return buildConfigs
+}
 
 kotlin {
+    buildConfigs = getCurrentBuildConfigs()
+    println("flavor: ${buildConfigs.flavour}")
     jvm()
     js("jsCommon", IR) {
         browser()
@@ -91,3 +130,4 @@ buildkonfig {
         }
     }
 }
+
