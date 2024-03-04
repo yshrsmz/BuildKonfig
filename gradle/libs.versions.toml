@@ -1,7 +1,7 @@
 [versions]
 gradle = "8.2.1"
 kotlin = "1.9.22"
-dokka = "1.9.10"
+dokka = "1.9.20"
 android = "8.1.1"
 jvmTarget = "1.8"
 
