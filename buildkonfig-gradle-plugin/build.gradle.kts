@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.mavenPublish)
@@ -52,10 +54,10 @@ dependencies {
 }
 
 tasks.compileKotlin {
-    kotlinOptions.jvmTarget = libs.versions.jvmTarget.get()
+    compilerOptions { jvmTarget.set(JvmTarget.JVM_1_8) }
 }
 tasks.compileTestKotlin {
-    kotlinOptions.jvmTarget = libs.versions.jvmTarget.get()
+    compilerOptions { jvmTarget.set(JvmTarget.JVM_1_8) }
 }
 
 apply(from = "$rootDir/gradle/maven-publish.gradle")
