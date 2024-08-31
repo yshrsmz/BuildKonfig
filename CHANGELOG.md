@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.2](https://github.com/yshrsmz/BuildKonfig/compare/v0.15.1...v0.15.2) (2024-08-31)
+
+
+### Miscellaneous
+
+* **deps:** update actions/cache action to v4 ([#134](https://github.com/yshrsmz/BuildKonfig/issues/134)) ([484b95c](https://github.com/yshrsmz/BuildKonfig/commit/484b95cb31f8230d543fb1610fbef4eb079dddd3))
+* **deps:** update actions/setup-java action to v4 ([#120](https://github.com/yshrsmz/BuildKonfig/issues/120)) ([5446b80](https://github.com/yshrsmz/BuildKonfig/commit/5446b801b33c01acd11c2f8abf0d2f362218ce67))
+* **deps:** update actions/upload-artifact action to v4 ([#126](https://github.com/yshrsmz/BuildKonfig/issues/126)) ([159d193](https://github.com/yshrsmz/BuildKonfig/commit/159d19355fd07c250207f9d2fcd635d0bf1b469d))
+* **deps:** update dependency org.jetbrains.dokka to v1.9.20 ([#141](https://github.com/yshrsmz/BuildKonfig/issues/141)) ([823ae08](https://github.com/yshrsmz/BuildKonfig/commit/823ae083102b0fdcff57da3a76160807490e28aa))
+* **deps:** update kotlin monorepo to v1.9.22 ([#132](https://github.com/yshrsmz/BuildKonfig/issues/132)) ([ab37a22](https://github.com/yshrsmz/BuildKonfig/commit/ab37a222a01c48e592632154113503e440523325))
+* **deps:** update plugin versions to v0.51.0 ([#137](https://github.com/yshrsmz/BuildKonfig/issues/137)) ([237622a](https://github.com/yshrsmz/BuildKonfig/commit/237622aa2513967b43933e6186a5aca58dc8318b))
+
+
+### Bug Fixes
+
+* **deps:** [#160](https://github.com/yshrsmz/BuildKonfig/issues/160) Kotlin 2.0 and fixed Issue With New Compiler Options DSL ([#162](https://github.com/yshrsmz/BuildKonfig/issues/162)) ([4655ce3](https://github.com/yshrsmz/BuildKonfig/commit/4655ce310028a3dda6f6b72149f4617a495b8f81))
+* **deps:** update dependency com.google.truth:truth to v1.2.0 ([#131](https://github.com/yshrsmz/BuildKonfig/issues/131)) ([10a6a29](https://github.com/yshrsmz/BuildKonfig/commit/10a6a2904404e0cd101e7a219f800fb4cfc6ce14))
+* **deps:** update dependency com.google.truth:truth to v1.3.0 ([#136](https://github.com/yshrsmz/BuildKonfig/issues/136)) ([6f58e2f](https://github.com/yshrsmz/BuildKonfig/commit/6f58e2fd07a2dc7448f742bfa9bcc3c8d6869d30))
+* **deps:** update dependency com.google.truth:truth to v1.4.2 ([#138](https://github.com/yshrsmz/BuildKonfig/issues/138)) ([aa2b18b](https://github.com/yshrsmz/BuildKonfig/commit/aa2b18b673431b0fd41a641ff5735bb06944759a))
+* **deps:** update dependency com.google.truth:truth to v1.4.3 ([#155](https://github.com/yshrsmz/BuildKonfig/issues/155)) ([84c6e23](https://github.com/yshrsmz/BuildKonfig/commit/84c6e23337fc827a43f0cc62e3bc859f0d501410))
+* **deps:** update dependency com.google.truth:truth to v1.4.4 ([#159](https://github.com/yshrsmz/BuildKonfig/issues/159)) ([627acda](https://github.com/yshrsmz/BuildKonfig/commit/627acda65103fef7cf11d33a58f15a93c9c66670))
+* **deps:** update dependency com.squareup:kotlinpoet to v1.15.2 ([#121](https://github.com/yshrsmz/BuildKonfig/issues/121)) ([ff3a22d](https://github.com/yshrsmz/BuildKonfig/commit/ff3a22d912997c48fcc98244ff27e810945cfe4c))
+* **deps:** update dependency com.squareup:kotlinpoet to v1.15.3 ([#125](https://github.com/yshrsmz/BuildKonfig/issues/125)) ([4e6daf4](https://github.com/yshrsmz/BuildKonfig/commit/4e6daf47636a72211467dfa34b4f950946568d1b))
+* **deps:** update dependency com.squareup:kotlinpoet to v1.17.0 ([#135](https://github.com/yshrsmz/BuildKonfig/issues/135)) ([9f3dc3c](https://github.com/yshrsmz/BuildKonfig/commit/9f3dc3c4b242c013e0fe7e6f81eddde9504d4189))
+
 ## [0.15.1](https://github.com/yshrsmz/BuildKonfig/compare/v0.15.0...v0.15.1) (2023-11-27)
 
 
