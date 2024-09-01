@@ -14,20 +14,8 @@ jobs:
       release_created: ${{ steps.release.outputs.release_created }}
 
     steps:
-      - uses: google-github-actions/release-please-action@v3.7.13
+      - uses: googleapis/release-please-action@v4
         id: release
         with:
-          changelog-types: |
-            [
-              {"type":"build","section":"Build System","hidden":false},
-              {"type":"chore","section":"Miscellaneous","hidden":false},
-              {"type":"feat","section":"Features","hidden":false},
-              {"type":"fix","section":"Bug Fixes","hidden":false},
-              {"type":"perf","section":"Performance Improvements","hidden":false},
-              {"type":"refactor","section":"Refactoring","hidden":false},
-              {"type":"revert","section":"Reverts","hidden":false}
-            ]
           release-type: simple
-          extra-files: |
-            gradle.properties
           token: ${{ secrets.WORKFLOW_TOKEN }}
