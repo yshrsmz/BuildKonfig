@@ -39,5 +39,6 @@
     ],
     "extra-files": [
         "gradle.properties"
-    ]
+    ],
+    ".": "0.0.0"
 }
