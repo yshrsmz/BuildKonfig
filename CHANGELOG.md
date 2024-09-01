@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.3](https://github.com/yshrsmz/BuildKonfig/compare/v0.15.2...v0.15.3) (2024-09-01)
+
+
+### Bug Fixes
+
+* **deps:** update dependency com.squareup:kotlinpoet to v1.18.1 ([#158](https://github.com/yshrsmz/BuildKonfig/issues/158)) ([54557e3](https://github.com/yshrsmz/BuildKonfig/commit/54557e372e45035c217a47869026a5e1214f785a))
+
 ## [0.15.2](https://github.com/yshrsmz/BuildKonfig/compare/v0.15.1...v0.15.2) (2024-08-31)
 
 
