@@ -38,7 +38,7 @@ internal fun KotlinMultiplatformExtension.sources(): List<Source> {
                     }
                     Source(
                         type = compilation.platformType,
-                        nativePresetName = ((target as? KotlinNativeTarget)?.preset?.name),
+                        nativePresetName = (target as? KotlinNativeTarget)?.konanTarget?.name,
                         name = defaultSourceSet.name,
                         defaultSourceSet = defaultSourceSet,
                         sourceSets = sourceSets
