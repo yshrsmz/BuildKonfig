@@ -39,6 +39,7 @@ afterEvaluate {
     tasks.named("compileKotlin").configure { dependsOn("pluginVersion") }
     tasks.named("dokkaHtml").configure { dependsOn("pluginVersion") }
     tasks.named("dokkaHtmlPartial") { dependsOn("pluginVersion") }
+    tasks.named("sourcesJar").configure { dependsOn("pluginVersion") }
     tasks.named("kotlinSourcesJar").configure { dependsOn("pluginVersion") }
 }
 
