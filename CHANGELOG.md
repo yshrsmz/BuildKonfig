@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.15.2...v0.16.0) (2025-02-13)
+
+
+### Bug Fixes
+
+* **deps:** fix missed commits about gradle wrapper version ([#185](https://github.com/yshrsmz/BuildKonfig/issues/185)) ([3a35b48](https://github.com/yshrsmz/BuildKonfig/commit/3a35b48297d82c05fe4b2fa667eb027c243e318e))
+* **deps:** update dependency com.squareup:kotlinpoet to v1.18.1 ([#158](https://github.com/yshrsmz/BuildKonfig/issues/158)) ([54557e3](https://github.com/yshrsmz/BuildKonfig/commit/54557e372e45035c217a47869026a5e1214f785a))
+* **deps:** update dependency com.squareup:kotlinpoet to v2 ([#171](https://github.com/yshrsmz/BuildKonfig/issues/171)) ([c6c9090](https://github.com/yshrsmz/BuildKonfig/commit/c6c909056bffb6fcd9713d70795bd897736ee236))
+
+
+### Miscellaneous Chores
+
+* prepare for release 0.16.0 ([f08a48b](https://github.com/yshrsmz/BuildKonfig/commit/f08a48b20d7fe869af9c55d02f8d85304fb85281))
+* **deps:** update kotlin monorepo to v2.0.21 ([#142](https://github.com/yshrsmz/BuildKonfig/issues/142)) ([b5f6275](https://github.com/yshrsmz/BuildKonfig/commit/b5f62751cc9fe250c3781a6edba5cef144b52660))
+
 ## [0.15.2](https://github.com/yshrsmz/BuildKonfig/compare/v0.15.1...v0.15.2) (2024-08-31)
 
 
