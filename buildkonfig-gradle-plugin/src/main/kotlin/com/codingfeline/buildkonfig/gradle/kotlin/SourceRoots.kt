@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.presetName
 
 data class Source(
     val type: KotlinPlatformType,
@@ -38,7 +39,7 @@ internal fun KotlinMultiplatformExtension.sources(): List<Source> {
                     }
                     Source(
                         type = compilation.platformType,
-                        nativePresetName = ((target as? KotlinNativeTarget)?.preset?.name),
+                        nativePresetName = (target as? KotlinNativeTarget)?.konanTarget?.presetName,
                         name = defaultSourceSet.name,
                         defaultSourceSet = defaultSourceSet,
                         sourceSets = sourceSets
