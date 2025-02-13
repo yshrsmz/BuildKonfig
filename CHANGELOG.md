@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.16.0...v0.17.0) (2025-02-13)
+
+
+### Bug Fixes
+
+* **deps:** update dependency com.android.tools.build:gradle to v8.8.0 ([#124](https://github.com/yshrsmz/BuildKonfig/issues/124)) ([cfe6e69](https://github.com/yshrsmz/BuildKonfig/commit/cfe6e692bbf17866352295a52a7f52c82485a99c))
+
+
+### Miscellaneous Chores
+
+* prepare for release 0.17.0 ([4c70693](https://github.com/yshrsmz/BuildKonfig/commit/4c706931a646093a60ca29adf93f8361048951fd))
+
 ## [0.16.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.15.2...v0.16.0) (2025-02-13)
 
 
