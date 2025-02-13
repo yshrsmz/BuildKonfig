@@ -265,6 +265,10 @@ class BuildKonfigPluginHMPPTest {
             |           buildConfigField 'String', 'platform', 'android'
             |           buildConfigField 'String', 'android', 'androidvalue'
             |       }
+            |       apple {
+            |           buildConfigField 'String', 'platform', 'apple'
+            |           buildConfigField 'String', 'native', 'nativevalue'
+            |       }
             |       ios {
             |           buildConfigField 'String', 'platform', 'ios'
             |           buildConfigField 'String', 'native', 'nativevalue'
@@ -376,6 +380,13 @@ class BuildKonfigPluginHMPPTest {
         val jvmKonfig = File(buildDir, "jvmMain/com/sample/BuildKonfig.kt")
         Truth.assertThat(jvmKonfig.exists()).isTrue()
         Truth.assertThat(jvmKonfig.readText()).apply {
+            contains("actual")
+            doesNotContain("expect")
+        }
+
+        val appleKonfig = File(buildDir, "appleMain/com/sample/BuildKonfig.kt")
+        Truth.assertThat(appleKonfig.exists()).isTrue()
+        Truth.assertThat(appleKonfig.readText()).apply {
             contains("actual")
             doesNotContain("expect")
         }

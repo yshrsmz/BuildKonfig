@@ -22,7 +22,7 @@ data class FieldSpec(
 
         companion object {
             fun of(name: String): Type? {
-                return values().firstOrNull { it.name == name }
+                return Type.entries.firstOrNull { it.name == name }
             }
         }
     }
