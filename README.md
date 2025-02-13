@@ -64,7 +64,7 @@ apply plugin: 'com.codingfeline.buildkonfig'
 
 kotlin {
     // your target config...
-    android()
+    androidTarget()
     iosX64('ios')
 }
 
@@ -104,7 +104,7 @@ plugins {
 
 kotlin {
     // your target config...
-    android()
+    androidTarget()
     iosX64('ios')
 }
 
@@ -163,7 +163,7 @@ apply plugin: 'com.codingfeline.buildkonfig'
 
 kotlin {
     // your target config...
-    android()
+    androidTarget()
     iosX64('ios')
 }
 
@@ -215,7 +215,7 @@ plugins {
 
 kotlin {
     // your target config...
-    android()
+    androidTarget()
     iosX64('ios')
 }
 

@@ -109,7 +109,7 @@ class BuildKonfigPluginHMPPTest {
             |}
             |
             |kotlin {
-            |   android('customAndroid')
+            |   androidTarget('customAndroid')
             |   jvm()
             |   js(IR) {
             |    browser()
