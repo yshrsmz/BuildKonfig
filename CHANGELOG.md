@@ -18,6 +18,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Miscellaneous Chores
 
 * prepare for release 0.16.0 ([f08a48b](https://github.com/yshrsmz/BuildKonfig/commit/f08a48b20d7fe869af9c55d02f8d85304fb85281))
+* **deps:** update kotlin monorepo to v2.0.21 ([#142](https://github.com/yshrsmz/BuildKonfig/issues/142)) ([b5f6275](https://github.com/yshrsmz/BuildKonfig/commit/b5f62751cc9fe250c3781a6edba5cef144b52660))
 
 ## [0.15.2](https://github.com/yshrsmz/BuildKonfig/compare/v0.15.1...v0.15.2) (2024-08-31)
 
