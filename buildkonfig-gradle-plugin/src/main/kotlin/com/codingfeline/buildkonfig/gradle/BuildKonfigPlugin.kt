@@ -1,16 +1,16 @@
 package com.codingfeline.buildkonfig.gradle
 
-
 import com.codingfeline.buildkonfig.compiler.PlatformType
 import com.codingfeline.buildkonfig.compiler.TargetConfig
 import com.codingfeline.buildkonfig.compiler.TargetName
 import com.codingfeline.buildkonfig.gradle.kotlin.sources
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
+import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import java.io.File
 
 typealias Flavor = String
 
@@ -44,7 +44,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
     }
 
     private fun configure(project: Project, extension: BuildKonfigExtension) {
-        val outputDirectory = File(project.buildDir, "buildkonfig")
+        val outputDirectory = project.layout.buildDirectory.dir("buildkonfig")
 
         val mppExtension = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
@@ -90,7 +90,7 @@ fun decideOutputs(
     project: Project,
     mppExtension: KotlinMultiplatformExtension,
     targetConfigs: MutableMap<String, TargetConfig>,
-    outputDirectory: File
+    outputDirectory: Provider<Directory>
 ): Map<String, TargetConfigSource> {
     return mppExtension.sources()
         // Map<SourceName, TargetConfigSource>
@@ -125,7 +125,7 @@ fun decideOutputs(
                     name = firstDependent.name,
                     configFile = TargetConfigFileImpl(
                         targetName = TargetName(firstDependent.name, source.type.toPlatformType()),
-                        outputDirectory = File(outputDirectory, firstDependent.name),
+                        outputDirectory = outputDirectory.map { it.dir(firstDependent.name) }.get().asFile,
                         config = targetConfigs.getValue(firstDependent.name)
                     ),
                     sourceSet = firstDependent
@@ -148,7 +148,7 @@ fun decideOutputs(
                 name = source.name,
                 configFile = TargetConfigFileImpl(
                     targetName = TargetName(source.name, source.type.toPlatformType()),
-                    outputDirectory = File(outputDirectory, targetSourceSet.name),
+                    outputDirectory = outputDirectory.map { it.dir(targetSourceSet.name) }.get().asFile,
                     config = targetConfigs[source.name] ?: targetConfigs.getValue(COMMON_SOURCESET_NAME).copy(),
                 ),
                 sourceSet = targetSourceSet
