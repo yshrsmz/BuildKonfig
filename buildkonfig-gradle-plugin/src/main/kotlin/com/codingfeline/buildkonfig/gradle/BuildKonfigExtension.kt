@@ -4,6 +4,7 @@ import com.codingfeline.buildkonfig.compiler.DEFAULT_KONFIG_OBJECT_NAME
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
+import java.io.File
 
 open class BuildKonfigExtension(
     private val project: Project
@@ -14,6 +15,7 @@ open class BuildKonfigExtension(
     var packageName: String? = null
     var objectName: String = DEFAULT_KONFIG_OBJECT_NAME
     var exposeObjectWithName: String? = null
+    var yaml: File? = null
 
     val defaultConfigs = mutableMapOf<String, TargetConfigDsl>()
     val targetConfigs = mutableMapOf<String, NamedDomainObjectContainer<TargetConfigDsl>>()
