@@ -5,24 +5,28 @@ plugins {
     alias(libs.plugins.mavenPublish)
 }
 
+val outputDir = layout.projectDirectory.dir("src/generated/kotlin")
+
 sourceSets {
     main {
-        java.srcDir("src/generated/kotlin")
+        java.srcDir(outputDir)
     }
+}
+
+tasks.named<Delete>("clean") {
+    delete(outputDir)
 }
 
 dependencies {
     implementation(libs.kotlinpoet)
 }
 
-tasks.create("pluginVersion") {
-    val outputDir = file("src/generated/kotlin")
-
+tasks.register("pluginVersion") {
     inputs.property("version", version)
     outputs.dir(outputDir)
 
     doLast {
-        val versionFile = file("$outputDir/com/codingfeline/buildkonfig/Version.kt")
+        val versionFile = outputDir.file("com/codingfeline/buildkonfig/Version.kt").asFile
         versionFile.parentFile.mkdirs()
         versionFile.writeText(
             """
