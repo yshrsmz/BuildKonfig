@@ -15,6 +15,7 @@ out/
 generated
 
 # Gradle files
+.kotlin/
 .gradle/
 build/
 

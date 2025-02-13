@@ -234,7 +234,7 @@ class BuildKonfigPluginTest {
             |}
             |
             |kotlin {
-            |   android('customAndroid')
+            |   androidTarget('customAndroid')
             |   jvm()
             |   js(IR) {
             |    browser()
@@ -380,7 +380,7 @@ class BuildKonfigPluginTest {
             |}
             |
             |kotlin {
-            |   android('customAndroid')
+            |   androidTarget('customAndroid')
             |   jvm()
             |   js {
             |    browser()
@@ -483,7 +483,7 @@ class BuildKonfigPluginTest {
             |}
             |
             |kotlin {
-            |   android('customAndroid')
+            |   androidTarget('customAndroid')
             |   jvm()
             |   js {
             |    browser()
@@ -585,7 +585,7 @@ class BuildKonfigPluginTest {
             |}
             |
             |kotlin {
-            |   android('customAndroid')
+            |   androidTarget('customAndroid')
             |   jvm()
             |   js {
             |    browser()

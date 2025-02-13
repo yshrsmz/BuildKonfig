@@ -11,8 +11,8 @@ kotlin {
         browser()
         nodejs()
     }
-    ios()
     iosArm64()
+    iosX64()
     iosSimulatorArm64()
     macosX64()
     linuxX64()
@@ -32,6 +32,7 @@ kotlin {
      *   - iosMain
      *     - iosArm64Main
      *     - iosX64Main
+     *     - iosSimulatorArm64Main
      */
     sourceSets {
         val commonMain by getting
