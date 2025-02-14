@@ -23,17 +23,17 @@ dependencies {
 
 tasks.register("pluginVersion") {
     inputs.property("version", version)
-    outputs.dir(outputDir)
+    outputs.file(outputDir.file("com/codingfeline/buildkonfig/Version.kt"))
 
     doLast {
-        val versionFile = outputDir.file("com/codingfeline/buildkonfig/Version.kt").asFile
+        val versionFile = outputs.files.singleFile
         versionFile.parentFile.mkdirs()
         versionFile.writeText(
             """
                 |// Generated file. Do not edit!
                 |package com.codingfeline.buildkonfig
                 |
-                |val VERSION = "${project.version}"
+                |const val VERSION = "${inputs.properties["version"]}"
             """.trimMargin()
         )
     }
