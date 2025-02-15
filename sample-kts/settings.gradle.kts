@@ -1,10 +1,10 @@
 pluginManagement {
+    includeBuild("..")
     repositories {
+        maven { url = uri("../build/localMaven") }
         mavenCentral()
         google()
         gradlePluginPortal()
-        maven { url = uri("../build/localMaven") }
-        mavenLocal()
     }
 }
 
