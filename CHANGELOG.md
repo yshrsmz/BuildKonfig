@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.16.0...v0.17.0) (2025-02-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency com.android.tools.build:gradle to v8.8.0 ([#124](https://github.com/yshrsmz/BuildKonfig/issues/124)) ([cfe6e69](https://github.com/yshrsmz/BuildKonfig/commit/cfe6e692bbf17866352295a52a7f52c82485a99c))
+* **deps:** update dependency com.android.tools.build:gradle to v8.8.1 ([#193](https://github.com/yshrsmz/BuildKonfig/issues/193)) ([b305d1d](https://github.com/yshrsmz/BuildKonfig/commit/b305d1d244229589af42128fa9738bed8ef0045f))
+* **deps:** update kotlin monorepo to v2.1.10 ([#175](https://github.com/yshrsmz/BuildKonfig/issues/175)) ([760faae](https://github.com/yshrsmz/BuildKonfig/commit/760faae92eb70874994c80e2a0d2cd7420e73948))
+
+
+### Miscellaneous Chores
+
+* prepare for release 0.17.0 ([4c70693](https://github.com/yshrsmz/BuildKonfig/commit/4c706931a646093a60ca29adf93f8361048951fd))
+
 ## [0.16.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.15.2...v0.16.0) (2025-02-13)
 
 
