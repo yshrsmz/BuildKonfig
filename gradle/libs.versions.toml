@@ -2,7 +2,7 @@
 gradle = "8.13"
 kotlin = "2.1.10"
 dokka = "2.0.0"
-android = "8.8.1"
+android = "8.8.2"
 
 [libraries]
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "2.1.0" }
