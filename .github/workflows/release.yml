@@ -21,11 +21,11 @@ jobs:
 
       - name: Publish the artifacts to Maven Central
         env:
-          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
-          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_PORTAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PORTAL_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_PRIVATE_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: ./gradlew clean build publish --no-daemon --no-parallel
+        run: ./gradlew clean build publishAndReleaseToMavenCentral --no-daemon --no-parallel --no-configuration-cache
 
       - name: Publish the plugin to Gradle Plugin portal
         env:
@@ -33,7 +33,7 @@ jobs:
           ORG_GRADLE_PROJECT_gradle.publish.secret: ${{ secrets.GRADLE_PUBLISH_SECRET }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_PRIVATE_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: ./gradlew publishPlugins --no-daemon --no-parallel
+        run: ./gradlew publishPlugins --no-daemon --no-parallel --no-configuration-cache
 
 env:
   GRADLE_OPTS: -Dorg.gradle.caching=true -Dorg.gradle.jvmargs="-Xmx2g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
