@@ -45,6 +45,7 @@ dependencies {
 
     compileOnly(gradleApi())
     implementation(libs.kotlin.plugin)
+    implementation(libs.yaml)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
