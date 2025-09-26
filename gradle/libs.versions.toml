@@ -7,7 +7,7 @@ android = "8.10.0"
 [libraries]
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "2.1.0" }
 junit = { module = "junit:junit", version = "4.13.2" }
-truth = { module = "com.google.truth:truth", version = "1.4.4" }
+truth = { module = "com.google.truth:truth", version = "1.4.5" }
 
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 android-plugin = { module = "com.android.tools.build:gradle", version.ref = "android" }
