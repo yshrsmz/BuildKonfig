@@ -1,0 +1,17 @@
+---
+flavor: default
+configs:
+  - name: default
+    fields:
+    - name: testKey
+      type: string
+      value: testValue
+      const: true
+      nullable: true
+  - name: android
+    fields:
+  - name: ios
+    fields:
+
+---
+flavor: dev
