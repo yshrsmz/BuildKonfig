@@ -17,4 +17,4 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 pluginPublish = { id = "com.gradle.plugin-publish", version = "1.3.1" }
-mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.32.0" }
+mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.35.0" }
