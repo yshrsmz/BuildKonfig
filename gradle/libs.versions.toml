@@ -5,7 +5,7 @@ dokka = "2.1.0"
 android = "8.10.0"
 
 [libraries]
-kotlinpoet = { module = "com.squareup:kotlinpoet", version = "2.1.0" }
+kotlinpoet = { module = "com.squareup:kotlinpoet", version = "2.2.0" }
 junit = { module = "junit:junit", version = "4.13.2" }
 truth = { module = "com.google.truth:truth", version = "1.4.5" }
 
