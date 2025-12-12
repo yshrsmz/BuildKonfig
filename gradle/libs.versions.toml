@@ -12,6 +12,8 @@ truth = { module = "com.google.truth:truth", version = "1.4.5" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 android-plugin = { module = "com.android.tools.build:gradle", version.ref = "android" }
 
+yaml = {module="org.snakeyaml:snakeyaml-engine", version="2.2.1"}
+
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
