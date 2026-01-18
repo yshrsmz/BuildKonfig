@@ -46,42 +46,6 @@ Rather I'd like to do it once.
 #### Simple configuration
 
 <details open>
-<summary>Groovy DSL</summary>
-
-```gradle
-buildScript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
-        classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
-    }
-}
-
-apply plugin: 'org.jetbrains.kotlin.multiplatform'
-apply plugin: 'com.codingfeline.buildkonfig'
-
-kotlin {
-    // your target config...
-    androidTarget()
-    iosX64('ios')
-}
-
-buildkonfig {
-    packageName = 'com.example.app'
-    // objectName = 'YourAwesomeConfig'
-    // exposeObjectWithName = 'YourAwesomePublicConfig'
-
-    defaultConfigs {
-        buildConfigField 'STRING', 'name', 'value'
-    }
-}
-```
-
-</details>
-
-<details>
 <summary>Kotlin DSL</summary>
 
 ```kotlin
@@ -115,6 +79,42 @@ buildkonfig {
 
     defaultConfigs {
         buildConfigField(STRING, "name", "value")
+    }
+}
+```
+
+</details>
+
+<details>
+<summary>Groovy DSL</summary>
+
+```gradle
+buildScript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
+        classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
+    }
+}
+
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'com.codingfeline.buildkonfig'
+
+kotlin {
+    // your target config...
+    androidTarget()
+    iosX64('ios')
+}
+
+buildkonfig {
+    packageName = 'com.example.app'
+    // objectName = 'YourAwesomeConfig'
+    // exposeObjectWithName = 'YourAwesomePublicConfig'
+
+    defaultConfigs {
+        buildConfigField 'STRING', 'name', 'value'
     }
 }
 ```
