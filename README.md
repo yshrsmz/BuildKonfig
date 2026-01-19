@@ -56,7 +56,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21")
         classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version")
     }
 }
@@ -94,7 +94,7 @@ buildScript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
 }
@@ -155,7 +155,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21")
         classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version")
     }
 }
@@ -204,7 +204,7 @@ buildScript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
 }
