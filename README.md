@@ -46,42 +46,6 @@ Rather I'd like to do it once.
 #### Simple configuration
 
 <details open>
-<summary>Groovy DSL</summary>
-
-```gradle
-buildScript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
-        classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
-    }
-}
-
-apply plugin: 'org.jetbrains.kotlin.multiplatform'
-apply plugin: 'com.codingfeline.buildkonfig'
-
-kotlin {
-    // your target config...
-    androidTarget()
-    iosX64('ios')
-}
-
-buildkonfig {
-    packageName = 'com.example.app'
-    // objectName = 'YourAwesomeConfig'
-    // exposeObjectWithName = 'YourAwesomePublicConfig'
-
-    defaultConfigs {
-        buildConfigField 'STRING', 'name', 'value'
-    }
-}
-```
-
-</details>
-
-<details>
 <summary>Kotlin DSL</summary>
 
 ```kotlin
@@ -92,7 +56,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21")
         classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version")
     }
 }
@@ -115,6 +79,42 @@ buildkonfig {
 
     defaultConfigs {
         buildConfigField(STRING, "name", "value")
+    }
+}
+```
+
+</details>
+
+<details>
+<summary>Groovy DSL</summary>
+
+```gradle
+buildScript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21'
+        classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
+    }
+}
+
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'com.codingfeline.buildkonfig'
+
+kotlin {
+    // your target config...
+    androidTarget()
+    iosX64('ios')
+}
+
+buildkonfig {
+    packageName = 'com.example.app'
+    // objectName = 'YourAwesomeConfig'
+    // exposeObjectWithName = 'YourAwesomePublicConfig'
+
+    defaultConfigs {
+        buildConfigField 'STRING', 'name', 'value'
     }
 }
 ```
@@ -145,54 +145,6 @@ internal object BuildKonfig {
 If you want to change value depending on your targets, you can use `targetConfigs` to define target-dependent values.
 
 <details open>
-<summary>Groovy DSL</summary>
-
-```gradle
-buildScript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
-        classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
-    }
-}
-
-apply plugin: 'org.jetbrains.kotlin.multiplatform'
-apply plugin: 'com.codingfeline.buildkonfig'
-
-kotlin {
-    // your target config...
-    androidTarget()
-    iosX64('ios')
-}
-
-buildkonfig {
-    packageName = 'com.example.app'
-    
-    // default config is required
-    defaultConfigs {
-        buildConfigField 'STRING', 'name', 'value'
-        buildConfigField 'STRING', 'nullableField', null, nullable: true
-    }
-    
-    targetConfigs {
-        // this name should be the same as target names you specified
-        android {
-            buildConfigField 'STRING', 'name2', 'value2'
-            buildConfigField 'STRING', 'nullableField', 'NonNull-value', nullable: true
-        }
-        
-        ios {
-            buildConfigField 'STRING', 'name', 'valueForNative'
-        }
-    }
-}
-```
-
-</details>
-
-<details>
 <summary>Kotlin DSL</summary>
 
 ```kotlin
@@ -203,7 +155,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21")
         classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version")
     }
 }
@@ -236,6 +188,54 @@ buildkonfig {
 
         create("ios") {
             buildConfigField(STRING, "name", "valueForNative")
+        }
+    }
+}
+```
+
+</details>
+
+<details>
+<summary>Groovy DSL</summary>
+
+```gradle
+buildScript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21'
+        classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
+    }
+}
+
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'com.codingfeline.buildkonfig'
+
+kotlin {
+    // your target config...
+    androidTarget()
+    iosX64('ios')
+}
+
+buildkonfig {
+    packageName = 'com.example.app'
+
+    // default config is required
+    defaultConfigs {
+        buildConfigField 'STRING', 'name', 'value'
+        buildConfigField 'STRING', 'nullableField', null, nullable: true
+    }
+
+    targetConfigs {
+        // this name should be the same as target names you specified
+        android {
+            buildConfigField 'STRING', 'name2', 'value2'
+            buildConfigField 'STRING', 'nullableField', 'NonNull-value', nullable: true
+        }
+
+        ios {
+            buildConfigField 'STRING', 'name', 'valueForNative'
         }
     }
 }
@@ -308,44 +308,6 @@ buildkonfig.flavor=dev
 ```
 
 <details open>
-<summary>Groovy DSL</summary>
-
-```gradle
-// ./mpp_project/build.gradle
-
-buildkonfig {
-    packageName = 'com.example.app'
-    
-    // default config is required
-    defaultConfigs {
-        buildConfigField 'STRING', 'name', 'value'
-    }
-    // flavor is passed as a first argument of defaultConfigs 
-    defaultConfigs("dev") {
-        buildConfigField 'STRING', 'name', 'devValue'
-    }
-    
-    targetConfigs {
-        android {
-            buildConfigField 'STRING', 'name2', 'value2'
-        }
-        
-        ios {
-            buildConfigField 'STRING', 'name', 'valueIos'
-        }
-    }
-    // flavor is passed as a first argument of targetConfigs
-    targetConfigs("dev") {
-        ios {
-            buildConfigField 'STRING', 'name', 'devValueIos'
-        }
-    }
-}
-```
-
-</details>
-
-<details>
 <summary>Kotlin DSL</summary>
 
 ```kotlin
@@ -359,7 +321,7 @@ buildkonfig {
     defaultConfigs {
         buildConfigField(STRING, "name", "value")
     }
-    // flavor is passed as a first argument of defaultConfigs 
+    // flavor is passed as a first argument of defaultConfigs
     defaultConfigs("dev") {
         buildConfigField(STRING, "name", "devValue")
     }
@@ -377,6 +339,44 @@ buildkonfig {
     targetConfigs("dev") {
         create("ios") {
             buildConfigField(STRING, "name", "devValueIos")
+        }
+    }
+}
+```
+
+</details>
+
+<details>
+<summary>Groovy DSL</summary>
+
+```gradle
+// ./mpp_project/build.gradle
+
+buildkonfig {
+    packageName = 'com.example.app'
+
+    // default config is required
+    defaultConfigs {
+        buildConfigField 'STRING', 'name', 'value'
+    }
+    // flavor is passed as a first argument of defaultConfigs
+    defaultConfigs("dev") {
+        buildConfigField 'STRING', 'name', 'devValue'
+    }
+
+    targetConfigs {
+        android {
+            buildConfigField 'STRING', 'name2', 'value2'
+        }
+
+        ios {
+            buildConfigField 'STRING', 'name', 'valueIos'
+        }
+    }
+    // flavor is passed as a first argument of targetConfigs
+    targetConfigs("dev") {
+        ios {
+            buildConfigField 'STRING', 'name', 'devValueIos'
         }
     }
 }
