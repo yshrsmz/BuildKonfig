@@ -1,6 +1,6 @@
 [versions]
 gradle = "8.13"
-kotlin = "2.1.21"
+kotlin = "2.3.10"
 dokka = "2.1.0"
 android = "8.13.2"
 
