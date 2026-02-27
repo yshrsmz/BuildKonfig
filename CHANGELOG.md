@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.2](https://github.com/yshrsmz/BuildKonfig/compare/v0.17.1...v0.17.2) (2026-02-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency com.android.tools.build:gradle to v8.10.0 ([#214](https://github.com/yshrsmz/BuildKonfig/issues/214)) ([71d0f0d](https://github.com/yshrsmz/BuildKonfig/commit/71d0f0de6ffb5d89b78fa5efcd5aa89984aeb4ed))
+* **deps:** update dependency com.android.tools.build:gradle to v8.13.2 ([#220](https://github.com/yshrsmz/BuildKonfig/issues/220)) ([a977e10](https://github.com/yshrsmz/BuildKonfig/commit/a977e1079836e22e5c37627ca9d6974c679b6564))
+* **deps:** update dependency com.android.tools.build:gradle to v8.9.2 ([#208](https://github.com/yshrsmz/BuildKonfig/issues/208)) ([bf07374](https://github.com/yshrsmz/BuildKonfig/commit/bf073740e6f5bf89d61b823d322b148a3e77c514))
+* **deps:** update dependency com.google.truth:truth to v1.4.5 ([#235](https://github.com/yshrsmz/BuildKonfig/issues/235)) ([8e12fa2](https://github.com/yshrsmz/BuildKonfig/commit/8e12fa20e58f2a4ba0e5e18765863b60807ec5cd))
+* **deps:** update dependency com.squareup:kotlinpoet to v2.2.0 ([#218](https://github.com/yshrsmz/BuildKonfig/issues/218)) ([1912ff7](https://github.com/yshrsmz/BuildKonfig/commit/1912ff790fd842821f0341502406b5e250604485))
+* **deps:** update kotlin monorepo to v2.1.21 ([#216](https://github.com/yshrsmz/BuildKonfig/issues/216)) ([38e1cbe](https://github.com/yshrsmz/BuildKonfig/commit/38e1cbe5b9b190bebdcb7623e7411e110e763b76))
+
 ## [0.17.1](https://github.com/yshrsmz/BuildKonfig/compare/v0.17.0...v0.17.1) (2025-03-25)
 
 
