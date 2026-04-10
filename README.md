@@ -35,9 +35,9 @@ Rather I'd like to do it once.
 
 ### Requirements
 
-- Kotlin **1.5.30** or later
+- Kotlin **2.1.0** or later
 - Kotlin Multiplatform Project
-- Gradle 7 or later
+- Gradle 8 or later
 
 <a name="gradle-configuration"/>
 
@@ -56,7 +56,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.20")
         classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version")
     }
 }
@@ -94,7 +94,7 @@ buildScript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.20'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
 }
@@ -124,7 +124,7 @@ buildkonfig {
 - `packageName` Set the package name where BuildKonfig is being placed. **Required**.
 - `objectName` Set the name of the generated object. Defaults to `BuildKonfig`.
 - `exposeObjectWithName` Set the name of the generated object, and make it public.
-- `defaultConfigs` Set values which you want to have in common. **Required**.
+- `defaultConfigs` Set values which you want to have in common. If omitted, a warning is logged and code generation is skipped.
 
 To generate BuildKonfig files, run `generateBuildKonfig` task.  
 This task will be automatically run upon execution of kotlin compile tasks.
@@ -155,7 +155,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.20")
         classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version")
     }
 }
@@ -204,7 +204,7 @@ buildScript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.20'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
 }
@@ -250,7 +250,7 @@ buildkonfig {
 - `exposeObjectWithName`
   - Sets the name of the generated object, and make it public.
 - `defaultConfigs`
-  - Sets values which you want to have in common. **Required**.
+  - Sets values which you want to have in common. If omitted, a warning is logged and code generation is skipped.
 - `targetConfigs` 
   - Sets target specific values as closure. You can overwrite values specified in `defaultConfigs`.
 - `buildConfigField(type: String, name: String, value: String)`
@@ -418,7 +418,7 @@ For example, say your have a source set structure like below.
   - appMain
     - androidMain
     - desktopMain
-      - macosX64Main
+      - macosArm64Main
       - linuxX64Main
       - mingwX64Main
   - jsCommonMain
