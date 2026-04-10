@@ -719,4 +719,185 @@ class BuildKonfigPluginFlavorTest {
         Truth.assertThat(iosResult.readText())
             .contains("object AwesomeConfig")
     }
+
+    private val buildFileMPPConfigWithWasmJs = """
+        |kotlin {
+        |  jvm()
+        |  js(IR) {
+        |    browser()
+        |    nodejs()
+        |  }
+        |  wasmJs {
+        |    browser()
+        |  }
+        |  iosX64()
+        |}
+    """.trimMargin()
+
+    private val buildFileMPPConfigWasmJsOnly = """
+        |kotlin {
+        |  jvm()
+        |  wasmJs {
+        |    browser()
+        |  }
+        |  iosX64()
+        |}
+    """.trimMargin()
+
+    @Test
+    fun `When both js and wasmJs targets exist, expect actual is forced and JsExport is only on js actual`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |   exposeObjectWithName = "AwesomeConfig"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
+            |   }
+            |}
+            |$buildFileMPPConfigWithWasmJs
+        """.trimMargin()
+        )
+
+        val propertyFile = projectDir.newFile("gradle.properties")
+        propertyFile.writeText("buildkonfig.flavor=dev")
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+
+        Truth.assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        // common should be expect (no @JsExport)
+        val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(commonResult.readText()).apply {
+            doesNotContain("@JsExport")
+            contains("expect object AwesomeConfig")
+        }
+
+        // js actual should have @JsExport
+        val jsResult = File(buildDir, "jsMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(jsResult.readText()).apply {
+            contains("@JsExport")
+            contains("@OptIn(ExperimentalJsExport::class)")
+            contains("actual object AwesomeConfig")
+        }
+
+        // wasmJs actual should NOT have @JsExport
+        val wasmJsResult = File(buildDir, "wasmJsMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(wasmJsResult.readText()).apply {
+            doesNotContain("@JsExport")
+            doesNotContain("@OptIn(ExperimentalJsExport::class)")
+            contains("actual object AwesomeConfig")
+        }
+    }
+
+    @Test
+    fun `The generated common object should not have JsExport when only wasmJs target exists`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |   exposeObjectWithName = "AwesomeConfig"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
+            |   }
+            |}
+            |$buildFileMPPConfigWasmJsOnly
+        """.trimMargin()
+        )
+
+        val propertyFile = projectDir.newFile("gradle.properties")
+        propertyFile.writeText("buildkonfig.flavor=dev")
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+
+        Truth.assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(commonResult.readText()).apply {
+            doesNotContain("@JsExport")
+            doesNotContain("@OptIn(ExperimentalJsExport::class)")
+            contains("object AwesomeConfig")
+        }
+    }
+
+    @Test
+    fun `The generated target js object should have JsExport even when wasmJs target exists`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |   exposeObjectWithName = "AwesomeConfig"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
+            |   }
+            |   targetConfigs {
+            |       js {
+            |         buildConfigField 'STRING', 'stringValue', 'jsValue'
+            |       }
+            |   }
+            |}
+            |$buildFileMPPConfigWithWasmJs
+        """.trimMargin()
+        )
+
+        val propertyFile = projectDir.newFile("gradle.properties")
+        propertyFile.writeText("buildkonfig.flavor=dev")
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+
+        Truth.assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
+
+        val jsResult = File(buildDir, "jsMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(jsResult.readText()).apply {
+            contains("@JsExport")
+            contains("@OptIn(ExperimentalJsExport::class)")
+            contains("object AwesomeConfig")
+        }
+
+        val wasmJsResult = File(buildDir, "wasmJsMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(wasmJsResult.readText()).apply {
+            doesNotContain("@JsExport")
+            doesNotContain("@OptIn(ExperimentalJsExport::class)")
+            contains("object AwesomeConfig")
+        }
+    }
 }
