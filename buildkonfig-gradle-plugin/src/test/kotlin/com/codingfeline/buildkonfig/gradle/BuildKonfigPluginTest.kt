@@ -67,7 +67,7 @@ class BuildKonfigPluginTest {
     }
 
     @Test
-    fun `Applying plugin with kotlin jvm plugin throws`() {
+    fun `Applying plugin without KMP plugin throws`() {
         buildFile.writeText(
             """
             |plugins {
@@ -84,20 +84,6 @@ class BuildKonfigPluginTest {
             |
             |   defaultConfigs {
             |       buildConfigField 'STRING', 'test', 'hoge'
-            |       buildConfigField 'INT', 'intValue', '10'
-            |   }
-            |
-            |   targetConfigs {
-            |       jvm {
-            |           buildConfigField 'STRING', 'test', 'jvm'
-            |           buildConfigField 'STRING', 'jmv', 'jvmHoge'
-            |       }
-            |       customAndroid {
-            |           buildConfigField 'String', 'android', '${'$'}fuga'
-            |       }
-            |       iosX64 {
-            |           buildConfigField 'String', 'native', 'fuge'
-            |       }
             |   }
             |}
             |

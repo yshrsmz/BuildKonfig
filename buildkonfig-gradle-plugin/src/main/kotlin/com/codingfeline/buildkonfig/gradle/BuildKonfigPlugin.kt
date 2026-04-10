@@ -23,26 +23,21 @@ const val COMMON_SOURCESET_NAME = "commonMain"
 @Suppress("unused")
 abstract class BuildKonfigPlugin : Plugin<Project> {
 
+    private var isMultiplatform = false
+
     override fun apply(target: Project) {
-
-        var isMultiplatform = false
-        target.plugins.all { p ->
-            if (p is KotlinMultiplatformPluginWrapper) {
-                isMultiplatform = true
-            }
-        }
-
         val extension = target.extensions.create("buildkonfig", BuildKonfigExtension::class.java, target)
 
-        target.afterEvaluate {
-            if (!isMultiplatform) {
-                throw IllegalStateException(
-                    "BuildKonfig Gradle plugin applied in project '${target.path}' " +
-                            "but no supported Kotlin multiplatform plugin was found"
-                )
-            }
-
+        target.plugins.withType(KotlinMultiplatformPluginWrapper::class.java) {
+            isMultiplatform = true
             configure(target, extension)
+        }
+
+        target.afterEvaluate {
+            check(isMultiplatform) {
+                "BuildKonfig Gradle plugin applied in project '${target.path}' " +
+                    "but no supported Kotlin multiplatform plugin was found"
+            }
         }
     }
 
