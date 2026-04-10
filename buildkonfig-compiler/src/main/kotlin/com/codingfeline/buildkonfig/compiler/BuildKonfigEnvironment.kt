@@ -46,8 +46,7 @@ class BuildKonfigEnvironment(
                 data.objectName,
                 data.exposeObject,
                 data.commonConfig,
-                data.hasJsTarget,
-                data.hasWasmTarget,
+                data.useJsExportAnnotation,
                 writer,
                 logger
             )

@@ -8,8 +8,7 @@ data class BuildKonfigData(
     val commonConfig: TargetConfigFile,
     // field specs for target source set
     val targetConfigs: List<TargetConfigFile>,
-    val hasJsTarget: Boolean,
-    val hasWasmTarget: Boolean
+    val useJsExportAnnotation: Boolean
 ) {
     val hasTargetSpecificConfigs: Boolean = targetConfigs.any { it.config != null }
 }

@@ -30,10 +30,7 @@ open class BuildKonfigTask : DefaultTask() {
     var exposeObject: Boolean = false
 
     @Input
-    var hasJsTarget: Boolean = false
-
-    @Input
-    var hasWasmTarget: Boolean = false
+    var useJsExportAnnotation: Boolean = false
 
     @get:Input
     lateinit var flavor: String
@@ -59,8 +56,7 @@ open class BuildKonfigTask : DefaultTask() {
             exposeObject = exposeObject,
             commonConfig = targetConfigFiles.getValue(COMMON_SOURCESET_NAME),
             targetConfigs = targetConfigFiles.filter { it.key != COMMON_SOURCESET_NAME }.values.toList(),
-            hasJsTarget = hasJsTarget,
-            hasWasmTarget = hasWasmTarget
+            useJsExportAnnotation = useJsExportAnnotation
         )
 
         BuildKonfigEnvironment(data).generateConfigs(logger.toBuildKonfigLogger())

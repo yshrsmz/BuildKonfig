@@ -14,14 +14,13 @@ object BuildKonfigCompiler {
         objectName: String,
         exposeObject: Boolean,
         configFile: TargetConfigFile,
-        hasJsTarget: Boolean,
-        hasWasmTarget: Boolean,
+        useJsExportAnnotation: Boolean,
         output: FileAppender,
         logger: BuildKonfigLogger
     ) {
         val outputDirectory = getOutputDirectory(configFile, packageName)
 
-        val konfigFile = BuildKonfigGenerator.ofCommonObject(configFile, exposeObject, hasJsTarget, hasWasmTarget, logger)
+        val konfigFile = BuildKonfigGenerator.ofCommonObject(configFile, exposeObject, useJsExportAnnotation, logger)
             .generateFile(packageName, objectName)
 
         konfigFile.writeToAndClose(output("$outputDirectory/$objectName.kt"))
