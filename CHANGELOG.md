@@ -10,7 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### ⚠ BREAKING CHANGES
 
-* When a project has both js and wasmJs targets with `exposeObjectWithName` and no target-specific configs, the plugin now forces expect/actual generation instead of a single common object. The public API (object name, properties, types) is unchanged, but the internal file structure changes. ([#274](https://github.com/yshrsmz/BuildKonfig/issues/274))
+* When a project has both js and wasmJs targets with `exposeObjectWithName` and no target-specific configs, the plugin now forces expect/actual generation instead of a single common object. `const` fields in common code may no longer be usable as compile-time constants (e.g. in annotation arguments) since the expect declaration has no initializer. ([#274](https://github.com/yshrsmz/BuildKonfig/issues/274))
 
 ### Bug Fixes
 
