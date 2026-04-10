@@ -13,6 +13,14 @@ data class FieldSpec(
     val const: Boolean = false,
 ) : Serializable {
 
+    init {
+        require(name.isNotEmpty()) { "buildConfigField name must not be empty" }
+        require(name.matches(VALID_IDENTIFIER_REGEX)) {
+            "buildConfigField name '$name' is not a valid Kotlin identifier. " +
+                "It must start with a letter or underscore, followed by letters, digits, or underscores."
+        }
+    }
+
     enum class Type(val _typeName: TypeName, val _template: String = "%L") {
         STRING(String::class.asTypeName(), "%S"),
         INT(Int::class.asTypeName()),
@@ -32,4 +40,8 @@ data class FieldSpec(
 
     val template: String
         get() = with(type) { if (nullable && value == null) "%L" else _template }
+
+    companion object {
+        private val VALID_IDENTIFIER_REGEX = Regex("^[a-zA-Z_][a-zA-Z0-9_]*$")
+    }
 }

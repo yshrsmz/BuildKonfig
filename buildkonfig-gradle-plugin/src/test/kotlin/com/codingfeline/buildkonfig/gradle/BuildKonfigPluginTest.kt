@@ -175,6 +175,39 @@ class BuildKonfigPluginTest {
     }
 
     @Test
+    fun `buildConfigField with invalid name throws`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.sample"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'API.URL', 'http://localhost'
+            |   }
+            |}
+            |
+            |$buildFileMPPConfig
+            """.trimMargin()
+        )
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val result = runner
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .buildAndFail()
+
+        assertThat(result.output)
+            .contains("buildConfigField name 'API.URL' is not a valid Kotlin identifier")
+    }
+
+    @Test
     fun `Applying the plugin works fine for multiplatform project`() {
         buildFile.writeText(
             """
