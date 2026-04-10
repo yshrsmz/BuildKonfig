@@ -67,7 +67,7 @@ class BuildKonfigPluginTest {
     }
 
     @Test
-    fun `Applying plugin with kotlin jvm plugin throws`() {
+    fun `Applying plugin without KMP plugin is a no-op`() {
         buildFile.writeText(
             """
             |plugins {
@@ -84,20 +84,6 @@ class BuildKonfigPluginTest {
             |
             |   defaultConfigs {
             |       buildConfigField 'STRING', 'test', 'hoge'
-            |       buildConfigField 'INT', 'intValue', '10'
-            |   }
-            |
-            |   targetConfigs {
-            |       jvm {
-            |           buildConfigField 'STRING', 'test', 'jvm'
-            |           buildConfigField 'STRING', 'jmv', 'jvmHoge'
-            |       }
-            |       customAndroid {
-            |           buildConfigField 'String', 'android', '${'$'}fuga'
-            |       }
-            |       iosX64 {
-            |           buildConfigField 'String', 'native', 'fuge'
-            |       }
             |   }
             |}
             |
@@ -114,10 +100,13 @@ class BuildKonfigPluginTest {
 
         val result = runner
             .withArguments("build", "--stacktrace")
-            .buildAndFail()
+            .build()
 
         assertThat(result.output)
-            .contains("BuildKonfig Gradle plugin applied in project ':' but no supported Kotlin multiplatform plugin was found")
+            .contains("BUILD SUCCESSFUL")
+
+        // No buildkonfig output should be generated
+        assertThat(buildDir.exists()).isFalse()
     }
 
     @Test
