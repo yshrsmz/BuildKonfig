@@ -1,6 +1,9 @@
 package com.codingfeline.buildkonfig.gradle
 
+import com.codingfeline.buildkonfig.compiler.BuildKonfigLogger
+import com.codingfeline.buildkonfig.compiler.LogLevel
 import com.codingfeline.buildkonfig.compiler.PlatformType
+import org.gradle.api.logging.Logger
 import com.codingfeline.buildkonfig.compiler.TargetConfig
 import com.codingfeline.buildkonfig.compiler.TargetName
 import com.codingfeline.buildkonfig.gradle.kotlin.sources
@@ -51,8 +54,10 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         project.afterEvaluate { p ->
             val flavor = p.findFlavor()
 
-            val targetConfigs = extension.mergeConfigs(project.logger::info, flavor)
-                .toMutableMap()
+            val mergedConfigs = extension.mergeConfigs(project.logger.toBuildKonfigLogger(), flavor)
+                ?: return@afterEvaluate
+
+            val targetConfigs = mergedConfigs.toMutableMap()
 
             val targetConfigSources = decideOutputs(project, mppExtension, targetConfigs, outputDirectory)
 
@@ -165,6 +170,15 @@ internal fun Project.findFlavor(): String {
     } else {
         logger.error("$FLAVOR_PROPERTY must be string. Fallback to non-flavored config: ${flavor::class.java}")
         DEFAULT_FLAVOR
+    }
+}
+
+internal fun Logger.toBuildKonfigLogger(): BuildKonfigLogger {
+    return BuildKonfigLogger { level, message ->
+        when (level) {
+            LogLevel.INFO -> info(message)
+            LogLevel.WARN -> warn(message)
+        }
     }
 }
 

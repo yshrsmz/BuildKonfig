@@ -1,7 +1,7 @@
 package com.codingfeline.buildkonfig.compiler.generator
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
-import com.codingfeline.buildkonfig.compiler.Logger
+import com.codingfeline.buildkonfig.compiler.BuildKonfigLogger
 import com.codingfeline.buildkonfig.compiler.PlatformType
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -16,7 +16,7 @@ abstract class BuildKonfigGenerator(
     val objectAnnotations: List<AnnotationSpec>,
     val objectModifiers: List<KModifier>,
     val propertyModifiers: List<KModifier>,
-    val logger: Logger
+    val logger: BuildKonfigLogger
 ) {
     fun generateFile(packageName: String, objectName: String): FileSpec {
         val builder = FileSpec.builder(packageName, objectName)
@@ -47,7 +47,7 @@ abstract class BuildKonfigGenerator(
             file: TargetConfigFile,
             exposeObject: Boolean,
             hasJsTarget: Boolean,
-            logger: Logger
+            logger: BuildKonfigLogger
         ): BuildKonfigGenerator {
             val objectModifiers = listOf(getVisibilityModifier(exposeObject))
             val annotations = if (exposeObject && hasJsTarget) getJsObjectAnnotations() else emptyList()
@@ -73,7 +73,7 @@ abstract class BuildKonfigGenerator(
         /**
          * Generate common `expect` object
          */
-        fun ofCommon(file: TargetConfigFile, exposeObject: Boolean, logger: Logger): BuildKonfigGenerator {
+        fun ofCommon(file: TargetConfigFile, exposeObject: Boolean, logger: BuildKonfigLogger): BuildKonfigGenerator {
             val objectModifiers = listOf(KModifier.EXPECT, getVisibilityModifier(exposeObject))
             return object : BuildKonfigGenerator(
                 file = file,
@@ -99,7 +99,7 @@ abstract class BuildKonfigGenerator(
         /**
          * Generate target `actual` object
          */
-        fun ofTarget(file: TargetConfigFile, exposeObject: Boolean, logger: Logger): BuildKonfigGenerator {
+        fun ofTarget(file: TargetConfigFile, exposeObject: Boolean, logger: BuildKonfigLogger): BuildKonfigGenerator {
             val objectModifiers = listOf(KModifier.ACTUAL, getVisibilityModifier(exposeObject))
             val annotations = if (exposeObject && file.targetName.platformType == PlatformType.js) {
                 getJsObjectAnnotations()

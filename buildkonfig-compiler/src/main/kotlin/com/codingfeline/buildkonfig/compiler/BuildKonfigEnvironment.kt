@@ -13,7 +13,7 @@ class BuildKonfigEnvironment(
         class Failure(val errors: List<String>) : CompilationStatus()
     }
 
-    fun generateConfigs(logger: Logger): CompilationStatus {
+    fun generateConfigs(logger: BuildKonfigLogger): CompilationStatus {
         val errors = ArrayList<String>()
 
         val writer = writer@{ fileName: String ->
@@ -38,7 +38,7 @@ class BuildKonfigEnvironment(
         }
     }
 
-    private fun compileCommonObject(data: BuildKonfigData, writer: FileAppender, logger: Logger): List<String> {
+    private fun compileCommonObject(data: BuildKonfigData, writer: FileAppender, logger: BuildKonfigLogger): List<String> {
         val errors = mutableListOf<String>()
         try {
             BuildKonfigCompiler.compileCommonObject(
@@ -56,7 +56,7 @@ class BuildKonfigEnvironment(
         return errors
     }
 
-    private fun compileExpectActual(data: BuildKonfigData, writer: FileAppender, logger: Logger): List<String> {
+    private fun compileExpectActual(data: BuildKonfigData, writer: FileAppender, logger: BuildKonfigLogger): List<String> {
         val errors = mutableListOf<String>()
         try {
             BuildKonfigCompiler.compileCommon(

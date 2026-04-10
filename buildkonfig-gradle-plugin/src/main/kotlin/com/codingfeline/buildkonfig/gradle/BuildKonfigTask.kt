@@ -59,7 +59,7 @@ open class BuildKonfigTask : DefaultTask() {
             hasJsTarget = hasJsTarget
         )
 
-        BuildKonfigEnvironment(data).generateConfigs { info -> logger.info(info) }
+        BuildKonfigEnvironment(data).generateConfigs(logger.toBuildKonfigLogger())
     }
 
     private fun File.cleanupDirectory() {

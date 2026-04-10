@@ -121,7 +121,7 @@ class BuildKonfigPluginTest {
     }
 
     @Test
-    fun `buildkonfig block without defaultConfigs throws`() {
+    fun `buildkonfig block without defaultConfigs warns and skips`() {
         buildFile.writeText(
             """
             |$buildFileHeader
@@ -166,10 +166,12 @@ class BuildKonfigPluginTest {
 
         val result = runner
             .withArguments("build", "--stacktrace")
-            .buildAndFail()
+            .build()
 
         assertThat(result.output)
-            .contains("non-flavored defaultConfigs must be provided")
+            .contains("BuildKonfig: non-flavored defaultConfigs is not provided. Skipping code generation.")
+        assertThat(result.output)
+            .contains("BUILD SUCCESSFUL")
     }
 
     @Test
