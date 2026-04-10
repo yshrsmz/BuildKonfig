@@ -478,23 +478,24 @@ class BuildKonfigPluginHMPPTest {
             |
             |kotlin {
             |    jvm {}
-            |    android {}
+            |    androidTarget {}
             |    js("browser") {
             |        browser()
             |    }
             |    js("node") {
             |        nodejs()
             |    }
-            |    ios()
+            |    iosX64()
+            |    iosArm64()
             |
             |    sourceSets {
             |     commonMain {}
             |     androidMain {}
-            |     
+            |
             |     appMain {
             |       dependsOn(commonMain)
             |     }
-            |     
+            |
             |     androidMain {
             |       dependsOn(appMain)
             |     }
