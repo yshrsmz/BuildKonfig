@@ -67,7 +67,7 @@ class BuildKonfigPluginTest {
     }
 
     @Test
-    fun `Applying plugin without KMP plugin is a no-op`() {
+    fun `Applying plugin without KMP plugin throws`() {
         buildFile.writeText(
             """
             |plugins {
@@ -100,13 +100,10 @@ class BuildKonfigPluginTest {
 
         val result = runner
             .withArguments("build", "--stacktrace")
-            .build()
+            .buildAndFail()
 
         assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        // No buildkonfig output should be generated
-        assertThat(buildDir.list()).isNull()
+            .contains("BuildKonfig Gradle plugin applied in project ':' but no supported Kotlin multiplatform plugin was found")
     }
 
     @Test
