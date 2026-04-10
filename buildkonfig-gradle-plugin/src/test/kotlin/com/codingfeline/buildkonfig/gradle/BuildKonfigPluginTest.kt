@@ -106,7 +106,7 @@ class BuildKonfigPluginTest {
             .contains("BUILD SUCCESSFUL")
 
         // No buildkonfig output should be generated
-        assertThat(buildDir.exists()).isFalse()
+        assertThat(buildDir.list()).isNull()
     }
 
     @Test
