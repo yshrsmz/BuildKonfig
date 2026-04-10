@@ -47,10 +47,14 @@ abstract class BuildKonfigGenerator(
             file: TargetConfigFile,
             exposeObject: Boolean,
             hasJsTarget: Boolean,
+            hasWasmTarget: Boolean,
             logger: BuildKonfigLogger
         ): BuildKonfigGenerator {
             val objectModifiers = listOf(getVisibilityModifier(exposeObject))
-            val annotations = if (exposeObject && hasJsTarget) getJsObjectAnnotations() else emptyList()
+            // Don't add @JsExport when wasm target exists, because @JsExport on standalone objects
+            // is not supported in wasmJs (only applicable to functions).
+            // Since this object is placed in commonMain, it's compiled by all targets including wasmJs.
+            val annotations = if (exposeObject && hasJsTarget && !hasWasmTarget) getJsObjectAnnotations() else emptyList()
             return object : BuildKonfigGenerator(
                 file = file,
                 objectAnnotations = annotations,

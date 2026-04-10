@@ -76,6 +76,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
                 it.objectName = objectName
                 it.exposeObject = exposeObject
                 it.hasJsTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.js }
+                it.hasWasmTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.wasm }
                 it.flavor = flavor
                 it.targetConfigFiles = targetConfigSources.mapValues { (_, value) -> value.configFile }
 
