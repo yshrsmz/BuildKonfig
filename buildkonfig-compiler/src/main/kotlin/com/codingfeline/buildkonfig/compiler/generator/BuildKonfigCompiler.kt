@@ -1,6 +1,6 @@
 package com.codingfeline.buildkonfig.compiler.generator
 
-import com.codingfeline.buildkonfig.compiler.Logger
+import com.codingfeline.buildkonfig.compiler.BuildKonfigLogger
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.squareup.kotlinpoet.FileSpec
 import java.io.Closeable
@@ -16,7 +16,7 @@ object BuildKonfigCompiler {
         configFile: TargetConfigFile,
         hasJsTarget: Boolean,
         output: FileAppender,
-        logger: Logger
+        logger: BuildKonfigLogger
     ) {
         val outputDirectory = getOutputDirectory(configFile, packageName)
 
@@ -32,7 +32,7 @@ object BuildKonfigCompiler {
         exposeObject: Boolean,
         configFile: TargetConfigFile,
         output: FileAppender,
-        logger: Logger
+        logger: BuildKonfigLogger
     ) {
         val outputDirectory = getOutputDirectory(configFile, packageName)
 
@@ -48,7 +48,7 @@ object BuildKonfigCompiler {
         exposeObject: Boolean,
         configFile: TargetConfigFile,
         output: FileAppender,
-        logger: Logger
+        logger: BuildKonfigLogger
     ) {
         val outputDirectory = getOutputDirectory(configFile, packageName)
 

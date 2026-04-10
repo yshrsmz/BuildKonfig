@@ -1,5 +1,6 @@
 package com.codingfeline.buildkonfig.gradle
 
+import com.codingfeline.buildkonfig.compiler.BuildKonfigLogger
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import com.codingfeline.buildkonfig.compiler.TargetConfig
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
@@ -22,11 +23,12 @@ data class TargetConfigFileImpl(
 ) : TargetConfigFile
 
 fun BuildKonfigExtension.mergeConfigs(
-    logger: (String) -> Unit,
+    logger: BuildKonfigLogger,
     flavor: Flavor = DEFAULT_FLAVOR
-): Map<String, TargetConfig> {
+): Map<String, TargetConfig>? {
     if (!defaultConfigs.containsKey(DEFAULT_FLAVOR)) {
-        throw IllegalStateException("non-flavored defaultConfigs must be provided.")
+        logger.warn("BuildKonfig: defaultConfigs is not provided. Skipping code generation.")
+        return null
     }
 
     val defaultConfig = mergeDefaultConfigs(logger, flavor, defaultConfigs)
@@ -81,7 +83,7 @@ fun mergeConfigs(
 }
 
 fun mergeDefaultConfigs(
-    logger: (String) -> Unit,
+    logger: BuildKonfigLogger,
     flavor: Flavor,
     defaultConfigs: Map<Flavor, TargetConfig>
 ): TargetConfig {
@@ -93,12 +95,12 @@ fun mergeDefaultConfigs(
     }
 
     return mergeConfigs(default, flavored) { old, new ->
-        logger("BuildKonfig(Default): field '${old.name}' is being replaced with flavored($flavor): ${old.value} -> ${new.value}")
+        logger.info("BuildKonfig(Default): field '${old.name}' is being replaced with flavored($flavor): ${old.value} -> ${new.value}")
     }
 }
 
 fun mergeTargetConfigs(
-    logger: (String) -> Unit,
+    logger: BuildKonfigLogger,
     flavor: Flavor, /* = kotlin.String */
     targetConfigs: Map<Flavor, List<TargetConfig>>
 ): Map<String, TargetConfig> {
@@ -123,7 +125,7 @@ fun mergeTargetConfigs(
                 val alreadyPresent = acc[name]
                 acc[name] = if (alreadyPresent != null) {
                     mergeConfigs(alreadyPresent, config) { old, new ->
-                        logger("BuildKonfig($name): field is being replaced with flavored($flavor): ${old.value} -> ${new.value}")
+                        logger.info("BuildKonfig($name): field is being replaced with flavored($flavor): ${old.value} -> ${new.value}")
                     }
                 } else {
                     config.copy()
