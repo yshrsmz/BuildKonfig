@@ -8,5 +8,8 @@ open class TargetConfig(val name: String) : Serializable {
 
     fun copyFieldSpecs(): Map<String, FieldSpec> = fieldSpecs.mapValues { it.value.copy() }
 
-    fun copy(): TargetConfig = TargetConfig(name).also { it.fieldSpecs.putAll(copyFieldSpecs()) }
+    fun copy(): TargetConfig = TargetConfig(name).also {
+        it.flavor = flavor
+        it.fieldSpecs.putAll(copyFieldSpecs())
+    }
 }
