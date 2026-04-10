@@ -59,9 +59,10 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
             val targetConfigs = mergedConfigs.toMutableMap()
 
-            var exposeObject = false
-            extension.exposeObjectWithName.takeIf { name -> !name.isNullOrBlank() }
-                ?.also { exposeObject = true }
+            val exposedName = extension.exposeObjectWithName.takeIf { !it.isNullOrBlank() }
+            val exposeObject = exposedName != null
+            val objectName = exposedName ?: extension.objectName
+            require(objectName.isNotBlank()) { "objectName must not be blank" }
 
             // When both js and wasm targets exist with exposeObject, force expect/actual generation
             // so that @JsExport is only added to the JS actual (wasmJs doesn't support @JsExport on objects).
@@ -73,13 +74,6 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
             val task = p.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
                 it.packageName = requireNotNull(extension.packageName) { "packageName must be provided" }
-                require(extension.objectName.isNotBlank()) { "objectName must not be blank" }
-
-                var objectName = extension.objectName
-                extension.exposeObjectWithName.takeIf { name -> !name.isNullOrBlank() }
-                    ?.also { name ->
-                        objectName = name
-                    }
 
                 it.objectName = objectName
                 it.exposeObject = exposeObject
