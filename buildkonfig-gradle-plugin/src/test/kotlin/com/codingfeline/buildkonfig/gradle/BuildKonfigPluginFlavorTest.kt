@@ -745,7 +745,7 @@ class BuildKonfigPluginFlavorTest {
     """.trimMargin()
 
     @Test
-    fun `The generated common object should not have JsExport when wasmJs target exists`() {
+    fun `When both js and wasmJs targets exist, expect actual is forced and JsExport is only on js actual`() {
         buildFile.writeText(
             """
             |$buildFileHeader
@@ -779,11 +779,27 @@ class BuildKonfigPluginFlavorTest {
         Truth.assertThat(result.output)
             .contains("BUILD SUCCESSFUL")
 
+        // common should be expect (no @JsExport)
         val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
         Truth.assertThat(commonResult.readText()).apply {
             doesNotContain("@JsExport")
+            contains("expect object AwesomeConfig")
+        }
+
+        // js actual should have @JsExport
+        val jsResult = File(buildDir, "jsMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(jsResult.readText()).apply {
+            contains("@JsExport")
+            contains("@OptIn(ExperimentalJsExport::class)")
+            contains("actual object AwesomeConfig")
+        }
+
+        // wasmJs actual should NOT have @JsExport
+        val wasmJsResult = File(buildDir, "wasmJsMain/com/example/AwesomeConfig.kt")
+        Truth.assertThat(wasmJsResult.readText()).apply {
+            doesNotContain("@JsExport")
             doesNotContain("@OptIn(ExperimentalJsExport::class)")
-            contains("object AwesomeConfig")
+            contains("actual object AwesomeConfig")
         }
     }
 

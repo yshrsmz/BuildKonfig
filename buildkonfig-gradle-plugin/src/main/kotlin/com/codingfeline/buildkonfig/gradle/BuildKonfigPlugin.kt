@@ -59,27 +59,31 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
             val targetConfigs = mergedConfigs.toMutableMap()
 
-            val targetConfigSources = decideOutputs(project, mppExtension, targetConfigs, outputDirectory)
+            var exposeObject = false
+            extension.exposeObjectWithName.takeIf { name -> !name.isNullOrBlank() }
+                ?.also { exposeObject = true }
+
+            // When both js and wasm targets exist with exposeObject, force expect/actual generation
+            // so that @JsExport is only added to the JS actual (wasmJs doesn't support @JsExport on objects).
+            val hasJsTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.js }
+            val hasWasmTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.wasm }
+            val forceExpectActual = exposeObject && hasJsTarget && hasWasmTarget
+
+            val targetConfigSources = decideOutputs(project, mppExtension, targetConfigs, outputDirectory, forceExpectActual)
 
             val task = p.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
                 it.packageName = requireNotNull(extension.packageName) { "packageName must be provided" }
                 require(extension.objectName.isNotBlank()) { "objectName must not be blank" }
 
                 var objectName = extension.objectName
-                var exposeObject = false
                 extension.exposeObjectWithName.takeIf { name -> !name.isNullOrBlank() }
                     ?.also { name ->
                         objectName = name
-                        exposeObject = true
                     }
 
                 it.objectName = objectName
                 it.exposeObject = exposeObject
-                // @JsExport on standalone objects is not supported in wasmJs (only applicable to functions).
-                // Since the common object is compiled by all targets, skip @JsExport when wasm target exists.
-                val hasJsTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.js }
-                val hasWasmTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.wasm }
-                it.useJsExportAnnotation = hasJsTarget && !hasWasmTarget
+                it.hasJsTarget = hasJsTarget
                 it.flavor = flavor
                 it.targetConfigFiles = targetConfigSources.mapValues { (_, value) -> value.configFile }
 
@@ -99,12 +103,13 @@ fun decideOutputs(
     project: Project,
     mppExtension: KotlinMultiplatformExtension,
     targetConfigs: MutableMap<String, TargetConfig>,
-    outputDirectory: Provider<Directory>
+    outputDirectory: Provider<Directory>,
+    forceExpectActual: Boolean = false
 ): Map<String, TargetConfigSource> {
     return mppExtension.sources()
         // Map<SourceName, TargetConfigSource>
         .fold(emptyMap()) { acc, source ->
-            if (targetConfigs.size == 1 && source.name != COMMON_SOURCESET_NAME) {
+            if (targetConfigs.size == 1 && source.name != COMMON_SOURCESET_NAME && !forceExpectActual) {
                 // there's only common config
                 return@fold acc
             }

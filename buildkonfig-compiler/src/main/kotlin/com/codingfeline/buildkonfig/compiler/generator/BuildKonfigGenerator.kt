@@ -46,11 +46,11 @@ abstract class BuildKonfigGenerator(
         fun ofCommonObject(
             file: TargetConfigFile,
             exposeObject: Boolean,
-            useJsExportAnnotation: Boolean,
+            hasJsTarget: Boolean,
             logger: BuildKonfigLogger
         ): BuildKonfigGenerator {
             val objectModifiers = listOf(getVisibilityModifier(exposeObject))
-            val annotations = if (exposeObject && useJsExportAnnotation) getJsObjectAnnotations() else emptyList()
+            val annotations = if (exposeObject && hasJsTarget) getJsObjectAnnotations() else emptyList()
             return object : BuildKonfigGenerator(
                 file = file,
                 objectAnnotations = annotations,
