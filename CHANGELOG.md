@@ -10,13 +10,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### ⚠ BREAKING CHANGES
 
-* skip @JsExport on common object when wasmJs target exists ([#274](https://github.com/yshrsmz/BuildKonfig/issues/274))
+* When a project has both js and wasmJs targets with `exposeObjectWithName` and no target-specific configs, the plugin now forces expect/actual generation instead of a single common object. The public API (object name, properties, types) is unchanged, but the internal file structure changes. ([#274](https://github.com/yshrsmz/BuildKonfig/issues/274))
 
 ### Bug Fixes
 
-* expose compiler module as api dependency ([#276](https://github.com/yshrsmz/BuildKonfig/issues/276)) ([7246a1b](https://github.com/yshrsmz/BuildKonfig/commit/7246a1bf8f1b6228cc71ea1c216934fe11c9733b))
+* expose compiler module as api dependency for Gradle convention plugin support ([#276](https://github.com/yshrsmz/BuildKonfig/issues/276)) ([7246a1b](https://github.com/yshrsmz/BuildKonfig/commit/7246a1bf8f1b6228cc71ea1c216934fe11c9733b))
 * preserve flavor in TargetConfig.copy() ([#278](https://github.com/yshrsmz/BuildKonfig/issues/278)) ([c46ba7c](https://github.com/yshrsmz/BuildKonfig/commit/c46ba7cdd990768e2d3a8e617126681cbf795c50))
 * skip @JsExport on common object when wasmJs target exists ([#274](https://github.com/yshrsmz/BuildKonfig/issues/274)) ([87738c0](https://github.com/yshrsmz/BuildKonfig/commit/87738c0cbf131859a4f66f18eceebae88fca8952))
+
+### Refactoring
+
+* replace nested afterEvaluate with plugins.withType() ([#280](https://github.com/yshrsmz/BuildKonfig/issues/280)) ([78ffed4](https://github.com/yshrsmz/BuildKonfig/commit/78ffed4))
 
 ## [0.17.2](https://github.com/yshrsmz/BuildKonfig/compare/v0.17.1...v0.17.2) (2026-04-10)
 
