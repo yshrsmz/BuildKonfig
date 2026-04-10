@@ -14,7 +14,7 @@ kotlin {
     iosArm64()
     iosX64()
     iosSimulatorArm64()
-    macosX64()
+    macosArm64()
     linuxX64()
     mingwX64()
 
@@ -25,7 +25,7 @@ kotlin {
      *   - appMain
      *     - jvmMain
      *     - desktopMain
-     *       - macosX64Main
+     *       - macosArm64Main
      *       - linuxX64Main
      *       - mingwX64Main
      *   - jsCommonMain
@@ -50,7 +50,7 @@ kotlin {
             dependsOn(appMain)
         }
 
-        val macosX64Main by getting {
+        val macosArm64Main by getting {
             dependsOn(desktopMain)
         }
         val linuxX64Main by getting {
@@ -60,9 +60,7 @@ kotlin {
             dependsOn(desktopMain)
         }
 
-        val jsCommonMain by getting {
-            dependsOn(commonMain)
-        }
+        val jsCommonMain by getting {}
     }
 }
 
