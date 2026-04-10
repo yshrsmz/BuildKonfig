@@ -169,7 +169,7 @@ class BuildKonfigPluginTest {
             .build()
 
         assertThat(result.output)
-            .contains("BuildKonfig: defaultConfigs is not provided. Skipping code generation.")
+            .contains("BuildKonfig: non-flavored defaultConfigs is not provided. Skipping code generation.")
         assertThat(result.output)
             .contains("BUILD SUCCESSFUL")
     }

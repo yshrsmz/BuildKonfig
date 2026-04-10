@@ -27,7 +27,7 @@ fun BuildKonfigExtension.mergeConfigs(
     flavor: Flavor = DEFAULT_FLAVOR
 ): Map<String, TargetConfig>? {
     if (!defaultConfigs.containsKey(DEFAULT_FLAVOR)) {
-        logger.warn("BuildKonfig: defaultConfigs is not provided. Skipping code generation.")
+        logger.warn("BuildKonfig: non-flavored defaultConfigs is not provided. Skipping code generation.")
         return null
     }
 
