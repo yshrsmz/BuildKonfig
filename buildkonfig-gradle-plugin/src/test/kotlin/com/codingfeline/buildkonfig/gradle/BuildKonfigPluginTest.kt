@@ -204,7 +204,7 @@ class BuildKonfigPluginTest {
             .buildAndFail()
 
         assertThat(result.output)
-            .contains("is not a valid Kotlin identifier")
+            .contains("buildConfigField name 'API.URL' is not a valid Kotlin identifier")
     }
 
     @Test
