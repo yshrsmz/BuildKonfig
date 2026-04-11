@@ -62,3 +62,7 @@ secret.properties
 *-sec.asc
 
 *.hprof
+
+# Claude Code: commit settings.json and rules/; ignore local overrides and personal skills
+.claude/settings.local.json
+.claude/skills/
