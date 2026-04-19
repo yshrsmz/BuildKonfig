@@ -8,7 +8,7 @@ on:
 jobs:
   release_please:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
