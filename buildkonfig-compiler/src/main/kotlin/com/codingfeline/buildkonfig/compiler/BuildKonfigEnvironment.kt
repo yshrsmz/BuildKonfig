@@ -58,6 +58,9 @@ class BuildKonfigEnvironment(
 
     private fun compileExpectActual(data: BuildKonfigData, writer: FileAppender, logger: BuildKonfigLogger): List<String> {
         val errors = mutableListOf<String>()
+
+        warnConstFieldsInExpectActual(data, logger)
+
         try {
             BuildKonfigCompiler.compileCommon(
                 data.packageName,
@@ -87,5 +90,28 @@ class BuildKonfigEnvironment(
                 }
             }
         return errors
+    }
+
+    private fun warnConstFieldsInExpectActual(data: BuildKonfigData, logger: BuildKonfigLogger) {
+        val commonConfig = data.commonConfig.config
+        if (commonConfig == null) {
+            return
+        }
+
+        val constFieldNames = commonConfig.fieldSpecs.values
+            .filter { it.const }
+            .map { it.name }
+
+        if (constFieldNames.isEmpty()) {
+            return
+        }
+
+        logger.warn(
+            "BuildKonfig: field(s) [${constFieldNames.joinToString(", ")}] are declared with " +
+                "`const = true` but target-specific configs are present. The K2 compiler does not " +
+                "allow `expect const val`, so the common declaration is emitted as `val` (each " +
+                "target still uses `actual const val`). Common code cannot reference these as " +
+                "compile-time constants."
+        )
     }
 }

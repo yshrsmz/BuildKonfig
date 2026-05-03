@@ -47,7 +47,7 @@ class BuildKonfigPluginConstFieldsTest {
     }
 
     @Test
-    fun `const values for expect object contains suppress annotation`() {
+    fun `const values produce expect val on common and actual const val on targets`() {
         buildFile.writeText(
             """
             |import com.codingfeline.buildkonfig.compiler.FieldSpec.Type
@@ -80,39 +80,37 @@ class BuildKonfigPluginConstFieldsTest {
             .withPluginClasspath()
 
         val result = runner
-            .withArguments("generateBuildKonfig", "--stacktrace")
+            .withArguments("generateBuildKonfig", "--stacktrace", "--warning-mode=all")
             .build()
 
         Truth.assertThat(result.output)
             .contains("BUILD SUCCESSFUL")
 
+        Truth.assertThat(result.output).apply {
+            contains("declared with `const = true` but target-specific configs are present")
+            contains("foo")
+            contains("bar")
+        }
+
         val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
         Truth.assertThat(commonResult.readText()).apply {
-            contains(
-                """
-                |  @Suppress("CONST_VAL_WITHOUT_INITIALIZER")
-                |  public const val foo
-            """.trimMargin()
-            )
-
-            contains(
-                """
-                |  @Suppress("CONST_VAL_WITHOUT_INITIALIZER")
-                |  public const val bar
-            """.trimMargin()
-            )
+            contains("public val foo: String")
+            contains("public val bar: String")
+            doesNotContain("const val foo")
+            doesNotContain("const val bar")
+            doesNotContain("CONST_VAL_WITHOUT_INITIALIZER")
         }
 
         val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
         Truth.assertThat(jvmResult.readText()).apply {
-            contains("const val foo: String = \"defaultValue\"")
-            contains("const val bar: String = \"defaultBarValue\"")
+            contains("actual const val foo: String = \"defaultValue\"")
+            contains("actual const val bar: String = \"defaultBarValue\"")
         }
 
         val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
         Truth.assertThat(jsResult.readText()).apply {
-            contains("const val foo: String = \"jsValue\"")
-            contains("const val bar: String = \"jsBarValue\"")
+            contains("actual const val foo: String = \"jsValue\"")
+            contains("actual const val bar: String = \"jsBarValue\"")
         }
     }
 }

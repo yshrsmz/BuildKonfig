@@ -258,6 +258,14 @@ buildkonfig {
 - `buildConfigField(type: String, name: String, value: String, nullable: Boolean = false, const: Boolean = false)` 
   - In addition to above method, this can configure `nullable` and `const` declarations.
 
+> [!NOTE]
+> When `targetConfigs` are present, BuildKonfig is generated as `expect`/`actual`. The K2 compiler (Kotlin 2.x)
+> does not allow `expect const val`, so the common-side declaration is emitted as plain `val` even if you set
+> `const = true`. Each target's `actual` declaration still uses `actual const val`, so the value is a
+> compile-time constant inside target-specific source sets — but **common code cannot reference it as a
+> compile-time constant** (e.g. inside `when` branches that require constants, or annotation arguments).
+> A warning is logged at generation time for affected fields.
+
 Above configuration will generate following codes.
 
 ```kotlin
