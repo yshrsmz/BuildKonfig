@@ -87,8 +87,9 @@ class BuildKonfigPluginConstFieldsTest {
             .contains("BUILD SUCCESSFUL")
 
         Truth.assertThat(result.output).apply {
-            contains("const = true is not honored on the common (expect) side")
-            contains("foo, bar")
+            contains("declared with `const = true` but target-specific configs are present")
+            contains("foo")
+            contains("bar")
         }
 
         val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")

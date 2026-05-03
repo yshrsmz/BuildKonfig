@@ -107,11 +107,11 @@ class BuildKonfigEnvironment(
         }
 
         logger.warn(
-            "BuildKonfig: const = true is not honored on the common (expect) side when target-specific " +
-                "configs are present (K2 compiler restricts `expect const val`). The expect declaration " +
-                "is emitted as `val`, while each target keeps `actual const val`. Affected field(s): " +
-                "${constFieldNames.joinToString(", ")}. Common code cannot reference these as compile-time " +
-                "constants; use them as constants only from target-specific source sets."
+            "BuildKonfig: field(s) [${constFieldNames.joinToString(", ")}] are declared with " +
+                "`const = true` but target-specific configs are present. The K2 compiler does not " +
+                "allow `expect const val`, so the common declaration is emitted as `val` (each " +
+                "target still uses `actual const val`). Common code cannot reference these as " +
+                "compile-time constants."
         )
     }
 }
