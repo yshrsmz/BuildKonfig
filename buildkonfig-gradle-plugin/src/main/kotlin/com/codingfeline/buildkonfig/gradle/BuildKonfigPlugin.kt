@@ -46,6 +46,18 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
         val mppExtension = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
+        // Register the task eagerly (outside afterEvaluate) so its outputs participate in
+        // Gradle's task graph as Providers from the start. This is what allows downstream
+        // tasks (e.g. KSP under Gradle 9.0) to discover an implicit dependency edge through
+        // the source set's srcDirs Provider chain.
+        val task = project.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
+            it.group = "buildkonfig"
+            it.description = "generate BuildKonfig"
+        }
+
+        // A single, flat afterEvaluate is used purely to compute the merged configuration
+        // (which depends on extension DSL evaluation and KMP target registration completing)
+        // and to wire generated source directories into Kotlin source sets.
         project.afterEvaluate { p ->
             val flavor = p.findFlavor()
 
@@ -65,19 +77,16 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             val hasWasmTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.wasm }
             val forceExpectActual = exposeObject && hasJsTarget && hasWasmTarget
 
-            val targetConfigSources = decideOutputs(project, mppExtension, targetConfigs, outputDirectory, forceExpectActual)
+            val targetConfigSources =
+                decideOutputs(project, mppExtension, targetConfigs, outputDirectory, forceExpectActual)
 
-            val task = p.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
-                it.packageName = requireNotNull(extension.packageName) { "packageName must be provided" }
-
-                it.objectName = objectName
-                it.exposeObject = exposeObject
-                it.hasJsTarget = hasJsTarget
-                it.flavor = flavor
-                it.targetConfigFiles = targetConfigSources.mapValues { (_, value) -> value.configFile }
-
-                it.group = "buildkonfig"
-                it.description = "generate BuildKonfig"
+            task.configure { t ->
+                t.packageName.set(requireNotNull(extension.packageName) { "packageName must be provided" })
+                t.objectName.set(objectName)
+                t.exposeObject.set(exposeObject)
+                t.hasJsTarget.set(hasJsTarget)
+                t.flavor.set(flavor)
+                t.targetConfigFiles.set(targetConfigSources.mapValues { (_, value) -> value.configFile })
             }
 
             targetConfigSources.forEach { (key, configSource) ->
@@ -190,5 +199,3 @@ internal fun KotlinPlatformType.toPlatformType(): PlatformType {
         KotlinPlatformType.wasm -> PlatformType.wasm
     }
 }
-
-

@@ -4,6 +4,8 @@ import com.codingfeline.buildkonfig.VERSION
 import com.codingfeline.buildkonfig.compiler.BuildKonfigData
 import com.codingfeline.buildkonfig.compiler.BuildKonfigEnvironment
 import org.gradle.api.DefaultTask
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectories
@@ -12,7 +14,7 @@ import java.io.File
 
 const val FLAVOR_PROPERTY = "buildkonfig.flavor"
 
-open class BuildKonfigTask : DefaultTask() {
+abstract class BuildKonfigTask : DefaultTask() {
 
     // Required to invalidate the task on version updates.
     @Suppress("unused")
@@ -21,42 +23,44 @@ open class BuildKonfigTask : DefaultTask() {
         get() = VERSION
 
     @get:Input
-    lateinit var packageName: String
+    abstract val packageName: Property<String>
 
     @get:Input
-    lateinit var objectName: String
-
-    @Input
-    var exposeObject: Boolean = false
-
-    @Input
-    var hasJsTarget: Boolean = false
+    abstract val objectName: Property<String>
 
     @get:Input
-    lateinit var flavor: String
+    abstract val exposeObject: Property<Boolean>
+
+    @get:Input
+    abstract val hasJsTarget: Property<Boolean>
+
+    @get:Input
+    abstract val flavor: Property<String>
 
     @get:Nested
-    lateinit var targetConfigFiles: Map<String, TargetConfigFileImpl>
+    abstract val targetConfigFiles: MapProperty<String, TargetConfigFileImpl>
 
     @Suppress("unused")
     @get:OutputDirectories
     val outputDirectories: Map<String, File>
-        get() = targetConfigFiles.mapValues { it.value.outputDirectory }
+        get() = targetConfigFiles.get().mapValues { it.value.outputDirectory }
 
     @Suppress("unused")
     @TaskAction
     fun generateBuildKonfigFiles() {
+        val outputDirs = outputDirectories
         // clean up output directories
-        outputDirectories.getValue(COMMON_SOURCESET_NAME).parentFile.cleanupDirectory()
-        outputDirectories.forEach { it.value.mkdirs() }
+        outputDirs.getValue(COMMON_SOURCESET_NAME).parentFile.cleanupDirectory()
+        outputDirs.forEach { it.value.mkdirs() }
 
+        val configFiles = targetConfigFiles.get()
         val data = BuildKonfigData(
-            packageName = packageName,
-            objectName = objectName,
-            exposeObject = exposeObject,
-            commonConfig = targetConfigFiles.getValue(COMMON_SOURCESET_NAME),
-            targetConfigs = targetConfigFiles.filter { it.key != COMMON_SOURCESET_NAME }.values.toList(),
-            hasJsTarget = hasJsTarget
+            packageName = packageName.get(),
+            objectName = objectName.get(),
+            exposeObject = exposeObject.get(),
+            commonConfig = configFiles.getValue(COMMON_SOURCESET_NAME),
+            targetConfigs = configFiles.filter { it.key != COMMON_SOURCESET_NAME }.values.toList(),
+            hasJsTarget = hasJsTarget.get()
         )
 
         BuildKonfigEnvironment(data).generateConfigs(logger.toBuildKonfigLogger())

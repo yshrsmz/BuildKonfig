@@ -900,4 +900,57 @@ class BuildKonfigPluginFlavorTest {
             contains("object AwesomeConfig")
         }
     }
+
+    @Test
+    fun `changing flavor between builds re-runs the task with the new flavor value`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
+            |   }
+            |   defaultConfigs("dev") {
+            |       buildConfigField 'STRING', 'stringValue', 'devDefaultValue'
+            |   }
+            |   defaultConfigs("release") {
+            |       buildConfigField 'STRING', 'stringValue', 'releaseDefaultValue'
+            |   }
+            |}
+            |$buildFileMPPConfig
+        """.trimMargin()
+        )
+
+        val buildDir = File(projectDir.root, "build/buildkonfig")
+        buildDir.deleteRecursively()
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        // First build with flavor=dev
+        val devResult = runner
+            .withArguments("generateBuildKonfig", "--stacktrace", "-Pbuildkonfig.flavor=dev")
+            .build()
+
+        Truth.assertThat(devResult.output).contains("BUILD SUCCESSFUL")
+        val devCommon = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
+        Truth.assertThat(devCommon.readText())
+            .contains("val stringValue: String = \"devDefaultValue\"")
+
+        // Second build with flavor=release should NOT be UP-TO-DATE and must regenerate.
+        val releaseResult = runner
+            .withArguments("generateBuildKonfig", "--stacktrace", "-Pbuildkonfig.flavor=release")
+            .build()
+
+        Truth.assertThat(releaseResult.output).contains("BUILD SUCCESSFUL")
+        Truth.assertThat(releaseResult.output).doesNotContain("generateBuildKonfig UP-TO-DATE")
+
+        val releaseCommon = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
+        Truth.assertThat(releaseCommon.readText())
+            .contains("val stringValue: String = \"releaseDefaultValue\"")
+    }
 }
