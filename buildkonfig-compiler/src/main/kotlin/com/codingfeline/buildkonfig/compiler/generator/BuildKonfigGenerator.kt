@@ -71,7 +71,12 @@ abstract class BuildKonfigGenerator(
         }
 
         /**
-         * Generate common `expect` object
+         * Generate common `expect` object.
+         *
+         * `const` is intentionally omitted on the expect side: starting with the K2 compiler
+         * (Kotlin 2.x), `expect const val` without an initializer is a hard compile error and
+         * the previous `@Suppress("CONST_VAL_WITHOUT_INITIALIZER")` workaround no longer
+         * applies. `expect val` paired with `actual const val` is a supported pattern.
          */
         fun ofCommon(file: TargetConfigFile, exposeObject: Boolean, logger: BuildKonfigLogger): BuildKonfigGenerator {
             val objectModifiers = listOf(KModifier.EXPECT, getVisibilityModifier(exposeObject))
@@ -83,15 +88,9 @@ abstract class BuildKonfigGenerator(
                 logger = logger
             ) {
                 override fun generateProp(fieldSpec: FieldSpec): PropertySpec {
-                    val spec = PropertySpec.builder(fieldSpec.name, fieldSpec.typeName)
+                    return PropertySpec.builder(fieldSpec.name, fieldSpec.typeName)
                         .addModifiers(*propertyModifiers.toTypedArray())
-                    if (fieldSpec.const) {
-                        spec.addModifiers(KModifier.CONST)
-                            .addAnnotation(AnnotationSpec.builder(ClassName("kotlin", "Suppress"))
-                            .addMember("%S", "CONST_VAL_WITHOUT_INITIALIZER")
-                            .build())
-                    }
-                    return spec.build()
+                        .build()
                 }
             }
         }
