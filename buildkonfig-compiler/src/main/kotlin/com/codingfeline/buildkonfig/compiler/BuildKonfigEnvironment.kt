@@ -93,11 +93,18 @@ class BuildKonfigEnvironment(
     }
 
     private fun warnConstFieldsInExpectActual(data: BuildKonfigData, logger: BuildKonfigLogger) {
-        val constFieldNames = data.commonConfig.config?.fieldSpecs?.values
-            ?.filter { it.const }
-            ?.map { it.name }
-            ?.takeIf { it.isNotEmpty() }
-            ?: return
+        val commonConfig = data.commonConfig.config
+        if (commonConfig == null) {
+            return
+        }
+
+        val constFieldNames = commonConfig.fieldSpecs.values
+            .filter { it.const }
+            .map { it.name }
+
+        if (constFieldNames.isEmpty()) {
+            return
+        }
 
         logger.warn(
             "BuildKonfig: const = true is not honored on the common (expect) side when target-specific " +
