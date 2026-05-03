@@ -80,11 +80,16 @@ class BuildKonfigPluginConstFieldsTest {
             .withPluginClasspath()
 
         val result = runner
-            .withArguments("generateBuildKonfig", "--stacktrace")
+            .withArguments("generateBuildKonfig", "--stacktrace", "--warning-mode=all")
             .build()
 
         Truth.assertThat(result.output)
             .contains("BUILD SUCCESSFUL")
+
+        Truth.assertThat(result.output).apply {
+            contains("const = true is not honored on the common (expect) side")
+            contains("foo, bar")
+        }
 
         val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
         Truth.assertThat(commonResult.readText()).apply {
