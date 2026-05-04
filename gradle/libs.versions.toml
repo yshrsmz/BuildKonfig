@@ -3,6 +3,7 @@ gradle = "8.13"
 kotlin = "2.3.21"
 dokka = "2.2.0"
 android = "8.13.2"
+ksp = "2.3.6"
 
 [libraries]
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "2.3.0" }
@@ -11,6 +12,7 @@ truth = { module = "com.google.truth:truth", version = "1.4.5" }
 
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 android-plugin = { module = "com.android.tools.build:gradle", version.ref = "android" }
+ksp-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

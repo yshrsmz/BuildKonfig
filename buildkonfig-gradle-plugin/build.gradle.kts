@@ -51,6 +51,7 @@ dependencies {
 
     fixtureClasspath(libs.kotlin.plugin)
     fixtureClasspath(libs.android.plugin)
+    fixtureClasspath(libs.ksp.plugin)
 }
 
 tasks.compileKotlin {
