@@ -103,7 +103,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
             targetConfigSources.forEach { (key, configSource) ->
                 val outputDirs = task.map { t -> listOfNotNull(t.outputDirectories[key]) }
-                configSource.sourceSet.kotlin.srcDirs(outputDirs)
+                configSource.registerSourceDir(outputDirs)
             }
         }
     }
@@ -152,7 +152,7 @@ fun decideOutputs(
                         outputDirectory = outputDirectory.map { it.dir(firstDependent.name) }.get().asFile,
                         config = targetConfigs.getValue(firstDependent.name)
                     ),
-                    sourceSet = firstDependent
+                    registerSourceDir = { dir -> firstDependent.kotlin.srcDirs(dir) }
                 )
 
                 return@fold acc + (firstDependent.name to tcs)
@@ -175,7 +175,7 @@ fun decideOutputs(
                     outputDirectory = outputDirectory.map { it.dir(targetSourceSet.name) }.get().asFile,
                     config = targetConfigs[source.name] ?: targetConfigs.getValue(COMMON_SOURCESET_NAME).copy(),
                 ),
-                sourceSet = targetSourceSet
+                registerSourceDir = { dir -> targetSourceSet.kotlin.srcDirs(dir) }
             )
 
             acc + (source.name to tcs)
