@@ -67,11 +67,10 @@ class BuildKonfigPluginTest {
     }
 
     @Test
-    fun `Applying plugin without KMP plugin throws`() {
+    fun `Applying plugin without any Kotlin plugin throws`() {
         buildFile.writeText(
             """
             |plugins {
-            |   id 'org.jetbrains.kotlin.jvm'
             |   id 'com.codingfeline.buildkonfig'
             |}
             |
@@ -86,8 +85,6 @@ class BuildKonfigPluginTest {
             |       buildConfigField 'STRING', 'test', 'hoge'
             |   }
             |}
-            |
-            |kotlin {}
             """.trimMargin()
         )
 
@@ -103,7 +100,7 @@ class BuildKonfigPluginTest {
             .buildAndFail()
 
         assertThat(result.output)
-            .contains("BuildKonfig Gradle plugin applied in project ':' but no supported Kotlin multiplatform plugin was found")
+            .contains("BuildKonfig Gradle plugin applied in project ':' but no supported Kotlin plugin was found")
     }
 
     @Test

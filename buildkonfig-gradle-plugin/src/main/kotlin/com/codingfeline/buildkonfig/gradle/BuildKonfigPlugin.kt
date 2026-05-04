@@ -11,41 +11,47 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskProvider
+import org.jetbrains.kotlin.gradle.dsl.KotlinJsProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 typealias Flavor = String
 
 const val DEFAULT_FLAVOR: Flavor = ""
 const val COMMON_SOURCESET_NAME = "commonMain"
+const val MAIN_SOURCESET_NAME = "main"
 
 @Suppress("unused")
 abstract class BuildKonfigPlugin : Plugin<Project> {
 
-    private var isMultiplatform = false
+    private var configured = false
 
     override fun apply(target: Project) {
         val extension = target.extensions.create("buildkonfig", BuildKonfigExtension::class.java, target.logger)
 
-        target.plugins.withType(KotlinMultiplatformPluginWrapper::class.java) {
-            isMultiplatform = true
+        // Detect any supported Kotlin plugin (multiplatform / jvm / js / android).
+        // KotlinBasePlugin is the common interface implemented by all Kotlin compiler
+        // plugin wrappers, so this fires once for whichever Kotlin plugin the user applied.
+        target.plugins.withType(KotlinBasePlugin::class.java) {
+            if (configured) return@withType
+            configured = true
             configure(target, extension)
         }
 
         target.afterEvaluate {
-            check(isMultiplatform) {
+            check(configured) {
                 "BuildKonfig Gradle plugin applied in project '${target.path}' " +
-                    "but no supported Kotlin multiplatform plugin was found"
+                    "but no supported Kotlin plugin was found. " +
+                    "Apply one of: kotlin-multiplatform, kotlin-jvm, or kotlin-js."
             }
         }
     }
 
     private fun configure(project: Project, extension: BuildKonfigExtension) {
-        val outputDirectory = project.layout.buildDirectory.dir("buildkonfig")
-
-        val mppExtension = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
-
         // Register the task eagerly (outside afterEvaluate) so its outputs participate in
         // Gradle's task graph as Providers from the start. This is what allows downstream
         // tasks (e.g. KSP under Gradle 9.0) to discover an implicit dependency edge through
@@ -66,47 +72,119 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             it.exposeObject.set(
                 extension.exposeObjectWithName.map { it.isNotBlank() }.orElse(false)
             )
-            it.commonSourceSetName.set(COMMON_SOURCESET_NAME)
         }
 
-        // A single, flat afterEvaluate is used purely to compute the merged configuration
-        // (which depends on extension DSL evaluation and KMP target registration completing)
-        // and to wire generated source directories into Kotlin source sets.
+        // The merge / source-set wiring depends on whether this is a multiplatform project
+        // or a single-target Kotlin project. Both code paths run in afterEvaluate so the
+        // user's DSL block and any KMP target registrations have already completed.
         project.afterEvaluate {
-            // Resolve the flavor here (not via a Provider chain) so that callers can influence
-            // it from the build script via project.ext.set(...) / project.setProperty(...) /
-            // gradle.taskGraph hooks before this afterEvaluate runs. The resolved value is
-            // then captured as a String constant on the task input, which is configuration-
-            // cache-safe.
-            val flavor = project.findFlavor()
-
-            val mergedConfigs = extension.mergeConfigs(project.logger.toBuildKonfigLogger(), flavor)
-                ?: return@afterEvaluate
-
-            val targetConfigs = mergedConfigs.toMutableMap()
-
-            val exposeObject = extension.exposeObjectWithName.getOrElse("").isNotBlank()
-
-            // When both js and wasm targets exist with exposeObject, force expect/actual generation
-            // so that @JsExport is only added to the JS actual (wasmJs doesn't support @JsExport on objects).
-            val hasJsTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.js }
-            val hasWasmTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.wasm }
-            val forceExpectActual = exposeObject && hasJsTarget && hasWasmTarget
-
-            val targetConfigSources =
-                decideOutputs(project, mppExtension, targetConfigs, outputDirectory, forceExpectActual)
-
-            task.configure { t ->
-                t.flavor.set(flavor)
-                t.hasJsTarget.set(hasJsTarget)
-                t.targetConfigFiles.set(targetConfigSources.mapValues { (_, value) -> value.configFile })
-            }
-
-            targetConfigSources.forEach { (key, configSource) ->
-                val outputDirs = task.map { t -> listOfNotNull(t.outputDirectories[key]) }
-                configSource.registerSourceDir(outputDirs)
+            val mppExtension = project.extensions.findByType(KotlinMultiplatformExtension::class.java)
+            if (mppExtension != null) {
+                configureMultiplatform(project, extension, task, mppExtension)
+            } else {
+                configureSinglePlatform(project, extension, task)
             }
         }
+    }
+
+    private fun configureMultiplatform(
+        project: Project,
+        extension: BuildKonfigExtension,
+        task: TaskProvider<BuildKonfigTask>,
+        mppExtension: KotlinMultiplatformExtension,
+    ) {
+        val outputDirectory = project.layout.buildDirectory.dir("buildkonfig")
+
+        // Resolve the flavor here (not via a Provider chain) so that callers can influence
+        // it from the build script via project.ext.set(...) / project.setProperty(...) /
+        // gradle.taskGraph hooks before this afterEvaluate runs. The resolved value is
+        // then captured as a String constant on the task input, which is configuration-
+        // cache-safe.
+        val flavor = project.findFlavor()
+
+        val mergedConfigs = extension.mergeConfigs(project.logger.toBuildKonfigLogger(), flavor)
+            ?: return
+
+        val targetConfigs = mergedConfigs.toMutableMap()
+
+        val exposeObject = extension.exposeObjectWithName.getOrElse("").isNotBlank()
+
+        // When both js and wasm targets exist with exposeObject, force expect/actual generation
+        // so that @JsExport is only added to the JS actual (wasmJs doesn't support @JsExport on objects).
+        val hasJsTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.js }
+        val hasWasmTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.wasm }
+        val forceExpectActual = exposeObject && hasJsTarget && hasWasmTarget
+
+        val targetConfigSources =
+            decideOutputs(project, mppExtension, targetConfigs, outputDirectory, forceExpectActual)
+
+        task.configure { t ->
+            t.flavor.set(flavor)
+            t.hasJsTarget.set(hasJsTarget)
+            t.commonSourceSetName.set(COMMON_SOURCESET_NAME)
+            t.targetConfigFiles.set(targetConfigSources.mapValues { (_, value) -> value.configFile })
+        }
+
+        targetConfigSources.forEach { (key, configSource) ->
+            val outputDirs = task.map { t -> listOfNotNull(t.outputDirectories[key]) }
+            configSource.registerSourceDir(outputDirs)
+        }
+    }
+
+    private fun configureSinglePlatform(
+        project: Project,
+        extension: BuildKonfigExtension,
+        task: TaskProvider<BuildKonfigTask>,
+    ) {
+        val kotlinExtension = project.extensions.findByType(KotlinProjectExtension::class.java) ?: return
+
+        val platformType = when (kotlinExtension) {
+            is KotlinJvmProjectExtension -> KotlinPlatformType.jvm
+            is KotlinJsProjectExtension -> KotlinPlatformType.js
+            else -> {
+                project.logger.warn(
+                    "BuildKonfig: unsupported Kotlin extension '${kotlinExtension::class.java.simpleName}'. " +
+                        "Skipping code generation."
+                )
+                return
+            }
+        }
+
+        if (extension.targetConfigs.isNotEmpty()) {
+            project.logger.warn(
+                "BuildKonfig: targetConfigs are ignored in non-multiplatform projects (project '${project.path}'). " +
+                    "Use defaultConfigs instead."
+            )
+        }
+
+        val flavor = project.findFlavor()
+        val mergedConfigs = extension.mergeConfigs(
+            project.logger.toBuildKonfigLogger(),
+            flavor,
+            commonSourceSetName = MAIN_SOURCESET_NAME,
+        ) ?: return
+
+        // For non-KMP projects there is exactly one source set ("main"). Drop any
+        // target-specific entries (the user was already warned) so the task generates a
+        // single concrete object rather than an expect/actual pair.
+        val mainConfig = mergedConfigs.getValue(MAIN_SOURCESET_NAME)
+        val outputDirectory = project.layout.buildDirectory.dir("buildkonfig")
+        val targetConfigFile = TargetConfigFileImpl(
+            targetName = TargetName(MAIN_SOURCESET_NAME, platformType.toPlatformType()),
+            outputDirectory = outputDirectory.map { it.dir(MAIN_SOURCESET_NAME) }.get().asFile,
+            config = mainConfig,
+        )
+
+        task.configure { t ->
+            t.flavor.set(flavor)
+            t.hasJsTarget.set(platformType == KotlinPlatformType.js)
+            t.commonSourceSetName.set(MAIN_SOURCESET_NAME)
+            t.targetConfigFiles.set(mapOf(MAIN_SOURCESET_NAME to targetConfigFile))
+        }
+
+        val mainSourceSet = kotlinExtension.sourceSets.getByName(MAIN_SOURCESET_NAME)
+        val outputDirs = task.map { t -> listOfNotNull(t.outputDirectories[MAIN_SOURCESET_NAME]) }
+        mainSourceSet.kotlin.srcDirs(outputDirs)
     }
 }
 
