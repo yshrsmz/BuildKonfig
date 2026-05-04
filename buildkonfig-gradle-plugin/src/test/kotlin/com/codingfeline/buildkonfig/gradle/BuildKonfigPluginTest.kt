@@ -19,7 +19,7 @@ class BuildKonfigPluginTest {
 
     private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
 
-    private val buildFileMPPConfig = """
+    private val buildFileKMPConfig = """
         |kotlin {
         |  jvm()
         |  js {
@@ -161,7 +161,7 @@ class BuildKonfigPluginTest {
             |   }
             |}
             |
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
             """.trimMargin()
         )
 

@@ -419,7 +419,7 @@ buildkonfig {
 <summary>Groovy DSL</summary>
 
 ```gradle
-// ./mpp_project/build.gradle
+// ./kmp_project/build.gradle
 
 buildkonfig {
     packageName = 'com.example.app'

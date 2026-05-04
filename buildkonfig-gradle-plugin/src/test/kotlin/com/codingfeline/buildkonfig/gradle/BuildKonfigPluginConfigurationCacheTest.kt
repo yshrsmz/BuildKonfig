@@ -19,7 +19,7 @@ class BuildKonfigPluginConfigurationCacheTest {
 
     private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
 
-    private val buildFileMPPConfig = """
+    private val buildFileKMPConfig = """
         |kotlin {
         |  jvm()
         |  iosX64()
@@ -63,7 +63,7 @@ class BuildKonfigPluginConfigurationCacheTest {
             |   }
             |}
             |
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
             """.trimMargin()
         )
 
