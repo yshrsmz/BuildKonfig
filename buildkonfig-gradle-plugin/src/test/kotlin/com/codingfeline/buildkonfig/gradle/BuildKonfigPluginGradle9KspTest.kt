@@ -23,18 +23,7 @@ class BuildKonfigPluginGradle9KspTest {
 
     lateinit var settingFile: File
 
-    private val buildFileHeader = """
-        |plugins {
-        |    id 'kotlin-multiplatform'
-        |    id 'com.google.devtools.ksp'
-        |    id 'com.codingfeline.buildkonfig'
-        |}
-        |
-        |repositories {
-        |   mavenCentral()
-        |}
-        |
-    """.trimMargin()
+    private val buildFileHeader = buildFileHeader("kotlin-multiplatform", "com.google.devtools.ksp")
 
     @Before
     fun setup() {

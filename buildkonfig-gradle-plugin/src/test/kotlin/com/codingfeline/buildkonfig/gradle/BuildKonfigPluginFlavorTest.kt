@@ -17,17 +17,7 @@ class BuildKonfigPluginFlavorTest {
 
     lateinit var settingFile: File
 
-    private val buildFileHeader = """
-        |plugins {
-        |    id 'kotlin-multiplatform'
-        |    id 'com.codingfeline.buildkonfig'
-        |}
-        |
-        |repositories {
-        |   mavenCentral()
-        |}
-        |
-    """.trimMargin()
+    private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
 
     private val buildFileMPPConfig = """
         |kotlin {

@@ -15,13 +15,33 @@ fun createAndroidManifest(projectDir: TemporaryFolder, sourceSetName: String = "
 
 
 /**
- * Build script header — `plugins { ... }` plus a `mavenCentral()` repository — for the given
- * Kotlin plugin id.
+ * Build script header — `plugins { ... }` plus a `mavenCentral()` repository — in Groovy
+ * DSL syntax (`build.gradle`). The Kotlin compiler plugin is applied first, then any
+ * [additionalPlugins] in order, then `com.codingfeline.buildkonfig` last.
  */
-fun buildFileHeader(kotlinPluginId: String): String = """
+fun buildFileHeader(kotlinPluginId: String, vararg additionalPlugins: String): String {
+    val pluginIds = listOf(kotlinPluginId) + additionalPlugins + "com.codingfeline.buildkonfig"
+    val pluginLines = pluginIds.joinToString("\n") { "            |    id '$it'" }
+    return """
             |plugins {
-            |    id '$kotlinPluginId'
-            |    id 'com.codingfeline.buildkonfig'
+$pluginLines
+            |}
+            |
+            |repositories {
+            |   mavenCentral()
+            |}
+            |
+        """.trimMargin()
+}
+
+/**
+ * Build script header — `plugins { ... }` plus a `mavenCentral()` repository — for the given
+ * Kotlin plugin id, in Kotlin DSL syntax (`build.gradle.kts`).
+ */
+fun buildFileHeaderKts(kotlinPluginId: String): String = """
+            |plugins {
+            |    id("$kotlinPluginId")
+            |    id("com.codingfeline.buildkonfig")
             |}
             |
             |repositories {
