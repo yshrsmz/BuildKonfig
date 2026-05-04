@@ -5,15 +5,21 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec
 import com.codingfeline.buildkonfig.compiler.TargetConfig
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.codingfeline.buildkonfig.compiler.TargetName
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import java.io.File
 
 data class TargetConfigSource(
     val name: String,
     val configFile: TargetConfigFileImpl,
-    val sourceSet: KotlinSourceSet,
+    /**
+     * Wires the generated source directory into the appropriate Kotlin source set.
+     * Encapsulated as a callback so the call site does not need to know whether the
+     * underlying source set comes from a KMP target, a standalone Kotlin/JVM project,
+     * a standalone Kotlin/JS project, etc.
+     */
+    val registerSourceDir: (Provider<List<File>>) -> Unit,
 )
 
 data class TargetConfigFileImpl(
@@ -24,7 +30,8 @@ data class TargetConfigFileImpl(
 
 fun BuildKonfigExtension.mergeConfigs(
     logger: BuildKonfigLogger,
-    flavor: Flavor = DEFAULT_FLAVOR
+    flavor: Flavor = DEFAULT_FLAVOR,
+    commonSourceSetName: String = COMMON_SOURCESET_NAME,
 ): Map<String, TargetConfig>? {
     if (!defaultConfigs.containsKey(DEFAULT_FLAVOR)) {
         logger.warn("BuildKonfig: non-flavored defaultConfigs is not provided. Skipping code generation.")
@@ -42,7 +49,7 @@ fun BuildKonfigExtension.mergeConfigs(
                 defaultConfig,
                 checkTargetSpecificFields(defaultConfig, config)
             )
-        } + (COMMON_SOURCESET_NAME to defaultConfig)
+        } + (commonSourceSetName to defaultConfig)
 }
 
 fun checkTargetSpecificFields(defaultConfig: TargetConfig, targetConfig: TargetConfig): TargetConfig {

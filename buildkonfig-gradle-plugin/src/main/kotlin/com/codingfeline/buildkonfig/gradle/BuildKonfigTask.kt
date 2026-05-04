@@ -37,6 +37,14 @@ abstract class BuildKonfigTask : DefaultTask() {
     @get:Input
     abstract val flavor: Property<String>
 
+    /**
+     * Name of the source set whose merged config is treated as the "common" config.
+     * - KMP projects: `commonMain` (the default).
+     * - Non-KMP projects: typically `main`, since there is no expect/actual split.
+     */
+    @get:Input
+    abstract val commonSourceSetName: Property<String>
+
     @get:Nested
     abstract val targetConfigFiles: MapProperty<String, TargetConfigFileImpl>
 
@@ -48,9 +56,10 @@ abstract class BuildKonfigTask : DefaultTask() {
     @Suppress("unused")
     @TaskAction
     fun generateBuildKonfigFiles() {
+        val commonName = commonSourceSetName.get()
         val outputDirs = outputDirectories
         // clean up output directories
-        outputDirs.getValue(COMMON_SOURCESET_NAME).parentFile.cleanupDirectory()
+        outputDirs.getValue(commonName).parentFile.cleanupDirectory()
         outputDirs.forEach { it.value.mkdirs() }
 
         val configFiles = targetConfigFiles.get()
@@ -58,8 +67,8 @@ abstract class BuildKonfigTask : DefaultTask() {
             packageName = packageName.get(),
             objectName = objectName.get(),
             exposeObject = exposeObject.get(),
-            commonConfig = configFiles.getValue(COMMON_SOURCESET_NAME),
-            targetConfigs = configFiles.filter { it.key != COMMON_SOURCESET_NAME }.values.toList(),
+            commonConfig = configFiles.getValue(commonName),
+            targetConfigs = configFiles.filter { it.key != commonName }.values.toList(),
             hasJsTarget = hasJsTarget.get()
         )
 

@@ -14,6 +14,22 @@ fun createAndroidManifest(projectDir: TemporaryFolder, sourceSetName: String = "
 }
 
 
+/**
+ * Build script header — `plugins { ... }` plus a `mavenCentral()` repository — for the given
+ * Kotlin plugin id.
+ */
+fun buildFileHeader(kotlinPluginId: String): String = """
+            |plugins {
+            |    id '$kotlinPluginId'
+            |    id 'com.codingfeline.buildkonfig'
+            |}
+            |
+            |repositories {
+            |   mavenCentral()
+            |}
+            |
+        """.trimMargin()
+
 val settingsGradle = """
             |pluginManagement {
             |   resolutionStrategy {
