@@ -66,6 +66,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             it.exposeObject.set(
                 extension.exposeObjectWithName.map { it.isNotBlank() }.orElse(false)
             )
+            it.commonSourceSetName.set(COMMON_SOURCESET_NAME)
         }
 
         // A single, flat afterEvaluate is used purely to compute the merged configuration

@@ -30,7 +30,8 @@ data class TargetConfigFileImpl(
 
 fun BuildKonfigExtension.mergeConfigs(
     logger: BuildKonfigLogger,
-    flavor: Flavor = DEFAULT_FLAVOR
+    flavor: Flavor = DEFAULT_FLAVOR,
+    commonSourceSetName: String = COMMON_SOURCESET_NAME,
 ): Map<String, TargetConfig>? {
     if (!defaultConfigs.containsKey(DEFAULT_FLAVOR)) {
         logger.warn("BuildKonfig: non-flavored defaultConfigs is not provided. Skipping code generation.")
@@ -48,7 +49,7 @@ fun BuildKonfigExtension.mergeConfigs(
                 defaultConfig,
                 checkTargetSpecificFields(defaultConfig, config)
             )
-        } + (COMMON_SOURCESET_NAME to defaultConfig)
+        } + (commonSourceSetName to defaultConfig)
 }
 
 fun checkTargetSpecificFields(defaultConfig: TargetConfig, targetConfig: TargetConfig): TargetConfig {
