@@ -79,9 +79,9 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         // or a single-target Kotlin project. Both code paths run in afterEvaluate so the
         // user's DSL block and any KMP target registrations have already completed.
         project.afterEvaluate {
-            val mppExtension = project.extensions.findByType(KotlinMultiplatformExtension::class.java)
-            if (mppExtension != null) {
-                configureMultiplatform(project, extension, task, mppExtension)
+            val kmpExtension = project.extensions.findByType(KotlinMultiplatformExtension::class.java)
+            if (kmpExtension != null) {
+                configureMultiplatform(project, extension, task, kmpExtension)
             } else {
                 configureSinglePlatform(project, extension, task)
             }
@@ -92,7 +92,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         project: Project,
         extension: BuildKonfigExtension,
         task: TaskProvider<BuildKonfigTask>,
-        mppExtension: KotlinMultiplatformExtension,
+        kmpExtension: KotlinMultiplatformExtension,
     ) {
         val outputDirectory = project.layout.buildDirectory.dir("buildkonfig")
 
@@ -105,12 +105,12 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
         // When both js and wasm targets exist with exposeObject, force expect/actual generation
         // so that @JsExport is only added to the JS actual (wasmJs doesn't support @JsExport on objects).
-        val hasJsTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.js }
-        val hasWasmTarget = mppExtension.targets.any { t -> t.platformType == KotlinPlatformType.wasm }
+        val hasJsTarget = kmpExtension.targets.any { t -> t.platformType == KotlinPlatformType.js }
+        val hasWasmTarget = kmpExtension.targets.any { t -> t.platformType == KotlinPlatformType.wasm }
         val forceExpectActual = exposeObject && hasJsTarget && hasWasmTarget
 
         val targetConfigSources =
-            decideOutputs(project, mppExtension, mergedConfigs, outputDirectory, forceExpectActual)
+            decideOutputs(project, kmpExtension, mergedConfigs, outputDirectory, forceExpectActual)
 
         task.configure { t ->
             t.flavor.set(flavor)
@@ -184,12 +184,12 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
 fun decideOutputs(
     project: Project,
-    mppExtension: KotlinMultiplatformExtension,
+    kmpExtension: KotlinMultiplatformExtension,
     targetConfigs: Map<String, TargetConfig>,
     outputDirectory: Provider<Directory>,
     forceExpectActual: Boolean = false
 ): Map<String, TargetConfigSource> {
-    return mppExtension.sources()
+    return kmpExtension.sources()
         // Map<SourceName, TargetConfigSource>
         .fold(emptyMap()) { acc, source ->
             if (targetConfigs.size == 1 && source.name != COMMON_SOURCESET_NAME && !forceExpectActual) {

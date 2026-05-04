@@ -19,7 +19,7 @@ class BuildKonfigPluginFlavorTest {
 
     private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
 
-    private val buildFileMPPConfig = """
+    private val buildFileKMPConfig = """
         |kotlin {
         |  jvm()
         |  js(IR) {
@@ -50,7 +50,7 @@ class BuildKonfigPluginFlavorTest {
             |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 
@@ -109,7 +109,7 @@ class BuildKonfigPluginFlavorTest {
             |       buildConfigField 'STRING', 'stringValue', 'devDefaultValue'
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 
@@ -163,7 +163,7 @@ class BuildKonfigPluginFlavorTest {
             |       buildConfigField 'STRING', 'stringValue', 'releaseDefaultValue'
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 
@@ -219,7 +219,7 @@ class BuildKonfigPluginFlavorTest {
             |       }
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 
@@ -274,7 +274,7 @@ class BuildKonfigPluginFlavorTest {
             |       }
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 
@@ -322,7 +322,7 @@ class BuildKonfigPluginFlavorTest {
             |       buildConfigField 'INT', 'intValue', '10', nullable: true
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 
@@ -364,7 +364,7 @@ class BuildKonfigPluginFlavorTest {
             |       buildConfigNullableField 'INT', 'intValue', null
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 
@@ -415,7 +415,7 @@ class BuildKonfigPluginFlavorTest {
             |       }
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 
@@ -472,7 +472,7 @@ class BuildKonfigPluginFlavorTest {
             |       }
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 
@@ -520,7 +520,7 @@ class BuildKonfigPluginFlavorTest {
             |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 
@@ -566,7 +566,7 @@ class BuildKonfigPluginFlavorTest {
             |       }
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 
@@ -619,7 +619,7 @@ class BuildKonfigPluginFlavorTest {
             |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 
@@ -667,7 +667,7 @@ class BuildKonfigPluginFlavorTest {
             |       }
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 
@@ -710,7 +710,7 @@ class BuildKonfigPluginFlavorTest {
             .contains("object AwesomeConfig")
     }
 
-    private val buildFileMPPConfigWithWasmJs = """
+    private val buildFileKMPConfigWithWasmJs = """
         |kotlin {
         |  jvm()
         |  js(IR) {
@@ -724,7 +724,7 @@ class BuildKonfigPluginFlavorTest {
         |}
     """.trimMargin()
 
-    private val buildFileMPPConfigWasmJsOnly = """
+    private val buildFileKMPConfigWasmJsOnly = """
         |kotlin {
         |  jvm()
         |  wasmJs {
@@ -748,7 +748,7 @@ class BuildKonfigPluginFlavorTest {
             |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |}
-            |$buildFileMPPConfigWithWasmJs
+            |$buildFileKMPConfigWithWasmJs
         """.trimMargin()
         )
 
@@ -807,7 +807,7 @@ class BuildKonfigPluginFlavorTest {
             |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
             |}
-            |$buildFileMPPConfigWasmJsOnly
+            |$buildFileKMPConfigWasmJsOnly
         """.trimMargin()
         )
 
@@ -855,7 +855,7 @@ class BuildKonfigPluginFlavorTest {
             |       }
             |   }
             |}
-            |$buildFileMPPConfigWithWasmJs
+            |$buildFileKMPConfigWithWasmJs
         """.trimMargin()
         )
 
@@ -910,7 +910,7 @@ class BuildKonfigPluginFlavorTest {
             |       buildConfigField 'STRING', 'stringValue', 'releaseDefaultValue'
             |   }
             |}
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
         """.trimMargin()
         )
 

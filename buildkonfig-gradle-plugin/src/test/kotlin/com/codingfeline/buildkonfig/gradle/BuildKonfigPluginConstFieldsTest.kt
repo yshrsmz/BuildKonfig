@@ -19,7 +19,7 @@ class BuildKonfigPluginConstFieldsTest {
 
     private val buildFileHeader = buildFileHeaderKts("kotlin-multiplatform")
 
-    private val buildFileMPPConfig = """
+    private val buildFileKMPConfig = """
         |kotlin {
         |  jvm()
         |  js(IR) {
@@ -58,7 +58,7 @@ class BuildKonfigPluginConstFieldsTest {
             |   }
             |}
             |
-            |$buildFileMPPConfig
+            |$buildFileKMPConfig
             """.trimMargin()
         )
 
