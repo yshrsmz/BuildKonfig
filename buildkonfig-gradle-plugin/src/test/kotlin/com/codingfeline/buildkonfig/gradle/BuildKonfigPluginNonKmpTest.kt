@@ -17,17 +17,7 @@ class BuildKonfigPluginNonKmpTest {
 
     lateinit var settingFile: File
 
-    private val jvmBuildFileHeader = """
-        |plugins {
-        |    id 'org.jetbrains.kotlin.jvm'
-        |    id 'com.codingfeline.buildkonfig'
-        |}
-        |
-        |repositories {
-        |   mavenCentral()
-        |}
-        |
-    """.trimMargin()
+    private val jvmBuildFileHeader = buildFileHeader("org.jetbrains.kotlin.jvm")
 
     @Before
     fun setup() {

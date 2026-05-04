@@ -12,6 +12,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
+import java.io.File
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -100,8 +101,6 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         val mergedConfigs = extension.mergeConfigs(project.logger.toBuildKonfigLogger(), flavor)
             ?: return
 
-        val targetConfigs = mergedConfigs.toMutableMap()
-
         val exposeObject = extension.exposeObjectWithName.getOrElse("").isNotBlank()
 
         // When both js and wasm targets exist with exposeObject, force expect/actual generation
@@ -111,7 +110,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         val forceExpectActual = exposeObject && hasJsTarget && hasWasmTarget
 
         val targetConfigSources =
-            decideOutputs(project, mppExtension, targetConfigs, outputDirectory, forceExpectActual)
+            decideOutputs(project, mppExtension, mergedConfigs, outputDirectory, forceExpectActual)
 
         task.configure { t ->
             t.flavor.set(flavor)
@@ -166,7 +165,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         val outputDirectory = project.layout.buildDirectory.dir("buildkonfig")
         val targetConfigFile = TargetConfigFileImpl(
             targetName = TargetName(MAIN_SOURCESET_NAME, platformType.toPlatformType()),
-            outputDirectory = outputDirectory.map { it.dir(MAIN_SOURCESET_NAME) }.get().asFile,
+            outputDirectory = outputDirectory.subdirAsFile(MAIN_SOURCESET_NAME),
             config = mainConfig,
         )
 
@@ -186,7 +185,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 fun decideOutputs(
     project: Project,
     mppExtension: KotlinMultiplatformExtension,
-    targetConfigs: MutableMap<String, TargetConfig>,
+    targetConfigs: Map<String, TargetConfig>,
     outputDirectory: Provider<Directory>,
     forceExpectActual: Boolean = false
 ): Map<String, TargetConfigSource> {
@@ -223,7 +222,7 @@ fun decideOutputs(
                     name = firstDependent.name,
                     configFile = TargetConfigFileImpl(
                         targetName = TargetName(firstDependent.name, source.type.toPlatformType()),
-                        outputDirectory = outputDirectory.map { it.dir(firstDependent.name) }.get().asFile,
+                        outputDirectory = outputDirectory.subdirAsFile(firstDependent.name),
                         config = targetConfigs.getValue(firstDependent.name)
                     ),
                     registerSourceDir = { dir -> firstDependent.kotlin.srcDirs(dir) }
@@ -246,7 +245,7 @@ fun decideOutputs(
                 name = source.name,
                 configFile = TargetConfigFileImpl(
                     targetName = TargetName(source.name, source.type.toPlatformType()),
-                    outputDirectory = outputDirectory.map { it.dir(targetSourceSet.name) }.get().asFile,
+                    outputDirectory = outputDirectory.subdirAsFile(targetSourceSet.name),
                     config = targetConfigs[source.name] ?: targetConfigs.getValue(COMMON_SOURCESET_NAME).copy(),
                 ),
                 registerSourceDir = { dir -> targetSourceSet.kotlin.srcDirs(dir) }
@@ -274,6 +273,14 @@ internal fun Project.findFlavor(): String {
         DEFAULT_FLAVOR
     }
 }
+
+/**
+ * Eagerly resolves a named subdirectory of this directory provider as a [File]. The eager
+ * resolution is intentional — the result is captured as a task input at configuration time
+ * so that downstream tasks can pick it up via the source-set Provider chain.
+ */
+private fun Provider<Directory>.subdirAsFile(name: String): File =
+    map { it.dir(name) }.get().asFile
 
 internal fun Logger.toBuildKonfigLogger(): BuildKonfigLogger {
     return BuildKonfigLogger { level, message ->
