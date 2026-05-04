@@ -17,17 +17,7 @@ class BuildKonfigPluginConstFieldsTest {
 
     lateinit var settingFile: File
 
-    private val buildFileHeader = """
-        |plugins {
-        |    id("kotlin-multiplatform")
-        |    id("com.codingfeline.buildkonfig")
-        |}
-        |
-        |repositories {
-        |   mavenCentral()
-        |}
-        |
-    """.trimMargin()
+    private val buildFileHeader = buildFileHeaderKts("kotlin-multiplatform")
 
     private val buildFileMPPConfig = """
         |kotlin {
