@@ -3,20 +3,29 @@ package com.codingfeline.buildkonfig.gradle
 import com.codingfeline.buildkonfig.compiler.DEFAULT_KONFIG_OBJECT_NAME
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
+import javax.inject.Inject
 
-open class BuildKonfigExtension(
-    private val project: Project
+@BuildKonfigDsl
+abstract class BuildKonfigExtension @Inject constructor(
+    private val objects: ObjectFactory,
+    private val logger: Logger,
 ) {
 
-    private val configFactory = TargetConfigFactory(project.objects, project.logger)
+    abstract val packageName: Property<String>
+    abstract val objectName: Property<String>
+    abstract val exposeObjectWithName: Property<String>
 
-    var packageName: String? = null
-    var objectName: String = DEFAULT_KONFIG_OBJECT_NAME
-    var exposeObjectWithName: String? = null
+    val defaultConfigs: MutableMap<String, TargetConfigDsl> = mutableMapOf()
+    val targetConfigs: MutableMap<String, NamedDomainObjectContainer<TargetConfigDsl>> = mutableMapOf()
 
-    val defaultConfigs = mutableMapOf<String, TargetConfigDsl>()
-    val targetConfigs = mutableMapOf<String, NamedDomainObjectContainer<TargetConfigDsl>>()
+    private val configFactory = TargetConfigFactory(objects, logger)
+
+    init {
+        objectName.convention(DEFAULT_KONFIG_OBJECT_NAME)
+    }
 
     @Suppress("unused")
     fun defaultConfigs(config: Action<TargetConfigDsl>) {
@@ -50,15 +59,9 @@ open class BuildKonfigExtension(
         container.forEach { it.flavor = flavor }
     }
 
-    private fun createNewTargetConfig(): TargetConfigDsl {
-        return project.objects.newInstance(
-            TargetConfigDsl::class.java,
-            "defaults",
-            project.logger
-        )
-    }
+    private fun createNewTargetConfig(): TargetConfigDsl =
+        objects.newInstance(TargetConfigDsl::class.java, "defaults", logger)
 
-    private fun createTargetConfigContainer(): NamedDomainObjectContainer<TargetConfigDsl> {
-        return project.container(TargetConfigDsl::class.java, configFactory)
-    }
+    private fun createTargetConfigContainer(): NamedDomainObjectContainer<TargetConfigDsl> =
+        objects.domainObjectContainer(TargetConfigDsl::class.java, configFactory)
 }

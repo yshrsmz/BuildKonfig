@@ -26,7 +26,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
     private var isMultiplatform = false
 
     override fun apply(target: Project) {
-        val extension = target.extensions.create("buildkonfig", BuildKonfigExtension::class.java, target)
+        val extension = target.extensions.create("buildkonfig", BuildKonfigExtension::class.java, target.logger)
 
         target.plugins.withType(KotlinMultiplatformPluginWrapper::class.java) {
             isMultiplatform = true
@@ -46,6 +46,8 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
         val mppExtension = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
+        val flavorProvider = project.flavorProvider()
+
         // Register the task eagerly (outside afterEvaluate) so its outputs participate in
         // Gradle's task graph as Providers from the start. This is what allows downstream
         // tasks (e.g. KSP under Gradle 9.0) to discover an implicit dependency edge through
@@ -53,23 +55,34 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         val task = project.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
             it.group = "buildkonfig"
             it.description = "generate BuildKonfig"
+
+            // Wire singleton DSL fields as Provider-to-Provider so the values are read lazily
+            // at task execution time. Required inputs (e.g. packageName) surface as native
+            // Gradle errors via @get:Input on the task if left unset.
+            it.packageName.set(extension.packageName)
+            it.objectName.set(
+                extension.objectName.zip(extension.exposeObjectWithName.orElse("")) { obj, exposed ->
+                    if (exposed.isNotBlank()) exposed else obj
+                }
+            )
+            it.exposeObject.set(
+                extension.exposeObjectWithName.map { it.isNotBlank() }.orElse(false)
+            )
+            it.flavor.set(flavorProvider)
         }
 
         // A single, flat afterEvaluate is used purely to compute the merged configuration
         // (which depends on extension DSL evaluation and KMP target registration completing)
         // and to wire generated source directories into Kotlin source sets.
-        project.afterEvaluate { p ->
-            val flavor = p.findFlavor()
+        project.afterEvaluate {
+            val flavor = flavorProvider.get()
 
             val mergedConfigs = extension.mergeConfigs(project.logger.toBuildKonfigLogger(), flavor)
                 ?: return@afterEvaluate
 
             val targetConfigs = mergedConfigs.toMutableMap()
 
-            val exposedName = extension.exposeObjectWithName.takeIf { !it.isNullOrBlank() }
-            val exposeObject = exposedName != null
-            val objectName = exposedName ?: extension.objectName
-            require(objectName.isNotBlank()) { "objectName must not be blank" }
+            val exposeObject = extension.exposeObjectWithName.getOrElse("").isNotBlank()
 
             // When both js and wasm targets exist with exposeObject, force expect/actual generation
             // so that @JsExport is only added to the JS actual (wasmJs doesn't support @JsExport on objects).
@@ -81,11 +94,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
                 decideOutputs(project, mppExtension, targetConfigs, outputDirectory, forceExpectActual)
 
             task.configure { t ->
-                t.packageName.set(requireNotNull(extension.packageName) { "packageName must be provided" })
-                t.objectName.set(objectName)
-                t.exposeObject.set(exposeObject)
                 t.hasJsTarget.set(hasJsTarget)
-                t.flavor.set(flavor)
                 t.targetConfigFiles.set(targetConfigSources.mapValues { (_, value) -> value.configFile })
             }
 
@@ -170,15 +179,8 @@ fun decideOutputs(
         }
 }
 
-internal fun Project.findFlavor(): String {
-    val flavor = findProperty(FLAVOR_PROPERTY) ?: ""
-    return if (flavor is String) {
-        flavor
-    } else {
-        logger.error("$FLAVOR_PROPERTY must be string. Fallback to non-flavored config: ${flavor::class.java}")
-        DEFAULT_FLAVOR
-    }
-}
+internal fun Project.flavorProvider(): Provider<String> =
+    providers.gradleProperty(FLAVOR_PROPERTY).orElse(DEFAULT_FLAVOR)
 
 internal fun Logger.toBuildKonfigLogger(): BuildKonfigLogger {
     return BuildKonfigLogger { level, message ->

@@ -6,6 +6,7 @@ import org.gradle.api.logging.Logger
 import java.io.Serializable
 import javax.inject.Inject
 
+@BuildKonfigDsl
 open class TargetConfigDsl @Inject constructor(
     name: String,
     private val logger: Logger
