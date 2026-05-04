@@ -10,7 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### ⚠ BREAKING CHANGES
 
-* BuildKonfigTask inputs are now Property<T> / MapProperty<...> instead of lateinit var. Direct task configurators (e.g. tasks.named("generateBuildKonfig") { ... }) must use .set(...) instead of = in the Kotlin DSL.
+* `BuildKonfigTask` inputs are now `Property<T>` / `MapProperty<...>` instead of lateinit var. Direct task configurators (e.g. `tasks.named("generateBuildKonfig") { ... }`) must use `.set(...)` instead of `=` in the Kotlin DSL.
 
 ### Bug Fixes
 
