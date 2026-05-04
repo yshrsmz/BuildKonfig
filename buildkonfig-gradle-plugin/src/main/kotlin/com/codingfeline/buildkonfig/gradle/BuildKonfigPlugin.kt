@@ -95,11 +95,6 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
     ) {
         val outputDirectory = project.layout.buildDirectory.dir("buildkonfig")
 
-        // Resolve the flavor here (not via a Provider chain) so that callers can influence
-        // it from the build script via project.ext.set(...) / project.setProperty(...) /
-        // gradle.taskGraph hooks before this afterEvaluate runs. The resolved value is
-        // then captured as a String constant on the task input, which is configuration-
-        // cache-safe.
         val flavor = project.findFlavor()
 
         val mergedConfigs = extension.mergeConfigs(project.logger.toBuildKonfigLogger(), flavor)
@@ -261,6 +256,15 @@ fun decideOutputs(
         }
 }
 
+/**
+ * Resolves the BuildKonfig flavor from project properties.
+ *
+ * Uses [Project.findProperty] (rather than [org.gradle.api.provider.ProviderFactory.gradleProperty])
+ * so that callers can influence the flavor from the build script — e.g. by inspecting
+ * `gradle.startParameter.taskNames` and calling `project.extensions.extraProperties.set(...)` —
+ * before any `afterEvaluate` block runs. Resolution happens once during configuration and the
+ * result is captured as a String constant on the task input, so configuration cache is unaffected.
+ */
 internal fun Project.findFlavor(): String {
     val flavor = findProperty(FLAVOR_PROPERTY) ?: ""
     return if (flavor is String) {
