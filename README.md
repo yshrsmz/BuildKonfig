@@ -3,7 +3,7 @@ BuildKonfig
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.codingfeline.buildkonfig/buildkonfig-gradle-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.codingfeline.buildkonfig/buildkonfig-gradle-plugin)
 
-BuildConfig for Kotlin Multiplatform Project.  
+BuildConfig for Kotlin Multiplatform, Kotlin/JVM, and Kotlin/JS projects.  
 It currently supports embedding values from gradle file.
 
 ## Table Of Contents
@@ -12,6 +12,7 @@ It currently supports embedding values from gradle file.
 - [Usage](#usage)
     - [Requirements](#requirements)
     - [Gradle Configuration](#gradle-configuration)
+    - [Non-multiplatform projects](#non-multiplatform-projects)
     - [Product Flavor?](#product-flavor)
     - [Overwriting Values](#overwriting-values)
     - [HMPP](#hmpp)
@@ -36,7 +37,7 @@ Rather I'd like to do it once.
 ### Requirements
 
 - Kotlin **2.1.0** or later
-- Kotlin Multiplatform Project
+- One of: Kotlin Multiplatform, Kotlin/JVM, or Kotlin/JS plugin applied to the project
 - Gradle 8 or later
 
 <a name="gradle-configuration"/>
@@ -298,6 +299,66 @@ internal actual object BuildKonfig {
     actual val nullableField: String? = null
 }
 ```
+
+<a name="non-multiplatform-projects"/>
+
+### Non-multiplatform projects
+
+BuildKonfig also works on standalone Kotlin/JVM and Kotlin/JS projects.
+Apply `org.jetbrains.kotlin.jvm` or `org.jetbrains.kotlin.js` instead of multiplatform, and use the same `buildkonfig { ... }` block.
+
+<details open>
+<summary>Kotlin DSL</summary>
+
+```kotlin
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+
+plugins {
+    kotlin("jvm")
+    id("com.codingfeline.buildkonfig")
+}
+
+buildkonfig {
+    packageName = "com.example.app"
+
+    defaultConfigs {
+        buildConfigField(STRING, "name", "value")
+    }
+}
+```
+
+</details>
+
+<details>
+<summary>Groovy DSL</summary>
+
+```gradle
+apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'com.codingfeline.buildkonfig'
+
+buildkonfig {
+    packageName = 'com.example.app'
+
+    defaultConfigs {
+        buildConfigField 'STRING', 'name', 'value'
+    }
+}
+```
+
+</details>
+
+A single concrete object is generated into the `main` source set — there is no `expect`/`actual` split, since there is only one target.
+
+```kotlin
+// src/main/kotlin (generated)
+package com.example.app
+
+internal object BuildKonfig {
+    val name: String = "value"
+}
+```
+
+For Kotlin/JS projects, `@JsExport` is auto-added when `exposeObjectWithName` is set, exactly like the multiplatform path. The `defaultConfigs` block (including flavors) is fully supported. `targetConfigs` are not meaningful for a single-target project; if you declare them, a warning is logged and they are ignored.
 
 <a name="product-flavor"/>
 
