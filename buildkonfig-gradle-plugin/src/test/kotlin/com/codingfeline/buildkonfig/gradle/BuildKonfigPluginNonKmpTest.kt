@@ -207,6 +207,47 @@ class BuildKonfigPluginNonKmpTest {
     }
 
     @Test
+    fun `non-KMP JVM project is compatible with Configuration Cache`() {
+        buildFile.writeText(
+            """
+            |$jvmBuildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.sample"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'env', 'production'
+            |   }
+            |}
+            """.trimMargin()
+        )
+
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir.root)
+            .withPluginClasspath()
+
+        val firstRun = runner
+            .withArguments(
+                "generateBuildKonfig",
+                "--configuration-cache",
+                "--configuration-cache-problems=fail",
+                "--stacktrace",
+            )
+            .build()
+        assertThat(firstRun.output).contains("Configuration cache entry stored")
+
+        val secondRun = runner
+            .withArguments(
+                "generateBuildKonfig",
+                "--configuration-cache",
+                "--configuration-cache-problems=fail",
+                "--stacktrace",
+            )
+            .build()
+        assertThat(secondRun.output).contains("Configuration cache entry reused")
+    }
+
+    @Test
     fun `targetConfigs are ignored with a warning on a non-KMP project`() {
         buildFile.writeText(
             """
