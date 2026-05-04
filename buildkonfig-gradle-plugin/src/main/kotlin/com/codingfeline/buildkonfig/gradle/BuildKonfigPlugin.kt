@@ -46,8 +46,6 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
         val mppExtension = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
-        val flavorProvider = project.flavorProvider()
-
         // Register the task eagerly (outside afterEvaluate) so its outputs participate in
         // Gradle's task graph as Providers from the start. This is what allows downstream
         // tasks (e.g. KSP under Gradle 9.0) to discover an implicit dependency edge through
@@ -68,14 +66,18 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             it.exposeObject.set(
                 extension.exposeObjectWithName.map { it.isNotBlank() }.orElse(false)
             )
-            it.flavor.set(flavorProvider)
         }
 
         // A single, flat afterEvaluate is used purely to compute the merged configuration
         // (which depends on extension DSL evaluation and KMP target registration completing)
         // and to wire generated source directories into Kotlin source sets.
         project.afterEvaluate {
-            val flavor = flavorProvider.get()
+            // Resolve the flavor here (not via a Provider chain) so that callers can influence
+            // it from the build script via project.ext.set(...) / project.setProperty(...) /
+            // gradle.taskGraph hooks before this afterEvaluate runs. The resolved value is
+            // then captured as a String constant on the task input, which is configuration-
+            // cache-safe.
+            val flavor = project.findFlavor()
 
             val mergedConfigs = extension.mergeConfigs(project.logger.toBuildKonfigLogger(), flavor)
                 ?: return@afterEvaluate
@@ -94,6 +96,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
                 decideOutputs(project, mppExtension, targetConfigs, outputDirectory, forceExpectActual)
 
             task.configure { t ->
+                t.flavor.set(flavor)
                 t.hasJsTarget.set(hasJsTarget)
                 t.targetConfigFiles.set(targetConfigSources.mapValues { (_, value) -> value.configFile })
             }
@@ -179,8 +182,15 @@ fun decideOutputs(
         }
 }
 
-internal fun Project.flavorProvider(): Provider<String> =
-    providers.gradleProperty(FLAVOR_PROPERTY).orElse(DEFAULT_FLAVOR)
+internal fun Project.findFlavor(): String {
+    val flavor = findProperty(FLAVOR_PROPERTY) ?: ""
+    return if (flavor is String) {
+        flavor
+    } else {
+        logger.error("$FLAVOR_PROPERTY must be string. Fallback to non-flavored config: ${flavor::class.java}")
+        DEFAULT_FLAVOR
+    }
+}
 
 internal fun Logger.toBuildKonfigLogger(): BuildKonfigLogger {
     return BuildKonfigLogger { level, message ->
