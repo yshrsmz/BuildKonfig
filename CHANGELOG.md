@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.18.0...v0.19.0) (2026-05-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* `BuildKonfigTask` inputs are now `Property<T>` / `MapProperty<...>` instead of lateinit var. Direct task configurators (e.g. `tasks.named("generateBuildKonfig") { ... }`) must use `.set(...)` instead of `=` in the Kotlin DSL.
+
+### Bug Fixes
+
+* **deps:** update kotlin monorepo to v2.3.21 ([#288](https://github.com/yshrsmz/BuildKonfig/issues/288)) ([6be8e78](https://github.com/yshrsmz/BuildKonfig/commit/6be8e782b35f4393a4afbc8f3f22eafa5585713c))
+* drop const modifier from expect side for K2 compatibility ([#290](https://github.com/yshrsmz/BuildKonfig/issues/290)) ([3e6cdb5](https://github.com/yshrsmz/BuildKonfig/commit/3e6cdb56a7035a9ab507a53773e57cdbcca24270))
+
+
+### Code Refactoring
+
+* lazy/Provider configuration to fix Gradle 9 compat and CC ([#291](https://github.com/yshrsmz/BuildKonfig/issues/291)) ([4693daf](https://github.com/yshrsmz/BuildKonfig/commit/4693dafee815cc83d3dd28da1c18a79455a463c8))
+
 ## [0.18.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.17.2...v0.18.0) (2026-04-10)
 
 
