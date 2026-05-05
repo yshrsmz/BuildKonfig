@@ -6,6 +6,7 @@ import org.junit.Test
 class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
 
     private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
+    private val androidBuildFileHeader = buildFileHeader("kotlin-multiplatform", "com.android.library")
 
     override fun extraSetup() {
         projectDir.newFile("gradle.properties").writeText(
@@ -20,17 +21,7 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
     fun `Applying the plugin works fine for the hierarchical multiplatform project`() {
         buildFile.writeText(
             """
-            |plugins {
-            |   id 'kotlin-multiplatform'
-            |   id 'com.android.library'
-            |   id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |repositories {
-            |   google()
-            |   mavenCentral()
-            |}
-            |
+            |$androidBuildFileHeader
             |android {
             |    compileSdkVersion 28
             |
@@ -171,17 +162,7 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
     fun `Applying the plugin works fine for the complex hierarchical multiplatform project`() {
         buildFile.writeText(
             """
-            |plugins {
-            |   id 'kotlin-multiplatform'
-            |   id 'com.android.library'
-            |   id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |repositories {
-            |   google()
-            |   mavenCentral()
-            |}
-            |
+            |$androidBuildFileHeader
             |android {
             |    compileSdkVersion 28
             |
@@ -422,17 +403,7 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
     fun `Works fine for non-shared intermediate SourceSet`() {
         buildFile.writeText(
             """
-            |plugins {
-            |   id 'kotlin-multiplatform'
-            |   id 'com.android.library'
-            |   id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |repositories {
-            |   google()
-            |   mavenCentral()
-            |}
-            |
+            |$androidBuildFileHeader
             |android {
             |    compileSdkVersion 28
             |

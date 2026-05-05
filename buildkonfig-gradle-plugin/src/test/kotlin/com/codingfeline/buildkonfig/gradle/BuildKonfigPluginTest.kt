@@ -6,6 +6,7 @@ import org.junit.Test
 class BuildKonfigPluginTest : BaseGradlePluginTest() {
 
     private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
+    private val androidBuildFileHeader = buildFileHeader("kotlin-multiplatform", "com.android.library")
 
     private val buildFileKMPConfig = """
         |kotlin {
@@ -174,17 +175,7 @@ class BuildKonfigPluginTest : BaseGradlePluginTest() {
     fun `Applying the plugin works fine for multiplatform project`() {
         buildFile.writeText(
             """
-            |plugins {
-            |   id 'kotlin-multiplatform'
-            |   id 'com.android.library'
-            |   id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |repositories {
-            |   google()
-            |   mavenCentral()
-            |}
-            |
+            |$androidBuildFileHeader
             |android {
             |    compileSdkVersion 28
             |
@@ -358,17 +349,7 @@ class BuildKonfigPluginTest : BaseGradlePluginTest() {
 
     private fun buildKMPAndroidScript(): String =
         """
-        |plugins {
-        |   id 'kotlin-multiplatform'
-        |   id 'com.android.library'
-        |   id 'com.codingfeline.buildkonfig'
-        |}
-        |
-        |repositories {
-        |   google()
-        |   mavenCentral()
-        |}
-        |
+        |$androidBuildFileHeader
         |android {
         |    compileSdkVersion 28
         |
