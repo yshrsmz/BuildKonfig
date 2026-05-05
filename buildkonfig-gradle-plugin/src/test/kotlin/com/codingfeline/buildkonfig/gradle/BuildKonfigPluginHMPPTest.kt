@@ -405,11 +405,11 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
             .assertBuildSuccessful()
 
         // The leaf jvmMain config is dropped because its intermediate parent appMain
-        // already has a config. The warning surfaces both source set names so a future
-        // accidental rewrite can't silently swap them.
+        // already has a config. Anchor both source set names to their positions in the
+        // warning so a future accidental rewrite can't silently swap them or match an
+        // unrelated Gradle line that happens to mention `appMain`.
         assertThat(result.output)
-            .contains("BuildKonfig configuration for SourceSet(jvmMain) is ignored")
-        assertThat(result.output).contains("appMain")
+            .contains("SourceSet(jvmMain) is ignored, as its dependent SourceSets([appMain])")
 
         // The parent appMain config wins for the JVM compilation.
         val appKonfig = buildKonfigFile(buildDir, "appMain", "com.sample")
