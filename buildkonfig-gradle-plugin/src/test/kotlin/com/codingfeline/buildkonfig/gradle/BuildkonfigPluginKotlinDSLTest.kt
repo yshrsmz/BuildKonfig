@@ -7,6 +7,8 @@ class BuildkonfigPluginKotlinDSLTest : BaseGradlePluginTest() {
 
     override val buildFileName: String = "build.gradle.kts"
 
+    private val androidBuildFileHeader = buildFileHeaderKts("kotlin-multiplatform", "com.android.library")
+
     @Test
     fun `issue 50 - js(IR) target`() {
         buildFile.writeText(
@@ -14,11 +16,7 @@ class BuildkonfigPluginKotlinDSLTest : BaseGradlePluginTest() {
             |import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
             |import com.codingfeline.buildkonfig.compiler.FieldSpec.Type
             |
-            |plugins {
-            |    kotlin("multiplatform")
-            |    id("com.android.library")
-            |    id("com.codingfeline.buildkonfig")
-            |}
+            |$androidBuildFileHeader
             |
             |kotlin {
             |    androidTarget()

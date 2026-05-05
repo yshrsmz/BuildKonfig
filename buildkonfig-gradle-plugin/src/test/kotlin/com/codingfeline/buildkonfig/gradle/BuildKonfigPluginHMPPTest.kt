@@ -5,6 +5,9 @@ import org.junit.Test
 
 class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
 
+    private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
+    private val androidBuildFileHeader = buildFileHeader("kotlin-multiplatform", "com.android.library")
+
     override fun extraSetup() {
         projectDir.newFile("gradle.properties").writeText(
             """
@@ -18,17 +21,7 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
     fun `Applying the plugin works fine for the hierarchical multiplatform project`() {
         buildFile.writeText(
             """
-            |plugins {
-            |   id 'kotlin-multiplatform'
-            |   id 'com.android.library'
-            |   id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |repositories {
-            |   google()
-            |   mavenCentral()
-            |}
-            |
+            |$androidBuildFileHeader
             |android {
             |    compileSdkVersion 28
             |
@@ -169,17 +162,7 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
     fun `Applying the plugin works fine for the complex hierarchical multiplatform project`() {
         buildFile.writeText(
             """
-            |plugins {
-            |   id 'kotlin-multiplatform'
-            |   id 'com.android.library'
-            |   id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |repositories {
-            |   google()
-            |   mavenCentral()
-            |}
-            |
+            |$androidBuildFileHeader
             |android {
             |    compileSdkVersion 28
             |
@@ -353,20 +336,74 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
     }
 
     @Test
+    fun `warns when a leaf target config is dominated by an intermediate source set with its own config`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |    packageName = "com.sample"
+            |
+            |    defaultConfigs {
+            |       buildConfigField 'STRING', 'platform', 'unknown'
+            |    }
+            |
+            |    targetConfigs {
+            |       app {
+            |          buildConfigField 'STRING', 'platform', 'app'
+            |       }
+            |       jvm {
+            |           buildConfigField 'STRING', 'platform', 'jvm'
+            |       }
+            |    }
+            |}
+            |
+            |kotlin {
+            |    jvm()
+            |    iosX64()
+            |
+            |    sourceSets {
+            |     commonMain {}
+            |     appMain {
+            |       dependsOn(commonMain)
+            |     }
+            |     jvmMain {
+            |       dependsOn(appMain)
+            |     }
+            |     iosX64Main {
+            |       dependsOn(appMain)
+            |     }
+            |   }
+            |}
+            """.trimMargin()
+        )
+
+        val buildDir = projectDir.buildKonfigDir()
+
+        val result = gradleRunner(projectDir)
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+            .assertBuildSuccessful()
+
+        // The leaf jvmMain config is dropped because its intermediate parent appMain
+        // already has a config. Anchor both source set names to their positions in the
+        // warning so a future accidental rewrite can't silently swap them or match an
+        // unrelated Gradle line that happens to mention `appMain`.
+        assertThat(result.output)
+            .contains("SourceSet(jvmMain) is ignored, as its dependent SourceSets([appMain])")
+
+        // The parent appMain config wins for the JVM compilation.
+        val appKonfig = buildKonfigFile(buildDir, "appMain", "com.sample")
+        assertThat(appKonfig.exists()).isTrue()
+        assertThat(appKonfig.readText()).contains("val platform: String = \"app\"")
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.sample").exists()).isFalse()
+    }
+
+    @Test
     fun `Works fine for non-shared intermediate SourceSet`() {
         buildFile.writeText(
             """
-            |plugins {
-            |   id 'kotlin-multiplatform'
-            |   id 'com.android.library'
-            |   id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |repositories {
-            |   google()
-            |   mavenCentral()
-            |}
-            |
+            |$androidBuildFileHeader
             |android {
             |    compileSdkVersion 28
             |

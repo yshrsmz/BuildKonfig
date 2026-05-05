@@ -7,6 +7,7 @@ import java.io.File
 class BuildKonfigPluginNonKmpTest : BaseGradlePluginTest() {
 
     private val jvmBuildFileHeader = buildFileHeader("org.jetbrains.kotlin.jvm")
+    private val jsBuildFileHeader = buildFileHeader("org.jetbrains.kotlin.js")
 
     @Test
     fun `Applying plugin to a Kotlin JVM project generates a single concrete object`() {
@@ -111,14 +112,7 @@ class BuildKonfigPluginNonKmpTest : BaseGradlePluginTest() {
     fun `Applying plugin to a Kotlin JS project generates a single concrete object`() {
         buildFile.writeText(
             """
-            |plugins {
-            |    id 'org.jetbrains.kotlin.js'
-            |    id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |repositories {
-            |   mavenCentral()
-            |}
+            |$jsBuildFileHeader
             |
             |kotlin {
             |   js {
@@ -172,6 +166,57 @@ class BuildKonfigPluginNonKmpTest : BaseGradlePluginTest() {
             |}
             """.trimMargin()
         )
+
+        val runner = gradleRunner(projectDir)
+
+        val firstRun = runner
+            .withArguments(
+                "generateBuildKonfig",
+                "--configuration-cache",
+                "--configuration-cache-problems=fail",
+                "--stacktrace",
+            )
+            .build()
+        assertThat(firstRun.output).contains("Configuration cache entry stored")
+
+        val secondRun = runner
+            .withArguments(
+                "generateBuildKonfig",
+                "--configuration-cache",
+                "--configuration-cache-problems=fail",
+                "--stacktrace",
+            )
+            .build()
+        assertThat(secondRun.output).contains("Configuration cache entry reused")
+    }
+
+    @Test
+    fun `non-KMP JS project is compatible with Configuration Cache`() {
+        buildFile.writeText(
+            """
+            |$jsBuildFileHeader
+            |
+            |kotlin {
+            |   js {
+            |       browser()
+            |       nodejs()
+            |       binaries.executable()
+            |   }
+            |}
+            |
+            |buildkonfig {
+            |   packageName = "com.sample"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'env', 'production'
+            |   }
+            |}
+            """.trimMargin()
+        )
+
+        // kotlin-js requires a main entry point for the executable.
+        val srcDir = projectDir.newFolder("src", "main", "kotlin")
+        File(srcDir, "Main.kt").writeText("fun main() {}")
 
         val runner = gradleRunner(projectDir)
 

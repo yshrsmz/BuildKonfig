@@ -11,13 +11,14 @@ import org.junit.Test
  */
 class BuildKonfigPluginGradle9KspTest : BaseGradlePluginTest() {
 
-    private val buildFileHeader = buildFileHeader("kotlin-multiplatform", "com.google.devtools.ksp")
+    private val kmpBuildFileHeader = buildFileHeader("kotlin-multiplatform", "com.google.devtools.ksp")
+    private val jvmBuildFileHeader = buildFileHeader("org.jetbrains.kotlin.jvm", "com.google.devtools.ksp")
 
     @Test
     fun `KSP task does not fail with implicit dependency error on Gradle 9 x`() {
         buildFile.writeText(
             """
-            |$buildFileHeader
+            |$kmpBuildFileHeader
             |
             |buildkonfig {
             |   packageName = "com.sample"
@@ -64,6 +65,44 @@ class BuildKonfigPluginGradle9KspTest : BaseGradlePluginTest() {
         assertThat(result.output)
             .doesNotContain("without declaring an explicit or implicit dependency")
         // generateBuildKonfig must have actually run.
+        assertThat(result.output).contains("generateBuildKonfig")
+    }
+
+    @Test
+    fun `KSP task does not fail with implicit dependency error on a non-KMP Kotlin JVM project on Gradle 9 x`() {
+        buildFile.writeText(
+            """
+            |$jvmBuildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.sample"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'test', 'hoge'
+            |   }
+            |}
+            """.trimMargin()
+        )
+
+        // Dummy source so compileKotlin has something to compile, exercising the source set
+        // wiring on the standalone Kotlin/JVM path.
+        projectDir.newFolder("src", "main", "kotlin")
+        projectDir.newFile("src/main/kotlin/Sample.kt").writeText(
+            """
+            |package com.sample
+            |
+            |object Sample
+            """.trimMargin()
+        )
+
+        val result = gradleRunner(projectDir)
+            .withGradleVersion("9.3.1")
+            .withArguments("compileKotlin", "--stacktrace")
+            .build()
+            .assertBuildSuccessful()
+
+        assertThat(result.output)
+            .doesNotContain("without declaring an explicit or implicit dependency")
         assertThat(result.output).contains("generateBuildKonfig")
     }
 }
