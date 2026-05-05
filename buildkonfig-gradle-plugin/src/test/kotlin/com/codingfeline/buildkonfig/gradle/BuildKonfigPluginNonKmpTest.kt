@@ -1,30 +1,12 @@
 package com.codingfeline.buildkonfig.gradle
 
 import com.google.common.truth.Truth.assertThat
-import org.gradle.testkit.runner.GradleRunner
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import java.io.File
 
-class BuildKonfigPluginNonKmpTest {
-
-    @get:Rule
-    val projectDir = TemporaryFolder()
-
-    lateinit var buildFile: File
-
-    lateinit var settingFile: File
+class BuildKonfigPluginNonKmpTest : BaseGradlePluginTest() {
 
     private val jvmBuildFileHeader = buildFileHeader("org.jetbrains.kotlin.jvm")
-
-    @Before
-    fun setup() {
-        buildFile = projectDir.newFile("build.gradle")
-        settingFile = projectDir.newFile("settings.gradle")
-        settingFile.writeText(settingsGradle)
-    }
 
     @Test
     fun `Applying plugin to a Kotlin JVM project generates a single concrete object`() {
@@ -43,20 +25,14 @@ class BuildKonfigPluginNonKmpTest {
             """.trimMargin()
         )
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        assertThat(result.output).contains("BUILD SUCCESSFUL")
-
-        val generated = File(buildDir, "main/com/sample/BuildKonfig.kt")
+        val generated = buildKonfigFile(buildDir, "main", "com.sample")
         assertThat(generated.exists()).isTrue()
         val content = generated.readText()
         assertThat(content).contains("internal object BuildKonfig")
@@ -95,15 +71,10 @@ class BuildKonfigPluginNonKmpTest {
             """.trimIndent()
         )
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("compileKotlin", "--stacktrace")
             .build()
-
-        assertThat(result.output).contains("BUILD SUCCESSFUL")
+            .assertBuildSuccessful()
     }
 
     @Test
@@ -125,19 +96,14 @@ class BuildKonfigPluginNonKmpTest {
             """.trimMargin()
         )
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "-Pbuildkonfig.flavor=staging", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        assertThat(result.output).contains("BUILD SUCCESSFUL")
-        val generated = File(buildDir, "main/com/sample/BuildKonfig.kt")
+        val generated = buildKonfigFile(buildDir, "main", "com.sample")
         assertThat(generated.readText()).contains("public val env: String = \"staging\"")
     }
 
@@ -177,19 +143,14 @@ class BuildKonfigPluginNonKmpTest {
         val srcDir = projectDir.newFolder("src", "main", "kotlin")
         File(srcDir, "Main.kt").writeText("fun main() {}")
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        assertThat(result.output).contains("BUILD SUCCESSFUL")
-        val generated = File(buildDir, "main/com/sample/BuildKonfig.kt")
+        val generated = buildKonfigFile(buildDir, "main", "com.sample")
         assertThat(generated.exists()).isTrue()
         val content = generated.readText()
         assertThat(content).contains("@JsExport")
@@ -212,9 +173,7 @@ class BuildKonfigPluginNonKmpTest {
             """.trimMargin()
         )
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
+        val runner = gradleRunner(projectDir)
 
         val firstRun = runner
             .withArguments(
@@ -258,22 +217,17 @@ class BuildKonfigPluginNonKmpTest {
             """.trimMargin()
         )
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        val result = gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        assertThat(result.output).contains("BUILD SUCCESSFUL")
         assertThat(result.output)
             .contains("BuildKonfig: targetConfigs are ignored in non-multiplatform projects")
 
-        val generated = File(buildDir, "main/com/sample/BuildKonfig.kt")
+        val generated = buildKonfigFile(buildDir, "main", "com.sample")
         assertThat(generated.exists()).isTrue()
         val content = generated.readText()
         // The defaultConfigs value wins; no expect/actual was generated.

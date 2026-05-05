@@ -1,21 +1,11 @@
 package com.codingfeline.buildkonfig.gradle
 
-import com.google.common.truth.Truth
-import org.gradle.testkit.runner.GradleRunner
-import org.junit.Before
-import org.junit.Rule
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import java.io.File
 
-class BuildKonfigPluginKotlinDSLFlavorTest {
+class BuildKonfigPluginKotlinDSLFlavorTest : BaseGradlePluginTest() {
 
-    @get:Rule
-    val projectDir = TemporaryFolder()
-
-    lateinit var buildFile: File
-
-    lateinit var settingFile: File
+    override val buildFileName: String = "build.gradle.kts"
 
     private val buildFileHeader = buildFileHeaderKts("kotlin-multiplatform")
 
@@ -32,13 +22,6 @@ class BuildKonfigPluginKotlinDSLFlavorTest {
         |}
     """.trimMargin()
 
-    @Before
-    fun setup() {
-        buildFile = projectDir.newFile("build.gradle.kts")
-        settingFile = projectDir.newFile("settings.gradle")
-        settingFile.writeText(settingsGradle)
-    }
-
     @Test
     fun `Flavored targetConfigs overwrites default targetConfigs`() {
         buildFile.writeText(
@@ -48,7 +31,7 @@ class BuildKonfigPluginKotlinDSLFlavorTest {
             |
             |buildkonfig {
             |   packageName = "com.example"
-            |   
+            |
             |   defaultConfigs {
             |       buildConfigField(Type.STRING, "value", "defaultValue")
             |   }
@@ -69,36 +52,28 @@ class BuildKonfigPluginKotlinDSLFlavorTest {
             """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        projectDir.newFile("gradle.properties").writeText("buildkonfig.flavor=dev")
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jvmResult.readText())
+        val jvmResult = buildKonfigFile(buildDir, "jvmMain", "com.example")
+        assertThat(jvmResult.readText())
             .contains("defaultValue")
 
-        val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jsResult.readText())
+        val jsResult = buildKonfigFile(buildDir, "jsMain", "com.example")
+        assertThat(jsResult.readText())
             .apply {
                 contains("foobar")
                 contains("devJsValue")
             }
 
-        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
-        Truth.assertThat(iosResult.readText())
+        val iosResult = buildKonfigFile(buildDir, "iosX64Main", "com.example")
+        assertThat(iosResult.readText())
             .contains("defaultValue")
     }
 }

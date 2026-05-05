@@ -1,21 +1,9 @@
 package com.codingfeline.buildkonfig.gradle
 
 import com.google.common.truth.Truth.assertThat
-import org.gradle.testkit.runner.GradleRunner
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import java.io.File
 
-class BuildKonfigPluginTest {
-
-    @get:Rule
-    val projectDir = TemporaryFolder()
-
-    lateinit var buildFile: File
-
-    lateinit var settingFile: File
+class BuildKonfigPluginTest : BaseGradlePluginTest() {
 
     private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
 
@@ -39,21 +27,13 @@ class BuildKonfigPluginTest {
         |}
     """.trimMargin()
 
-    @Before
-    fun setup() {
-        buildFile = projectDir.newFile("build.gradle")
-        settingFile = projectDir.newFile("settings.gradle")
-        settingFile.writeText(settingsGradle)
-
-        projectDir.newFile("gradle.properties")
-            .also {
-                it.writeText(
-                    """
-                        kotlin.mpp.androidSourceSetLayoutVersion=2
-                        kotlin.js.compiler=ir
-                        """.trimMargin()
-                )
-            }
+    override fun extraSetup() {
+        projectDir.newFile("gradle.properties").writeText(
+            """
+                kotlin.mpp.androidSourceSetLayoutVersion=2
+                kotlin.js.compiler=ir
+                """.trimMargin()
+        )
     }
 
     @Test
@@ -78,14 +58,9 @@ class BuildKonfigPluginTest {
             """.trimMargin()
         )
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        val result = gradleRunner(projectDir)
             .withArguments("build", "--stacktrace")
             .buildAndFail()
 
@@ -130,21 +105,15 @@ class BuildKonfigPluginTest {
             """.trimMargin()
         )
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        val result = gradleRunner(projectDir)
             .withArguments("build", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
         assertThat(result.output)
             .contains("BuildKonfig: non-flavored defaultConfigs is not provided. Skipping code generation.")
-        assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
     }
 
     @Test
@@ -165,14 +134,9 @@ class BuildKonfigPluginTest {
             """.trimMargin()
         )
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        val result = gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .buildAndFail()
 
@@ -216,7 +180,7 @@ class BuildKonfigPluginTest {
             |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
             |        }
             |    }
-            |    
+            |
             |    namespace = "com.sample"
             |}
             |buildkonfig {
@@ -267,21 +231,14 @@ class BuildKonfigPluginTest {
 
         createAndroidManifest(projectDir)
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val jvmResult = File(buildDir, "jvmMain/com/sample/BuildKonfig.kt")
+        val jvmResult = buildKonfigFile(buildDir, "jvmMain", "com.sample")
         assertThat(jvmResult.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
@@ -292,7 +249,7 @@ class BuildKonfigPluginTest {
                 doesNotContain("native")
             }
 
-        val androidResult = File(buildDir, "customAndroidMain/com/sample/BuildKonfig.kt")
+        val androidResult = buildKonfigFile(buildDir, "customAndroidMain", "com.sample")
         assertThat(androidResult.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
@@ -303,7 +260,7 @@ class BuildKonfigPluginTest {
                 doesNotContain("native")
             }
 
-        val jsResult = File(buildDir, "jsMain/com/sample/BuildKonfig.kt")
+        val jsResult = buildKonfigFile(buildDir, "jsMain", "com.sample")
         assertThat(jsResult.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
@@ -313,7 +270,7 @@ class BuildKonfigPluginTest {
                 doesNotContain("native")
             }
 
-        val iosResult = File(buildDir, "iosX64Main/com/sample/BuildKonfig.kt")
+        val iosResult = buildKonfigFile(buildDir, "iosX64Main", "com.sample")
         assertThat(iosResult.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
@@ -327,100 +284,13 @@ class BuildKonfigPluginTest {
 
     @Test
     fun `The generate task is a dependency of multiplatform jvm target`() {
-
-        buildFile.writeText(
-            """
-            |plugins {
-            |   id 'kotlin-multiplatform'
-            |   id 'com.android.library'
-            |   id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |repositories {
-            |   google()
-            |   mavenCentral()
-            |}
-            |
-            |android {
-            |    compileSdkVersion 28
-            |
-            |    defaultConfig {
-            |        minSdkVersion 21
-            |        targetSdkVersion 28
-            |        versionCode 1
-            |        versionName "1.0"
-            |    }
-            |    buildTypes {
-            |        release {
-            |            minifyEnabled false
-            |            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            |        }
-            |    }
-            |
-            |    sourceSets {
-            |        main {
-            |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
-            |        }
-            |    }
-            |    
-            |    namespace = "com.sample"
-            |}
-            |buildkonfig {
-            |    packageName = "com.sample"
-            |
-            |    defaultConfigs {
-            |        buildConfigField 'STRING', 'test', 'hoge'
-            |        buildConfigField 'INT', 'intValue', '10'
-            |    }
-            |
-            |    targetConfigs {
-            |        jvm {
-            |            buildConfigField 'STRING', 'test', 'jvm'
-            |            buildConfigField 'STRING', 'jvm', 'jvmHoge'
-            |        }
-            |        customAndroid {
-            |            buildConfigField 'String', 'android', '${'$'}fuga'
-            |        }
-            |        iosX64 {
-            |            buildConfigField 'BOOLEAN', 'native', 'true'
-            |        }
-            |    }
-            |}
-            |
-            |kotlin {
-            |   androidTarget('customAndroid')
-            |   jvm()
-            |   js {
-            |    browser()
-            |    nodejs()
-            |   }
-            |   iosX64()
-            |
-            |   sourceSets {
-            |     commonMain {
-            |       dependencies {}
-            |     }
-            |     customAndroidMain {
-            |       dependencies {}
-            |     }
-            |     jvmMain {
-            |       dependencies {}
-            |     }
-            |   }
-            |}
-            """.trimMargin()
-        )
+        buildFile.writeText(buildKMPAndroidScript())
 
         createAndroidManifest(projectDir)
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        val result = gradleRunner(projectDir)
             .withArguments("compileKotlinJvm", "--stacktrace")
             .build()
 
@@ -430,100 +300,13 @@ class BuildKonfigPluginTest {
 
     @Test
     fun `The generate task is a dependency of multiplatform jvm test target`() {
-        buildFile.writeText(
-            """
-            |plugins {
-            |   id 'kotlin-multiplatform'
-            |   id 'com.android.library'
-            |   id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |
-            |repositories {
-            |   google()
-            |   mavenCentral()
-            |}
-            |
-            |android {
-            |    compileSdkVersion 28
-            |
-            |    defaultConfig {
-            |        minSdkVersion 21
-            |        targetSdkVersion 28
-            |        versionCode 1
-            |        versionName "1.0"
-            |    }
-            |    buildTypes {
-            |        release {
-            |            minifyEnabled false
-            |            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            |        }
-            |    }
-            |
-            |    sourceSets {
-            |        main {
-            |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
-            |        }
-            |    }
-            |    
-            |    namespace = "com.sample"
-            |}
-            |buildkonfig {
-            |    packageName = "com.sample"
-            |
-            |    defaultConfigs {
-            |        buildConfigField 'STRING', 'test', 'hoge'
-            |        buildConfigField 'INT', 'intValue', '10'
-            |    }
-            |
-            |    targetConfigs {
-            |        jvm {
-            |            buildConfigField 'STRING', 'test', 'jvm'
-            |            buildConfigField 'STRING', 'jvm', 'jvmHoge'
-            |        }
-            |        customAndroid {
-            |            buildConfigField 'String', 'android', '${'$'}fuga'
-            |        }
-            |        iosX64 {
-            |            buildConfigField 'BOOLEAN', 'native', 'true'
-            |        }
-            |    }
-            |}
-            |
-            |kotlin {
-            |   androidTarget('customAndroid')
-            |   jvm()
-            |   js {
-            |    browser()
-            |    nodejs()
-            |   }
-            |   iosX64()
-            |
-            |   sourceSets {
-            |     commonMain {
-            |       dependencies {}
-            |     }
-            |     customAndroidMain {
-            |       dependencies {}
-            |     }
-            |     jvmMain {
-            |       dependencies {}
-            |     }
-            |   }
-            |}
-            """.trimMargin()
-        )
+        buildFile.writeText(buildKMPAndroidScript())
 
         createAndroidManifest(projectDir)
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        val result = gradleRunner(projectDir)
             .withArguments("compileTestKotlinJvm", "--stacktrace")
             .build()
 
@@ -533,99 +316,13 @@ class BuildKonfigPluginTest {
 
     @Test
     fun `The generate task is a dependency of multiplatform js target`() {
-        buildFile.writeText(
-            """
-            |plugins {
-            |   id 'kotlin-multiplatform'
-            |   id 'com.android.library'
-            |   id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |repositories {
-            |   google()
-            |   mavenCentral()
-            |}
-            |
-            |android {
-            |    compileSdkVersion 28
-            |
-            |    defaultConfig {
-            |        minSdkVersion 21
-            |        targetSdkVersion 28
-            |        versionCode 1
-            |        versionName "1.0"
-            |    }
-            |    buildTypes {
-            |        release {
-            |            minifyEnabled false
-            |            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            |        }
-            |    }
-            |
-            |    sourceSets {
-            |        main {
-            |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
-            |        }
-            |    }
-            |    
-            |    namespace = "com.sample"
-            |}
-            |buildkonfig {
-            |    packageName = "com.sample"
-            |
-            |    defaultConfigs {
-            |        buildConfigField 'STRING', 'test', 'hoge'
-            |        buildConfigField 'INT', 'intValue', '10'
-            |    }
-            |
-            |    targetConfigs {
-            |        jvm {
-            |            buildConfigField 'STRING', 'test', 'jvm'
-            |            buildConfigField 'STRING', 'jvm', 'jvmHoge'
-            |        }
-            |        customAndroid {
-            |            buildConfigField 'String', 'android', '${'$'}fuga'
-            |        }
-            |        iosX64 {
-            |            buildConfigField 'BOOLEAN', 'native', 'true'
-            |        }
-            |    }
-            |}
-            |
-            |kotlin {
-            |   androidTarget('customAndroid')
-            |   jvm()
-            |   js {
-            |    browser()
-            |    nodejs()
-            |   }
-            |   iosX64()
-            |
-            |   sourceSets {
-            |     commonMain {
-            |       dependencies {}
-            |     }
-            |     customAndroidMain {
-            |       dependencies {}
-            |     }
-            |     jvmMain {
-            |       dependencies {}
-            |     }
-            |   }
-            |}
-            """.trimMargin()
-        )
+        buildFile.writeText(buildKMPAndroidScript())
 
         createAndroidManifest(projectDir)
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        val result = gradleRunner(projectDir)
             .withArguments("compileKotlinJs", "--stacktrace")
             .build()
 
@@ -633,5 +330,85 @@ class BuildKonfigPluginTest {
             .contains("generateBuildKonfig")
     }
 
-
+    private fun buildKMPAndroidScript(): String =
+        """
+        |plugins {
+        |   id 'kotlin-multiplatform'
+        |   id 'com.android.library'
+        |   id 'com.codingfeline.buildkonfig'
+        |}
+        |
+        |repositories {
+        |   google()
+        |   mavenCentral()
+        |}
+        |
+        |android {
+        |    compileSdkVersion 28
+        |
+        |    defaultConfig {
+        |        minSdkVersion 21
+        |        targetSdkVersion 28
+        |        versionCode 1
+        |        versionName "1.0"
+        |    }
+        |    buildTypes {
+        |        release {
+        |            minifyEnabled false
+        |            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        |        }
+        |    }
+        |
+        |    sourceSets {
+        |        main {
+        |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
+        |        }
+        |    }
+        |
+        |    namespace = "com.sample"
+        |}
+        |buildkonfig {
+        |    packageName = "com.sample"
+        |
+        |    defaultConfigs {
+        |        buildConfigField 'STRING', 'test', 'hoge'
+        |        buildConfigField 'INT', 'intValue', '10'
+        |    }
+        |
+        |    targetConfigs {
+        |        jvm {
+        |            buildConfigField 'STRING', 'test', 'jvm'
+        |            buildConfigField 'STRING', 'jvm', 'jvmHoge'
+        |        }
+        |        customAndroid {
+        |            buildConfigField 'String', 'android', '${'$'}fuga'
+        |        }
+        |        iosX64 {
+        |            buildConfigField 'BOOLEAN', 'native', 'true'
+        |        }
+        |    }
+        |}
+        |
+        |kotlin {
+        |   androidTarget('customAndroid')
+        |   jvm()
+        |   js {
+        |    browser()
+        |    nodejs()
+        |   }
+        |   iosX64()
+        |
+        |   sourceSets {
+        |     commonMain {
+        |       dependencies {}
+        |     }
+        |     customAndroidMain {
+        |       dependencies {}
+        |     }
+        |     jvmMain {
+        |       dependencies {}
+        |     }
+        |   }
+        |}
+        """.trimMargin()
 }

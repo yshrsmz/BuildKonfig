@@ -1,21 +1,9 @@
 package com.codingfeline.buildkonfig.gradle
 
 import com.google.common.truth.Truth.assertThat
-import org.gradle.testkit.runner.GradleRunner
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import java.io.File
 
-class BuildKonfigPluginConfigurationCacheTest {
-
-    @get:Rule
-    val projectDir = TemporaryFolder()
-
-    lateinit var buildFile: File
-
-    lateinit var settingFile: File
+class BuildKonfigPluginConfigurationCacheTest : BaseGradlePluginTest() {
 
     private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
 
@@ -34,13 +22,6 @@ class BuildKonfigPluginConfigurationCacheTest {
         |  }
         |}
     """.trimMargin()
-
-    @Before
-    fun setup() {
-        buildFile = projectDir.newFile("build.gradle")
-        settingFile = projectDir.newFile("settings.gradle")
-        settingFile.writeText(settingsGradle)
-    }
 
     @Test
     fun `generateBuildKonfig is compatible with Configuration Cache`() {
@@ -67,9 +48,7 @@ class BuildKonfigPluginConfigurationCacheTest {
             """.trimMargin()
         )
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
+        val runner = gradleRunner(projectDir)
 
         // First run: store the configuration cache entry.
         val firstRun = runner

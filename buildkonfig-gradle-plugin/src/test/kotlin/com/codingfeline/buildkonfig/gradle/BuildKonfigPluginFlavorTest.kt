@@ -1,21 +1,9 @@
 package com.codingfeline.buildkonfig.gradle
 
-import com.google.common.truth.Truth
-import org.gradle.testkit.runner.GradleRunner
-import org.junit.Before
-import org.junit.Rule
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import java.io.File
 
-class BuildKonfigPluginFlavorTest {
-
-    @get:Rule
-    val projectDir = TemporaryFolder()
-
-    lateinit var buildFile: File
-
-    lateinit var settingFile: File
+class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
 
     private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
 
@@ -30,11 +18,32 @@ class BuildKonfigPluginFlavorTest {
         |}
     """.trimMargin()
 
-    @Before
-    fun setup() {
-        buildFile = projectDir.newFile("build.gradle")
-        settingFile = projectDir.newFile("settings.gradle")
-        settingFile.writeText(settingsGradle)
+    private val buildFileKMPConfigWithWasmJs = """
+        |kotlin {
+        |  jvm()
+        |  js(IR) {
+        |    browser()
+        |    nodejs()
+        |  }
+        |  wasmJs {
+        |    browser()
+        |  }
+        |  iosX64()
+        |}
+    """.trimMargin()
+
+    private val buildFileKMPConfigWasmJsOnly = """
+        |kotlin {
+        |  jvm()
+        |  wasmJs {
+        |    browser()
+        |  }
+        |  iosX64()
+        |}
+    """.trimMargin()
+
+    private fun writeFlavorDevProperties() {
+        projectDir.newFile("gradle.properties").writeText("buildkonfig.flavor=dev")
     }
 
     @Test
@@ -54,22 +63,15 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(commonResult.readText())
+        val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example")
+        assertThat(commonResult.readText())
             .isEqualTo(
                 """
                 |package com.example
@@ -83,14 +85,9 @@ class BuildKonfigPluginFlavorTest {
             """.trimMargin()
             )
 
-        val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jvmResult.exists()).isFalse()
-
-        val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jsResult.exists()).isFalse()
-
-        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
-        Truth.assertThat(iosResult.exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").exists()).isFalse()
     }
 
     @Test
@@ -113,35 +110,22 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(commonResult.readText())
+        val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example")
+        assertThat(commonResult.readText())
             .contains("val stringValue: String = \"devDefaultValue\"")
 
-        val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jvmResult.exists()).isFalse()
-
-        val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jsResult.exists()).isFalse()
-
-        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
-        Truth.assertThat(iosResult.exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").exists()).isFalse()
     }
 
     @Test
@@ -167,35 +151,22 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace", "-Pbuildkonfig.flavor=release")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(commonResult.readText())
+        val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example")
+        assertThat(commonResult.readText())
             .contains("val stringValue: String = \"releaseDefaultValue\"")
 
-        val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jvmResult.exists()).isFalse()
-
-        val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jsResult.exists()).isFalse()
-
-        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
-        Truth.assertThat(iosResult.exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").exists()).isFalse()
     }
 
     @Test
@@ -223,33 +194,20 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jvmResult.readText())
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").readText())
             .contains("jvmDefaultValue")
-
-        val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jsResult.readText())
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").readText())
             .contains("devDefaultValue")
-
-        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
-        Truth.assertThat(iosResult.readText())
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").readText())
             .contains("devDefaultValue")
     }
 
@@ -278,33 +236,20 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jvmResult.readText())
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").readText())
             .contains("devDefaultValue")
-
-        val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jsResult.readText())
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").readText())
             .contains("devJsValue")
-
-        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
-        Truth.assertThat(iosResult.readText())
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").readText())
             .contains("devDefaultValue")
     }
 
@@ -326,25 +271,17 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(commonResult.readText()).apply {
+        val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example")
+        assertThat(commonResult.readText()).apply {
             contains("stringValue: String? = \"defaultValue\"")
             contains("intValue: Int? = 10")
         }
@@ -368,25 +305,17 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(commonResult.readText()).apply {
+        val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example")
+        assertThat(commonResult.readText()).apply {
             contains("stringValue: String? = null")
             contains("intValue: Int? = null")
         }
@@ -419,33 +348,20 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jvmResult.readText())
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").readText())
             .contains("defaultValue")
-
-        val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jsResult.readText())
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").readText())
             .contains("devJsValue")
-
-        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
-        Truth.assertThat(iosResult.readText())
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").readText())
             .contains("defaultValue")
     }
 
@@ -476,33 +392,20 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace", "-Pbuildkonfig.flavor=nonexistent")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jvmResult.readText())
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").readText())
             .contains("defaultValue")
-
-        val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(jsResult.readText())
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").readText())
             .contains("defaultJsValue")
-
-        val iosResult = File(buildDir, "iosX64Main/com/example/BuildKonfig.kt")
-        Truth.assertThat(iosResult.readText())
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").readText())
             .contains("defaultValue")
     }
 
@@ -524,25 +427,17 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(commonResult.readText()).apply {
+        val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example", objectName = "AwesomeConfig")
+        assertThat(commonResult.readText()).apply {
             contains("internal object AwesomeConfig")
         }
     }
@@ -570,38 +465,25 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(commonResult.readText()).apply {
+        val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example", objectName = "AwesomeConfig")
+        assertThat(commonResult.readText()).apply {
             contains("internal expect object AwesomeConfig")
         }
 
-        val jsResult = File(buildDir, "jsMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(jsResult.readText())
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example", objectName = "AwesomeConfig").readText())
             .contains("internal actual object AwesomeConfig")
-
-        val jvmResult = File(buildDir, "jvmMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(jvmResult.readText())
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example", objectName = "AwesomeConfig").readText())
             .contains("internal actual object AwesomeConfig")
-
-        val iosResult = File(buildDir, "iosX64Main/com/example/AwesomeConfig.kt")
-        Truth.assertThat(iosResult.readText())
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example", objectName = "AwesomeConfig").readText())
             .contains("internal actual object AwesomeConfig")
     }
 
@@ -623,25 +505,17 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(commonResult.readText()).apply {
+        val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example", objectName = "AwesomeConfig")
+        assertThat(commonResult.readText()).apply {
             contains("@JsExport")
             contains("@OptIn(ExperimentalJsExport::class)")
             contains("object AwesomeConfig")
@@ -671,68 +545,32 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(commonResult.readText()).apply {
+        val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example", objectName = "AwesomeConfig")
+        assertThat(commonResult.readText()).apply {
             contains("object AwesomeConfig")
         }
 
-        val jsResult = File(buildDir, "jsMain/com/example/AwesomeConfig.kt")
-
-        Truth.assertThat(jsResult.readText()).apply {
+        val jsResult = buildKonfigFile(buildDir, "jsMain", "com.example", objectName = "AwesomeConfig")
+        assertThat(jsResult.readText()).apply {
             contains("@JsExport")
             contains("@OptIn(ExperimentalJsExport::class)")
             contains("object AwesomeConfig")
         }
 
-        val jvmResult = File(buildDir, "jvmMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(jvmResult.readText())
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example", objectName = "AwesomeConfig").readText())
             .contains("object AwesomeConfig")
-
-        val iosResult = File(buildDir, "iosX64Main/com/example/AwesomeConfig.kt")
-        Truth.assertThat(iosResult.readText())
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example", objectName = "AwesomeConfig").readText())
             .contains("object AwesomeConfig")
     }
-
-    private val buildFileKMPConfigWithWasmJs = """
-        |kotlin {
-        |  jvm()
-        |  js(IR) {
-        |    browser()
-        |    nodejs()
-        |  }
-        |  wasmJs {
-        |    browser()
-        |  }
-        |  iosX64()
-        |}
-    """.trimMargin()
-
-    private val buildFileKMPConfigWasmJsOnly = """
-        |kotlin {
-        |  jvm()
-        |  wasmJs {
-        |    browser()
-        |  }
-        |  iosX64()
-        |}
-    """.trimMargin()
 
     @Test
     fun `When both js and wasmJs targets exist, expect actual is forced and JsExport is only on js actual`() {
@@ -752,41 +590,33 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
-
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
+            .assertBuildSuccessful()
 
         // common should be expect (no @JsExport)
-        val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(commonResult.readText()).apply {
+        val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example", objectName = "AwesomeConfig")
+        assertThat(commonResult.readText()).apply {
             doesNotContain("@JsExport")
             contains("expect object AwesomeConfig")
         }
 
         // js actual should have @JsExport
-        val jsResult = File(buildDir, "jsMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(jsResult.readText()).apply {
+        val jsResult = buildKonfigFile(buildDir, "jsMain", "com.example", objectName = "AwesomeConfig")
+        assertThat(jsResult.readText()).apply {
             contains("@JsExport")
             contains("@OptIn(ExperimentalJsExport::class)")
             contains("actual object AwesomeConfig")
         }
 
         // wasmJs actual should NOT have @JsExport
-        val wasmJsResult = File(buildDir, "wasmJsMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(wasmJsResult.readText()).apply {
+        val wasmJsResult = buildKonfigFile(buildDir, "wasmJsMain", "com.example", objectName = "AwesomeConfig")
+        assertThat(wasmJsResult.readText()).apply {
             doesNotContain("@JsExport")
             doesNotContain("@OptIn(ExperimentalJsExport::class)")
             contains("actual object AwesomeConfig")
@@ -811,25 +641,17 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val commonResult = File(buildDir, "commonMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(commonResult.readText()).apply {
+        val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example", objectName = "AwesomeConfig")
+        assertThat(commonResult.readText()).apply {
             doesNotContain("@JsExport")
             doesNotContain("@OptIn(ExperimentalJsExport::class)")
             contains("object AwesomeConfig")
@@ -859,32 +681,24 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        writeFlavorDevProperties()
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val jsResult = File(buildDir, "jsMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(jsResult.readText()).apply {
+        val jsResult = buildKonfigFile(buildDir, "jsMain", "com.example", objectName = "AwesomeConfig")
+        assertThat(jsResult.readText()).apply {
             contains("@JsExport")
             contains("@OptIn(ExperimentalJsExport::class)")
             contains("object AwesomeConfig")
         }
 
-        val wasmJsResult = File(buildDir, "wasmJsMain/com/example/AwesomeConfig.kt")
-        Truth.assertThat(wasmJsResult.readText()).apply {
+        val wasmJsResult = buildKonfigFile(buildDir, "wasmJsMain", "com.example", objectName = "AwesomeConfig")
+        assertThat(wasmJsResult.readText()).apply {
             doesNotContain("@JsExport")
             doesNotContain("@OptIn(ExperimentalJsExport::class)")
             contains("object AwesomeConfig")
@@ -914,33 +728,29 @@ class BuildKonfigPluginFlavorTest {
         """.trimMargin()
         )
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
+        val runner = gradleRunner(projectDir)
 
         // First build with flavor=dev
-        val devResult = runner
+        runner
             .withArguments("generateBuildKonfig", "--stacktrace", "-Pbuildkonfig.flavor=dev")
             .build()
-
-        Truth.assertThat(devResult.output).contains("BUILD SUCCESSFUL")
-        val devCommon = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(devCommon.readText())
+            .assertBuildSuccessful()
+        val devCommon = buildKonfigFile(buildDir, "commonMain", "com.example")
+        assertThat(devCommon.readText())
             .contains("val stringValue: String = \"devDefaultValue\"")
 
         // Second build with flavor=release should NOT be UP-TO-DATE and must regenerate.
         val releaseResult = runner
             .withArguments("generateBuildKonfig", "--stacktrace", "-Pbuildkonfig.flavor=release")
             .build()
+            .assertBuildSuccessful()
 
-        Truth.assertThat(releaseResult.output).contains("BUILD SUCCESSFUL")
-        Truth.assertThat(releaseResult.output).doesNotContain("generateBuildKonfig UP-TO-DATE")
+        assertThat(releaseResult.output).doesNotContain("generateBuildKonfig UP-TO-DATE")
 
-        val releaseCommon = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
-        Truth.assertThat(releaseCommon.readText())
+        val releaseCommon = buildKonfigFile(buildDir, "commonMain", "com.example")
+        assertThat(releaseCommon.readText())
             .contains("val stringValue: String = \"releaseDefaultValue\"")
     }
 }
