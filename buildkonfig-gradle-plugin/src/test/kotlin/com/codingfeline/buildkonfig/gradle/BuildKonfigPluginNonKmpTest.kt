@@ -7,6 +7,7 @@ import java.io.File
 class BuildKonfigPluginNonKmpTest : BaseGradlePluginTest() {
 
     private val jvmBuildFileHeader = buildFileHeader("org.jetbrains.kotlin.jvm")
+    private val jsBuildFileHeader = buildFileHeader("org.jetbrains.kotlin.js")
 
     @Test
     fun `Applying plugin to a Kotlin JVM project generates a single concrete object`() {
@@ -200,7 +201,7 @@ class BuildKonfigPluginNonKmpTest : BaseGradlePluginTest() {
     fun `non-KMP JS project is compatible with Configuration Cache`() {
         buildFile.writeText(
             """
-            |${buildFileHeader("org.jetbrains.kotlin.js")}
+            |$jsBuildFileHeader
             |
             |kotlin {
             |   js {
