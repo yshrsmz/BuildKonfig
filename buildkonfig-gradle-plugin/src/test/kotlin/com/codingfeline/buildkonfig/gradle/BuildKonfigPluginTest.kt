@@ -145,6 +145,32 @@ class BuildKonfigPluginTest : BaseGradlePluginTest() {
     }
 
     @Test
+    fun `generateBuildKonfig fails when packageName is not set`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'env', 'production'
+            |   }
+            |}
+            |
+            |$buildFileKMPConfig
+            """.trimMargin()
+        )
+
+        val result = gradleRunner(projectDir)
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .buildAndFail()
+
+        // Gradle's native required-input error surfaces because BuildKonfigTask.packageName
+        // is `@get:Input Property<String>` and the extension never sets it.
+        assertThat(result.output).contains("packageName")
+        assertThat(result.output).contains("doesn't have a configured value")
+    }
+
+    @Test
     fun `Applying the plugin works fine for multiplatform project`() {
         buildFile.writeText(
             """
