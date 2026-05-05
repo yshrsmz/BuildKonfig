@@ -1,21 +1,11 @@
 package com.codingfeline.buildkonfig.gradle
 
 import com.google.common.truth.Truth
-import org.gradle.testkit.runner.GradleRunner
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import java.io.File
 
-class BuildKonfigPluginConstFieldsTest {
+class BuildKonfigPluginConstFieldsTest : BaseGradlePluginTest() {
 
-    @get:Rule
-    val projectDir = TemporaryFolder()
-
-    lateinit var buildFile: File
-
-    lateinit var settingFile: File
+    override val buildFileName: String = "build.gradle.kts"
 
     private val buildFileHeader = buildFileHeaderKts("kotlin-multiplatform")
 
@@ -29,13 +19,6 @@ class BuildKonfigPluginConstFieldsTest {
         |}
     """.trimMargin()
 
-    @Before
-    fun setup() {
-        buildFile = projectDir.newFile("build.gradle.kts")
-        settingFile = projectDir.newFile("settings.gradle")
-        settingFile.writeText(settingsGradle)
-    }
-
     @Test
     fun `const values produce expect val on common and actual const val on targets`() {
         buildFile.writeText(
@@ -45,7 +28,7 @@ class BuildKonfigPluginConstFieldsTest {
             |
             |buildkonfig {
             |   packageName = "com.example"
-            |   
+            |
             |   defaultConfigs {
             |       buildConfigConstField(Type.STRING, "foo", "defaultValue")
             |       buildConfigField(type = Type.STRING, name = "bar", value = "defaultBarValue", const = true)
@@ -62,19 +45,12 @@ class BuildKonfigPluginConstFieldsTest {
             """.trimMargin()
         )
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        val result = gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace", "--warning-mode=all")
             .build()
-
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
+            .assertBuildSuccessful()
 
         Truth.assertThat(result.output).apply {
             contains("declared with `const = true` but target-specific configs are present")
@@ -82,7 +58,7 @@ class BuildKonfigPluginConstFieldsTest {
             contains("bar")
         }
 
-        val commonResult = File(buildDir, "commonMain/com/example/BuildKonfig.kt")
+        val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example")
         Truth.assertThat(commonResult.readText()).apply {
             contains("public val foo: String")
             contains("public val bar: String")
@@ -91,13 +67,13 @@ class BuildKonfigPluginConstFieldsTest {
             doesNotContain("CONST_VAL_WITHOUT_INITIALIZER")
         }
 
-        val jvmResult = File(buildDir, "jvmMain/com/example/BuildKonfig.kt")
+        val jvmResult = buildKonfigFile(buildDir, "jvmMain", "com.example")
         Truth.assertThat(jvmResult.readText()).apply {
             contains("actual const val foo: String = \"defaultValue\"")
             contains("actual const val bar: String = \"defaultBarValue\"")
         }
 
-        val jsResult = File(buildDir, "jsMain/com/example/BuildKonfig.kt")
+        val jsResult = buildKonfigFile(buildDir, "jsMain", "com.example")
         Truth.assertThat(jsResult.readText()).apply {
             contains("actual const val foo: String = \"jsValue\"")
             contains("actual const val bar: String = \"jsBarValue\"")

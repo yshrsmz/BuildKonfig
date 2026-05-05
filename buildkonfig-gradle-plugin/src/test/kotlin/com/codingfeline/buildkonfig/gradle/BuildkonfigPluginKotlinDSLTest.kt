@@ -1,28 +1,11 @@
 package com.codingfeline.buildkonfig.gradle
 
 import com.google.common.truth.Truth.assertThat
-import org.gradle.testkit.runner.GradleRunner
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import java.io.File
 
-class BuildkonfigPluginKotlinDSLTest {
+class BuildkonfigPluginKotlinDSLTest : BaseGradlePluginTest() {
 
-    @get:Rule
-    val projectDir = TemporaryFolder()
-
-    lateinit var buildFile: File
-
-    lateinit var settingFile: File
-
-    @Before
-    fun setup() {
-        buildFile = projectDir.newFile("build.gradle.kts")
-        settingFile = projectDir.newFile("settings.gradle")
-        settingFile.writeText(settingsGradle)
-    }
+    override val buildFileName: String = "build.gradle.kts"
 
     @Test
     fun `issue 50 - js(IR) target`() {
@@ -47,7 +30,7 @@ class BuildkonfigPluginKotlinDSLTest {
             |    js(IR) {
             |        browser()
             |    }
-            |    
+            |
             |    applyDefaultHierarchyTemplate()
             |
             |    sourceSets {
@@ -76,7 +59,7 @@ class BuildkonfigPluginKotlinDSLTest {
             |        minSdkVersion(21)
             |        targetSdkVersion(30)
             |    }
-            |    
+            |
             |    namespace = "com.sample"
             |}
             """.trimMargin()
@@ -84,28 +67,20 @@ class BuildkonfigPluginKotlinDSLTest {
 
         createAndroidManifest(projectDir)
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace")
             .build()
+            .assertBuildSuccessful()
 
-//        println(result.output)
-
-        assertThat(result.output).contains("BUILD SUCCESSFUL")
-
-        val commonResult = File(buildDir, "commonMain/com/sample/buildkonfig/issues/BuildKonfig.kt")
+        val commonResult = buildKonfigFile(buildDir, "commonMain", "com.sample.buildkonfig.issues")
         assertThat(commonResult.exists()).isTrue()
 
-        val androidResult = File(buildDir, "androidMain/com/sample/buildkonfig/issues/BuildKonfig.kt")
+        val androidResult = buildKonfigFile(buildDir, "androidMain", "com.sample.buildkonfig.issues")
         assertThat(androidResult.exists()).isFalse()
 
-        val jsResult = File(buildDir, "jsMain/com/sample/buildkonfig/issues/BuildKonfig.kt")
+        val jsResult = buildKonfigFile(buildDir, "jsMain", "com.sample.buildkonfig.issues")
         assertThat(jsResult.exists()).isFalse()
     }
 }

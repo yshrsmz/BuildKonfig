@@ -1,40 +1,17 @@
 package com.codingfeline.buildkonfig.gradle
 
 import com.google.common.truth.Truth
-import org.gradle.testkit.runner.GradleRunner
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import java.io.File
 
-class BuildKonfigPluginHMPPTest {
+class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
 
-    @get:Rule
-    val projectDir = TemporaryFolder()
-
-    lateinit var buildFile: File
-
-    lateinit var settingFile: File
-
-    private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
-
-    @Before
-    fun setup() {
-        buildFile = projectDir.newFile("build.gradle")
-        settingFile = projectDir.newFile("settings.gradle")
-        settingFile.writeText(settingsGradle)
-
-        projectDir.newFile("gradle.properties")
-            .also {
-                it.writeText(
-                    """
-                        kotlin.mpp.androidSourceSetLayoutVersion=2
-                        kotlin.js.compiler=ir
-                        """.trimMargin()
-                )
-            }
-
+    override fun extraSetup() {
+        projectDir.newFile("gradle.properties").writeText(
+            """
+                kotlin.mpp.androidSourceSetLayoutVersion=2
+                kotlin.js.compiler=ir
+                """.trimMargin()
+        )
     }
 
     @Test
@@ -73,7 +50,7 @@ class BuildKonfigPluginHMPPTest {
             |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
             |        }
             |    }
-            |    
+            |
             |    namespace = "com.sample"
             |}
             |buildkonfig {
@@ -107,7 +84,7 @@ class BuildKonfigPluginHMPPTest {
             |   }
             |   iosX64()
             |   iosArm64()
-            |   iosSimulatorArm64() 
+            |   iosSimulatorArm64()
             |
             |   sourceSets {
             |     commonMain {
@@ -126,23 +103,14 @@ class BuildKonfigPluginHMPPTest {
 
         createAndroidManifest(projectDir)
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace", "--info")
             .build()
+            .assertBuildSuccessful()
 
-//        println("result: ${result.output}")
-
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val jvmResult = File(buildDir, "jvmMain/com/sample/BuildKonfig.kt")
+        val jvmResult = buildKonfigFile(buildDir, "jvmMain", "com.sample")
         Truth.assertThat(jvmResult.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
@@ -153,7 +121,7 @@ class BuildKonfigPluginHMPPTest {
                 doesNotContain("native")
             }
 
-        val androidResult = File(buildDir, "customAndroidMain/com/sample/BuildKonfig.kt")
+        val androidResult = buildKonfigFile(buildDir, "customAndroidMain", "com.sample")
         Truth.assertThat(androidResult.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
@@ -164,7 +132,7 @@ class BuildKonfigPluginHMPPTest {
                 doesNotContain("native")
             }
 
-        val jsResult = File(buildDir, "jsMain/com/sample/BuildKonfig.kt")
+        val jsResult = buildKonfigFile(buildDir, "jsMain", "com.sample")
         Truth.assertThat(jsResult.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
@@ -174,7 +142,7 @@ class BuildKonfigPluginHMPPTest {
                 doesNotContain("native")
             }
 
-        val iosX64Result = File(buildDir, "iosX64Main/com/sample/BuildKonfig.kt")
+        val iosX64Result = buildKonfigFile(buildDir, "iosX64Main", "com.sample")
         Truth.assertThat(iosX64Result.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
@@ -185,7 +153,7 @@ class BuildKonfigPluginHMPPTest {
                 doesNotContain("jvm")
             }
 
-        val iosArm64Result = File(buildDir, "iosArm64Main/com/sample/BuildKonfig.kt")
+        val iosArm64Result = buildKonfigFile(buildDir, "iosArm64Main", "com.sample")
         Truth.assertThat(iosArm64Result.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
@@ -233,7 +201,7 @@ class BuildKonfigPluginHMPPTest {
             |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
             |        }
             |    }
-            |    
+            |
             |    namespace = "com.sample"
             |}
             |buildkonfig {
@@ -282,18 +250,18 @@ class BuildKonfigPluginHMPPTest {
             |    macosX64()
             |    linuxX64()
             |    mingwX64()
-            |    
+            |
             |    applyDefaultHierarchyTemplate()
             |
             |    sourceSets {
             |     commonMain {}
             |     androidMain {}
             |     jvmMain {}
-            |     
+            |
             |     appMain {
             |       dependsOn(commonMain)
             |     }
-            |     
+            |
             |     androidMain {
             |       dependsOn(appMain)
             |     }
@@ -309,7 +277,7 @@ class BuildKonfigPluginHMPPTest {
             |     mingwX64Main {
             |       dependsOn(desktopMain)
             |     }
-            |     
+            |
             |     jsCommonMain {
             |       dependsOn(commonMain)
             |     }
@@ -320,30 +288,21 @@ class BuildKonfigPluginHMPPTest {
 
         createAndroidManifest(projectDir)
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace", "--info")
             .build()
+            .assertBuildSuccessful()
 
-//        println("result: ${result.output}")
-
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val commonKonfig = File(buildDir, "commonMain/com/sample/BuildKonfig.kt")
+        val commonKonfig = buildKonfigFile(buildDir, "commonMain", "com.sample")
         Truth.assertThat(commonKonfig.exists()).isTrue()
         Truth.assertThat(commonKonfig.readText()).apply {
             contains("expect")
             doesNotContain("actual")
         }
 
-        val appKonfig = File(buildDir, "appMain/com/sample/BuildKonfig.kt")
+        val appKonfig = buildKonfigFile(buildDir, "appMain", "com.sample")
         Truth.assertThat(appKonfig.exists()).isTrue()
         Truth.assertThat(appKonfig.readText()).apply {
             contains("actual")
@@ -352,60 +311,45 @@ class BuildKonfigPluginHMPPTest {
             contains("val platform: String = \"app\"")
         }
 
-        val androidKonfig = File(buildDir, "androidMain/com/sample/BuildKonfig.kt")
-        Truth.assertThat(androidKonfig.exists()).isFalse()
+        Truth.assertThat(buildKonfigFile(buildDir, "androidMain", "com.sample").exists()).isFalse()
+        Truth.assertThat(buildKonfigFile(buildDir, "desktopMain", "com.sample").exists()).isFalse()
+        Truth.assertThat(buildKonfigFile(buildDir, "macosX64Main", "com.sample").exists()).isFalse()
+        Truth.assertThat(buildKonfigFile(buildDir, "linuxX64Main", "com.sample").exists()).isFalse()
+        Truth.assertThat(buildKonfigFile(buildDir, "mingwX64Main", "com.sample").exists()).isFalse()
 
-        val desktopKonfig = File(buildDir, "desktopMain/com/sample/BuildKonfig.kt")
-        Truth.assertThat(desktopKonfig.exists()).isFalse()
-
-        val macosX64Konfig = File(buildDir, "macosX64Main/com/sample/BuildKonfig.kt")
-        Truth.assertThat(macosX64Konfig.exists()).isFalse()
-
-        val linuxX64Konfig = File(buildDir, "linuxX64Main/com/sample/BuildKonfig.kt")
-        Truth.assertThat(linuxX64Konfig.exists()).isFalse()
-
-        val mingwX64Konfig = File(buildDir, "mingwX64Main/com/sample/BuildKonfig.kt")
-        Truth.assertThat(mingwX64Konfig.exists()).isFalse()
-
-        val jvmKonfig = File(buildDir, "jvmMain/com/sample/BuildKonfig.kt")
+        val jvmKonfig = buildKonfigFile(buildDir, "jvmMain", "com.sample")
         Truth.assertThat(jvmKonfig.exists()).isTrue()
         Truth.assertThat(jvmKonfig.readText()).apply {
             contains("actual")
             doesNotContain("expect")
         }
 
-        val appleKonfig = File(buildDir, "appleMain/com/sample/BuildKonfig.kt")
+        val appleKonfig = buildKonfigFile(buildDir, "appleMain", "com.sample")
         Truth.assertThat(appleKonfig.exists()).isTrue()
         Truth.assertThat(appleKonfig.readText()).apply {
             contains("actual")
             doesNotContain("expect")
         }
 
-        val iosKonfig = File(buildDir, "iosMain/com/sample/BuildKonfig.kt")
+        val iosKonfig = buildKonfigFile(buildDir, "iosMain", "com.sample")
         Truth.assertThat(iosKonfig.exists()).isTrue()
         Truth.assertThat(iosKonfig.readText()).apply {
             contains("actual")
             doesNotContain("expect")
         }
 
-        val iosX64Konfig = File(buildDir, "iosX64Main/com/sample/BuildKonfig.kt")
-        Truth.assertThat(iosX64Konfig.exists()).isFalse()
+        Truth.assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.sample").exists()).isFalse()
+        Truth.assertThat(buildKonfigFile(buildDir, "iosArm64Main", "com.sample").exists()).isFalse()
 
-        val iosArm64Konfig = File(buildDir, "iosArm64Main/com/sample/BuildKonfig.kt")
-        Truth.assertThat(iosArm64Konfig.exists()).isFalse()
-
-        val jsCommonKonfig = File(buildDir, "jsCommonMain/com/sample/BuildKonfig.kt")
+        val jsCommonKonfig = buildKonfigFile(buildDir, "jsCommonMain", "com.sample")
         Truth.assertThat(jsCommonKonfig.exists()).isTrue()
         Truth.assertThat(jsCommonKonfig.readText()).apply {
             contains("actual")
             doesNotContain("expect")
         }
 
-        val browserKonfig = File(buildDir, "browserMain/com/sample/BuildKonfig.kt")
-        Truth.assertThat(browserKonfig.exists()).isFalse()
-
-        val nodeKonfig = File(buildDir, "nodeMain/com/sample/BuildKonfig.kt")
-        Truth.assertThat(nodeKonfig.exists()).isFalse()
+        Truth.assertThat(buildKonfigFile(buildDir, "browserMain", "com.sample").exists()).isFalse()
+        Truth.assertThat(buildKonfigFile(buildDir, "nodeMain", "com.sample").exists()).isFalse()
     }
 
     @Test
@@ -444,7 +388,7 @@ class BuildKonfigPluginHMPPTest {
             |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
             |        }
             |    }
-            |    
+            |
             |    namespace = "com.sample"
             |}
             |buildkonfig {
@@ -496,23 +440,14 @@ class BuildKonfigPluginHMPPTest {
 
         createAndroidManifest(projectDir)
 
-        val buildDir = File(projectDir.root, "build/buildkonfig")
-        buildDir.deleteRecursively()
+        val buildDir = projectDir.buildKonfigDir()
 
-        val runner = GradleRunner.create()
-            .withProjectDir(projectDir.root)
-            .withPluginClasspath()
-
-        val result = runner
+        gradleRunner(projectDir)
             .withArguments("generateBuildKonfig", "--stacktrace", "--info")
             .build()
+            .assertBuildSuccessful()
 
-//        println("result: ${result.output}")
-
-        Truth.assertThat(result.output)
-            .contains("BUILD SUCCESSFUL")
-
-        val appKonfig = File(buildDir, "appMain/com/sample/BuildKonfig.kt")
+        val appKonfig = buildKonfigFile(buildDir, "appMain", "com.sample")
         Truth.assertThat(appKonfig.exists()).isTrue()
         Truth.assertThat(appKonfig.readText()).apply {
             contains("actual")
@@ -522,25 +457,12 @@ class BuildKonfigPluginHMPPTest {
             contains("val app: String = \"appvalue\"")
         }
 
-        val androidKonfig = File(buildDir, "androidMain/com/sample/BuildKonfig.kt")
-        Truth.assertThat(androidKonfig.exists()).isFalse()
-
-        val jvmKonfig = File(buildDir, "jvmMain/com/sample/BuildKonfig.kt")
-        Truth.assertThat(jvmKonfig.exists()).isTrue()
-
-        val iosKonfig = File(buildDir, "iosMain/com/sample/BuildKonfig.kt")
-        Truth.assertThat(iosKonfig.exists()).isFalse()
-
-        val iosX64Konfig = File(buildDir, "iosX64Main/com/sample/BuildKonfig.kt")
-        Truth.assertThat(iosX64Konfig.exists()).isTrue()
-
-        val iosArm64Konfig = File(buildDir, "iosArm64Main/com/sample/BuildKonfig.kt")
-        Truth.assertThat(iosArm64Konfig.exists()).isTrue()
-
-        val browserKonfig = File(buildDir, "browserMain/com/sample/BuildKonfig.kt")
-        Truth.assertThat(browserKonfig.exists()).isTrue()
-
-        val nodeKonfig = File(buildDir, "nodeMain/com/sample/BuildKonfig.kt")
-        Truth.assertThat(nodeKonfig.exists()).isTrue()
+        Truth.assertThat(buildKonfigFile(buildDir, "androidMain", "com.sample").exists()).isFalse()
+        Truth.assertThat(buildKonfigFile(buildDir, "jvmMain", "com.sample").exists()).isTrue()
+        Truth.assertThat(buildKonfigFile(buildDir, "iosMain", "com.sample").exists()).isFalse()
+        Truth.assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.sample").exists()).isTrue()
+        Truth.assertThat(buildKonfigFile(buildDir, "iosArm64Main", "com.sample").exists()).isTrue()
+        Truth.assertThat(buildKonfigFile(buildDir, "browserMain", "com.sample").exists()).isTrue()
+        Truth.assertThat(buildKonfigFile(buildDir, "nodeMain", "com.sample").exists()).isTrue()
     }
 }

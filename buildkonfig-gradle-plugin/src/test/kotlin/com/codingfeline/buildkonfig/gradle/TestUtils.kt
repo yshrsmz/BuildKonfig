@@ -1,6 +1,52 @@
 package com.codingfeline.buildkonfig.gradle
 
+import com.google.common.truth.Truth.assertThat
+import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.GradleRunner
 import org.junit.rules.TemporaryFolder
+import java.io.File
+
+const val BUILDKONFIG_BUILD_DIR = "build/buildkonfig"
+
+/**
+ * Returns the (freshly cleaned) `build/buildkonfig` directory under [TemporaryFolder.getRoot].
+ * Tests assert on files inside this directory, so they need a clean slate per run.
+ */
+fun TemporaryFolder.buildKonfigDir(): File =
+    File(root, BUILDKONFIG_BUILD_DIR).also { it.deleteRecursively() }
+
+/**
+ * Standard `GradleRunner` configured against [projectDir] with the plugin under test on
+ * the classpath. Tests should chain `.withArguments(...)` and `.build()` /
+ * `.buildAndFail()` as usual.
+ */
+fun gradleRunner(projectDir: TemporaryFolder): GradleRunner =
+    GradleRunner.create()
+        .withProjectDir(projectDir.root)
+        .withPluginClasspath()
+
+/**
+ * Asserts that the build output contains `BUILD SUCCESSFUL`. Returns the receiver so the
+ * call can be chained with further assertions on the same [BuildResult].
+ */
+fun BuildResult.assertBuildSuccessful(): BuildResult {
+    assertThat(output).contains("BUILD SUCCESSFUL")
+    return this
+}
+
+/**
+ * Resolves the generated `BuildKonfig.kt` (or [objectName]`.kt`) for a given
+ * [sourceSetName] and [packageName] under [buildKonfigDir].
+ */
+fun buildKonfigFile(
+    buildKonfigDir: File,
+    sourceSetName: String,
+    packageName: String,
+    objectName: String = "BuildKonfig",
+): File = File(
+    buildKonfigDir,
+    "$sourceSetName/${packageName.replace('.', '/')}/$objectName.kt",
+)
 
 val androidManifest = """
         |<?xml version="1.0" encoding="utf-8"?>
