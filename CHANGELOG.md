@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.19.0...v0.20.0) (2026-05-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* `BuildKonfigExtension` fields `packageName`, `objectName` and `exposeObjectWithName` are now `Property<String>` instead of mutable `String` / `String?` vars. Common-case Groovy and Kotlin DSL usage (`packageName = "..."`) is preserved on Gradle 8.2+. Consumers on older Gradle versions, or code that reads `extension.packageName` directly (e.g. third-party plugins extending BuildKonfig), must switch to `.set(...)` and `.orNull` / `.get()` respectively.
+
+### Features
+
+* support standalone Kotlin/JVM and Kotlin/JS projects ([#296](https://github.com/yshrsmz/BuildKonfig/issues/296)) ([0e46e94](https://github.com/yshrsmz/BuildKonfig/commit/0e46e9482b893fa93e92d75e00a6db30d048ca3c))
+
+
+### Bug Fixes
+
+* **deps:** update dependency com.google.devtools.ksp:symbol-processing-gradle-plugin to v2.3.7 ([#292](https://github.com/yshrsmz/BuildKonfig/issues/292)) ([0d57c31](https://github.com/yshrsmz/BuildKonfig/commit/0d57c31620f4d2084b95e73e5c0ad7dc0c4679b7))
+
+
+### Code Refactoring
+
+* migrate BuildKonfigExtension to the Provider API ([5d479eb](https://github.com/yshrsmz/BuildKonfig/commit/5d479ebcdfb35709dab1eb96a0c8b04b6f1956fb))
+
 ## [0.19.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.18.0...v0.19.0) (2026-05-04)
 
 
