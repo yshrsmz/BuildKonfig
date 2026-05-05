@@ -353,6 +353,77 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
     }
 
     @Test
+    fun `warns when a leaf target config is dominated by an intermediate source set with its own config`() {
+        buildFile.writeText(
+            """
+            |plugins {
+            |   id 'kotlin-multiplatform'
+            |   id 'com.codingfeline.buildkonfig'
+            |}
+            |
+            |repositories {
+            |   mavenCentral()
+            |}
+            |
+            |buildkonfig {
+            |    packageName = "com.sample"
+            |
+            |    defaultConfigs {
+            |       buildConfigField 'STRING', 'platform', 'unknown'
+            |    }
+            |
+            |    targetConfigs {
+            |       app {
+            |          buildConfigField 'STRING', 'platform', 'app'
+            |       }
+            |       jvm {
+            |           buildConfigField 'STRING', 'platform', 'jvm'
+            |       }
+            |    }
+            |}
+            |
+            |kotlin {
+            |    jvm()
+            |    iosX64()
+            |
+            |    sourceSets {
+            |     commonMain {}
+            |     appMain {
+            |       dependsOn(commonMain)
+            |     }
+            |     jvmMain {
+            |       dependsOn(appMain)
+            |     }
+            |     iosX64Main {
+            |       dependsOn(appMain)
+            |     }
+            |   }
+            |}
+            """.trimMargin()
+        )
+
+        val buildDir = projectDir.buildKonfigDir()
+
+        val result = gradleRunner(projectDir)
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+            .assertBuildSuccessful()
+
+        // The leaf jvmMain config is dropped because its intermediate parent appMain
+        // already has a config. The warning surfaces both source set names so a future
+        // accidental rewrite can't silently swap them.
+        assertThat(result.output)
+            .contains("BuildKonfig configuration for SourceSet(jvmMain) is ignored")
+        assertThat(result.output).contains("appMain")
+
+        // The parent appMain config wins for the JVM compilation.
+        val appKonfig = buildKonfigFile(buildDir, "appMain", "com.sample")
+        assertThat(appKonfig.exists()).isTrue()
+        assertThat(appKonfig.readText()).contains("val platform: String = \"app\"")
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.sample").exists()).isFalse()
+    }
+
+    @Test
     fun `Works fine for non-shared intermediate SourceSet`() {
         buildFile.writeText(
             """
