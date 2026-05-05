@@ -17,9 +17,9 @@ abstract class BaseGradlePluginTest {
     @get:Rule
     val projectDir = TemporaryFolder()
 
-    lateinit var buildFile: File
+    protected lateinit var buildFile: File
 
-    lateinit var settingFile: File
+    protected lateinit var settingFile: File
 
     /** Override to use `build.gradle.kts` instead of the default `build.gradle`. */
     protected open val buildFileName: String = "build.gradle"
