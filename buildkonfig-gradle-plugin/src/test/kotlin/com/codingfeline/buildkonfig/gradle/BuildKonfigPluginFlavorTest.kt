@@ -43,7 +43,7 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
     """.trimMargin()
 
     private fun writeFlavorDevProperties() {
-        projectDir.newFile("gradle.properties").writeText("buildkonfig.flavor=dev")
+        appendGradleProperties("buildkonfig.flavor=dev")
     }
 
     @Test

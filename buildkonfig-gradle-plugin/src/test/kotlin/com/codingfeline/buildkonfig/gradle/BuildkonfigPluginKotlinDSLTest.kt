@@ -7,7 +7,8 @@ class BuildkonfigPluginKotlinDSLTest : BaseGradlePluginTest() {
 
     override val buildFileName: String = "build.gradle.kts"
 
-    private val androidBuildFileHeader = buildFileHeaderKts("kotlin-multiplatform", "com.android.library")
+    private val androidBuildFileHeader =
+        buildFileHeaderKts("kotlin-multiplatform", "com.android.kotlin.multiplatform.library")
 
     @Test
     fun `issue 50 - js(IR) target`() {
@@ -19,7 +20,11 @@ class BuildkonfigPluginKotlinDSLTest : BaseGradlePluginTest() {
             |$androidBuildFileHeader
             |
             |kotlin {
-            |    androidTarget()
+            |    android {
+            |        compileSdk = 30
+            |        minSdk = 21
+            |        namespace = "com.sample"
+            |    }
             |
             |    iosX64()
             |    iosArm64()
@@ -48,17 +53,6 @@ class BuildkonfigPluginKotlinDSLTest : BaseGradlePluginTest() {
             |    defaultConfigs {
             |        buildConfigField(Type.STRING, "VERSION", "mysupersecretpassword")
             |    }
-            |}
-            |
-            |android {
-            |    compileSdkVersion(30)
-            |    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-            |    defaultConfig {
-            |        minSdkVersion(21)
-            |        targetSdkVersion(30)
-            |    }
-            |
-            |    namespace = "com.sample"
             |}
             """.trimMargin()
         )
