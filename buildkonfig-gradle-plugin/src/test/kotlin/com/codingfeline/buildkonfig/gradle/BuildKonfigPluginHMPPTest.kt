@@ -356,14 +356,7 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
     fun `warns when a leaf target config is dominated by an intermediate source set with its own config`() {
         buildFile.writeText(
             """
-            |plugins {
-            |   id 'kotlin-multiplatform'
-            |   id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |repositories {
-            |   mavenCentral()
-            |}
+            |${buildFileHeader("kotlin-multiplatform")}
             |
             |buildkonfig {
             |    packageName = "com.sample"
