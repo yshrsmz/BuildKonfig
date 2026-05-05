@@ -200,14 +200,7 @@ class BuildKonfigPluginNonKmpTest : BaseGradlePluginTest() {
     fun `non-KMP JS project is compatible with Configuration Cache`() {
         buildFile.writeText(
             """
-            |plugins {
-            |    id 'org.jetbrains.kotlin.js'
-            |    id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |repositories {
-            |   mavenCentral()
-            |}
+            |${buildFileHeader("org.jetbrains.kotlin.js")}
             |
             |kotlin {
             |   js {
