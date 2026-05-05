@@ -3,17 +3,15 @@ package com.codingfeline.buildkonfig.gradle
 import com.codingfeline.buildkonfig.compiler.BuildKonfigLogger
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import com.codingfeline.buildkonfig.compiler.TargetConfig
-import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.codingfeline.buildkonfig.compiler.TargetName
 import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import java.io.File
+import java.io.Serializable
 
 data class TargetConfigSource(
     val name: String,
-    val configFile: TargetConfigFileImpl,
+    val configFile: TargetConfigInput,
     /**
      * Wires the generated source directory into the appropriate Kotlin source set.
      * Encapsulated as a callback so the call site does not need to know whether the
@@ -23,11 +21,15 @@ data class TargetConfigSource(
     val registerSourceDir: (Provider<Directory>) -> Unit,
 )
 
-data class TargetConfigFileImpl(
-    @Input override val targetName: TargetName,
-    @Internal override val outputDirectory: File,
-    @Input override val config: TargetConfig?
-) : TargetConfigFile
+/**
+ * Per-target task input. The output directory each target writes into is derived at task
+ * action time from `BuildKonfigTask.outputDirectory`, so it is not part of the cache key
+ * captured here.
+ */
+data class TargetConfigInput(
+    @get:Input val targetName: TargetName,
+    @get:Input val config: TargetConfig?,
+) : Serializable
 
 fun BuildKonfigExtension.mergeConfigs(
     logger: BuildKonfigLogger,

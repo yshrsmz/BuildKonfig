@@ -9,10 +9,7 @@ import com.codingfeline.buildkonfig.compiler.TargetName
 import com.codingfeline.buildkonfig.gradle.kotlin.sources
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.Directory
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
-import java.io.File
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -55,8 +52,6 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
     }
 
     private fun configure(project: Project, extension: BuildKonfigExtension) {
-        val outputDirectory = project.layout.buildDirectory.dir(OUTPUT_DIR_NAME)
-
         // Register the task eagerly (outside afterEvaluate) so its outputs participate in
         // Gradle's task graph as Providers from the start. This is what allows downstream
         // tasks (e.g. KSP under Gradle 9.0) to discover an implicit dependency edge through
@@ -65,7 +60,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             it.group = "buildkonfig"
             it.description = "generate BuildKonfig"
 
-            it.outputDirectory.set(outputDirectory)
+            it.outputDirectory.set(project.layout.buildDirectory.dir(OUTPUT_DIR_NAME))
 
             // Wire singleton DSL fields as Provider-to-Provider so the values are read lazily
             // at task execution time. Required inputs (e.g. packageName) surface as native
@@ -87,9 +82,9 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         project.afterEvaluate {
             val kmpExtension = project.extensions.findByType(KotlinMultiplatformExtension::class.java)
             if (kmpExtension != null) {
-                configureMultiplatform(project, extension, task, kmpExtension, outputDirectory)
+                configureMultiplatform(project, extension, task, kmpExtension)
             } else {
-                configureSinglePlatform(project, extension, task, outputDirectory)
+                configureSinglePlatform(project, extension, task)
             }
         }
     }
@@ -99,7 +94,6 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         extension: BuildKonfigExtension,
         task: TaskProvider<BuildKonfigTask>,
         kmpExtension: KotlinMultiplatformExtension,
-        outputDirectory: Provider<Directory>,
     ) {
         val flavor = project.findFlavor()
 
@@ -115,7 +109,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         val forceExpectActual = exposeObject && hasJsTarget && hasWasmTarget
 
         val targetConfigSources =
-            decideOutputs(project, kmpExtension, mergedConfigs, outputDirectory, forceExpectActual)
+            decideOutputs(project, kmpExtension, mergedConfigs, forceExpectActual)
 
         task.configure { t ->
             t.flavor.set(flavor)
@@ -133,7 +127,6 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         project: Project,
         extension: BuildKonfigExtension,
         task: TaskProvider<BuildKonfigTask>,
-        outputDirectory: Provider<Directory>,
     ) {
         val kotlinExtension = project.extensions.findByType(KotlinProjectExtension::class.java) ?: return
 
@@ -167,9 +160,8 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         // target-specific entries (the user was already warned) so the task generates a
         // single concrete object rather than an expect/actual pair.
         val mainConfig = mergedConfigs.getValue(MAIN_SOURCESET_NAME)
-        val targetConfigFile = TargetConfigFileImpl(
+        val targetConfigFile = TargetConfigInput(
             targetName = TargetName(MAIN_SOURCESET_NAME, platformType.toPlatformType()),
-            outputDirectory = outputDirectory.subdirAsFile(MAIN_SOURCESET_NAME),
             config = mainConfig,
         )
 
@@ -189,7 +181,6 @@ fun decideOutputs(
     project: Project,
     kmpExtension: KotlinMultiplatformExtension,
     targetConfigs: Map<String, TargetConfig>,
-    outputDirectory: Provider<Directory>,
     forceExpectActual: Boolean = false
 ): Map<String, TargetConfigSource> {
     return kmpExtension.sources()
@@ -223,9 +214,8 @@ fun decideOutputs(
                 // if not available, create it.
                 val tcs = TargetConfigSource(
                     name = firstDependent.name,
-                    configFile = TargetConfigFileImpl(
+                    configFile = TargetConfigInput(
                         targetName = TargetName(firstDependent.name, source.type.toPlatformType()),
-                        outputDirectory = outputDirectory.subdirAsFile(firstDependent.name),
                         config = targetConfigs.getValue(firstDependent.name)
                     ),
                     registerSourceDir = { dir -> firstDependent.kotlin.srcDir(dir) }
@@ -246,9 +236,8 @@ fun decideOutputs(
             }
             val tcs = TargetConfigSource(
                 name = source.name,
-                configFile = TargetConfigFileImpl(
+                configFile = TargetConfigInput(
                     targetName = TargetName(source.name, source.type.toPlatformType()),
-                    outputDirectory = outputDirectory.subdirAsFile(targetSourceSet.name),
                     config = targetConfigs[source.name] ?: targetConfigs.getValue(COMMON_SOURCESET_NAME).copy(),
                 ),
                 registerSourceDir = { dir -> targetSourceSet.kotlin.srcDir(dir) }
@@ -276,14 +265,6 @@ internal fun Project.findFlavor(): String {
         DEFAULT_FLAVOR
     }
 }
-
-/**
- * Eagerly resolves a named subdirectory of this directory provider as a [File]. The eager
- * resolution is intentional — the result is captured as a task input at configuration time
- * so that downstream tasks can pick it up via the source-set Provider chain.
- */
-private fun Provider<Directory>.subdirAsFile(name: String): File =
-    map { it.dir(name) }.get().asFile
 
 internal fun Logger.toBuildKonfigLogger(): BuildKonfigLogger {
     return BuildKonfigLogger { level, message ->
