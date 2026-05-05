@@ -26,6 +26,8 @@ const val DEFAULT_FLAVOR: Flavor = ""
 const val COMMON_SOURCESET_NAME = "commonMain"
 const val MAIN_SOURCESET_NAME = "main"
 
+private const val OUTPUT_DIR_NAME = "buildkonfig"
+
 @Suppress("unused")
 abstract class BuildKonfigPlugin : Plugin<Project> {
 
@@ -53,6 +55,8 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
     }
 
     private fun configure(project: Project, extension: BuildKonfigExtension) {
+        val outputDirectory = project.layout.buildDirectory.dir(OUTPUT_DIR_NAME)
+
         // Register the task eagerly (outside afterEvaluate) so its outputs participate in
         // Gradle's task graph as Providers from the start. This is what allows downstream
         // tasks (e.g. KSP under Gradle 9.0) to discover an implicit dependency edge through
@@ -60,6 +64,8 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         val task = project.tasks.register("generateBuildKonfig", BuildKonfigTask::class.java) {
             it.group = "buildkonfig"
             it.description = "generate BuildKonfig"
+
+            it.outputDirectory.set(outputDirectory)
 
             // Wire singleton DSL fields as Provider-to-Provider so the values are read lazily
             // at task execution time. Required inputs (e.g. packageName) surface as native
@@ -81,9 +87,9 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         project.afterEvaluate {
             val kmpExtension = project.extensions.findByType(KotlinMultiplatformExtension::class.java)
             if (kmpExtension != null) {
-                configureMultiplatform(project, extension, task, kmpExtension)
+                configureMultiplatform(project, extension, task, kmpExtension, outputDirectory)
             } else {
-                configureSinglePlatform(project, extension, task)
+                configureSinglePlatform(project, extension, task, outputDirectory)
             }
         }
     }
@@ -93,9 +99,8 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         extension: BuildKonfigExtension,
         task: TaskProvider<BuildKonfigTask>,
         kmpExtension: KotlinMultiplatformExtension,
+        outputDirectory: Provider<Directory>,
     ) {
-        val outputDirectory = project.layout.buildDirectory.dir("buildkonfig")
-
         val flavor = project.findFlavor()
 
         val mergedConfigs = extension.mergeConfigs(project.logger.toBuildKonfigLogger(), flavor)
@@ -120,8 +125,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         }
 
         targetConfigSources.forEach { (key, configSource) ->
-            val outputDirs = task.map { t -> listOfNotNull(t.outputDirectories[key]) }
-            configSource.registerSourceDir(outputDirs)
+            configSource.registerSourceDir(task.flatMap { it.outputDirectory.dir(key) })
         }
     }
 
@@ -129,6 +133,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         project: Project,
         extension: BuildKonfigExtension,
         task: TaskProvider<BuildKonfigTask>,
+        outputDirectory: Provider<Directory>,
     ) {
         val kotlinExtension = project.extensions.findByType(KotlinProjectExtension::class.java) ?: return
 
@@ -162,7 +167,6 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         // target-specific entries (the user was already warned) so the task generates a
         // single concrete object rather than an expect/actual pair.
         val mainConfig = mergedConfigs.getValue(MAIN_SOURCESET_NAME)
-        val outputDirectory = project.layout.buildDirectory.dir("buildkonfig")
         val targetConfigFile = TargetConfigFileImpl(
             targetName = TargetName(MAIN_SOURCESET_NAME, platformType.toPlatformType()),
             outputDirectory = outputDirectory.subdirAsFile(MAIN_SOURCESET_NAME),
@@ -177,8 +181,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         }
 
         val mainSourceSet = kotlinExtension.sourceSets.getByName(MAIN_SOURCESET_NAME)
-        val outputDirs = task.map { t -> listOfNotNull(t.outputDirectories[MAIN_SOURCESET_NAME]) }
-        mainSourceSet.kotlin.srcDirs(outputDirs)
+        mainSourceSet.kotlin.srcDir(task.flatMap { it.outputDirectory.dir(MAIN_SOURCESET_NAME) })
     }
 }
 
@@ -225,7 +228,7 @@ fun decideOutputs(
                         outputDirectory = outputDirectory.subdirAsFile(firstDependent.name),
                         config = targetConfigs.getValue(firstDependent.name)
                     ),
-                    registerSourceDir = { dir -> firstDependent.kotlin.srcDirs(dir) }
+                    registerSourceDir = { dir -> firstDependent.kotlin.srcDir(dir) }
                 )
 
                 return@fold acc + (firstDependent.name to tcs)
@@ -248,7 +251,7 @@ fun decideOutputs(
                     outputDirectory = outputDirectory.subdirAsFile(targetSourceSet.name),
                     config = targetConfigs[source.name] ?: targetConfigs.getValue(COMMON_SOURCESET_NAME).copy(),
                 ),
-                registerSourceDir = { dir -> targetSourceSet.kotlin.srcDirs(dir) }
+                registerSourceDir = { dir -> targetSourceSet.kotlin.srcDir(dir) }
             )
 
             acc + (source.name to tcs)
