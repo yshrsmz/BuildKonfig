@@ -112,14 +112,7 @@ class BuildKonfigPluginNonKmpTest : BaseGradlePluginTest() {
     fun `Applying plugin to a Kotlin JS project generates a single concrete object`() {
         buildFile.writeText(
             """
-            |plugins {
-            |    id 'org.jetbrains.kotlin.js'
-            |    id 'com.codingfeline.buildkonfig'
-            |}
-            |
-            |repositories {
-            |   mavenCentral()
-            |}
+            |$jsBuildFileHeader
             |
             |kotlin {
             |   js {
