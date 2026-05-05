@@ -322,6 +322,46 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
     }
 
     @Test
+    fun `field replacement during flavored target config merge is logged`() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'unrelated', 'unused'
+            |   }
+            |   targetConfigs {
+            |       jvm {
+            |           buildConfigField 'STRING', 'key', 'defaultJvm'
+            |       }
+            |   }
+            |   targetConfigs("dev") {
+            |       jvm {
+            |           buildConfigField 'STRING', 'key', 'devJvm'
+            |       }
+            |   }
+            |}
+            |$buildFileKMPConfig
+        """.trimMargin()
+        )
+
+        writeFlavorDevProperties()
+
+        val result = gradleRunner(projectDir)
+            .withArguments("generateBuildKonfig", "--stacktrace", "--info")
+            .build()
+            .assertBuildSuccessful()
+
+        // Pins the merge-replacement log line: future refactors of mergeConfigs /
+        // mergeTargetConfigs should preserve it (or update this assertion deliberately).
+        assertThat(result.output)
+            .contains("BuildKonfig(jvmMain): field is being replaced with flavored(dev): defaultJvm -> devJvm")
+    }
+
+    @Test
     fun `Flavored targetConfigs overwrite default targetConfigs`() {
         buildFile.writeText(
             """
