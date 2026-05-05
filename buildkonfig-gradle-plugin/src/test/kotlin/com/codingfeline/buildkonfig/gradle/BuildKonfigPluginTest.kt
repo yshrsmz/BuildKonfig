@@ -6,7 +6,8 @@ import org.junit.Test
 class BuildKonfigPluginTest : BaseGradlePluginTest() {
 
     private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
-    private val androidBuildFileHeader = buildFileHeader("kotlin-multiplatform", "com.android.library")
+    private val androidBuildFileHeader =
+        buildFileHeader("kotlin-multiplatform", "com.android.kotlin.multiplatform.library")
 
     private val buildFileKMPConfig = """
         |kotlin {
@@ -27,15 +28,6 @@ class BuildKonfigPluginTest : BaseGradlePluginTest() {
         |  }
         |}
     """.trimMargin()
-
-    override fun extraSetup() {
-        projectDir.newFile("gradle.properties").writeText(
-            """
-                kotlin.mpp.androidSourceSetLayoutVersion=2
-                kotlin.js.compiler=ir
-                """.trimMargin()
-        )
-    }
 
     @Test
     fun `Applying plugin without any Kotlin plugin throws`() {
@@ -176,30 +168,6 @@ class BuildKonfigPluginTest : BaseGradlePluginTest() {
         buildFile.writeText(
             """
             |$androidBuildFileHeader
-            |android {
-            |    compileSdkVersion 28
-            |
-            |    defaultConfig {
-            |        minSdkVersion 21
-            |        targetSdkVersion 28
-            |        versionCode 1
-            |        versionName "1.0"
-            |    }
-            |    buildTypes {
-            |        release {
-            |            minifyEnabled false
-            |            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            |        }
-            |    }
-            |
-            |    sourceSets {
-            |        main {
-            |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
-            |        }
-            |    }
-            |
-            |    namespace = "com.sample"
-            |}
             |buildkonfig {
             |    packageName = "com.sample"
             |
@@ -213,7 +181,7 @@ class BuildKonfigPluginTest : BaseGradlePluginTest() {
             |            buildConfigField 'STRING', 'test', 'jvm'
             |            buildConfigField 'STRING', 'jvm', 'jvmHoge'
             |        }
-            |        customAndroid {
+            |        android {
             |            buildConfigField 'String', 'android', '${'$'}fuga'
             |        }
             |        iosX64 {
@@ -223,7 +191,11 @@ class BuildKonfigPluginTest : BaseGradlePluginTest() {
             |}
             |
             |kotlin {
-            |   androidTarget('customAndroid')
+            |   android {
+            |       compileSdk = 28
+            |       minSdk = 21
+            |       namespace = "com.sample"
+            |   }
             |   jvm()
             |   js(IR) {
             |    browser()
@@ -235,7 +207,7 @@ class BuildKonfigPluginTest : BaseGradlePluginTest() {
             |     commonMain {
             |       dependencies {}
             |     }
-            |     customAndroidMain {
+            |     androidMain {
             |       dependencies {}
             |     }
             |     jvmMain {
@@ -266,7 +238,7 @@ class BuildKonfigPluginTest : BaseGradlePluginTest() {
                 doesNotContain("native")
             }
 
-        val androidResult = buildKonfigFile(buildDir, "customAndroidMain", "com.sample")
+        val androidResult = buildKonfigFile(buildDir, "androidMain", "com.sample")
         assertThat(androidResult.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
@@ -350,30 +322,6 @@ class BuildKonfigPluginTest : BaseGradlePluginTest() {
     private fun buildKMPAndroidScript(): String =
         """
         |$androidBuildFileHeader
-        |android {
-        |    compileSdkVersion 28
-        |
-        |    defaultConfig {
-        |        minSdkVersion 21
-        |        targetSdkVersion 28
-        |        versionCode 1
-        |        versionName "1.0"
-        |    }
-        |    buildTypes {
-        |        release {
-        |            minifyEnabled false
-        |            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        |        }
-        |    }
-        |
-        |    sourceSets {
-        |        main {
-        |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
-        |        }
-        |    }
-        |
-        |    namespace = "com.sample"
-        |}
         |buildkonfig {
         |    packageName = "com.sample"
         |
@@ -387,7 +335,7 @@ class BuildKonfigPluginTest : BaseGradlePluginTest() {
         |            buildConfigField 'STRING', 'test', 'jvm'
         |            buildConfigField 'STRING', 'jvm', 'jvmHoge'
         |        }
-        |        customAndroid {
+        |        android {
         |            buildConfigField 'String', 'android', '${'$'}fuga'
         |        }
         |        iosX64 {
@@ -397,7 +345,11 @@ class BuildKonfigPluginTest : BaseGradlePluginTest() {
         |}
         |
         |kotlin {
-        |   androidTarget('customAndroid')
+        |   android {
+        |       compileSdk = 28
+        |       minSdk = 21
+        |       namespace = "com.sample"
+        |   }
         |   jvm()
         |   js {
         |    browser()
@@ -409,7 +361,7 @@ class BuildKonfigPluginTest : BaseGradlePluginTest() {
         |     commonMain {
         |       dependencies {}
         |     }
-        |     customAndroidMain {
+        |     androidMain {
         |       dependencies {}
         |     }
         |     jvmMain {

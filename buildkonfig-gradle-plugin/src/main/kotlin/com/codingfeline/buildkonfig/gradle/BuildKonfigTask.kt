@@ -10,10 +10,12 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectories
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
 const val FLAVOR_PROPERTY = "buildkonfig.flavor"
 
+@DisableCachingByDefault(because = "BuildKonfig generation is fast enough that caching adds little value")
 abstract class BuildKonfigTask : DefaultTask() {
 
     // Required to invalidate the task on version updates.

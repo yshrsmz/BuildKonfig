@@ -6,46 +6,14 @@ import org.junit.Test
 class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
 
     private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
-    private val androidBuildFileHeader = buildFileHeader("kotlin-multiplatform", "com.android.library")
-
-    override fun extraSetup() {
-        projectDir.newFile("gradle.properties").writeText(
-            """
-                kotlin.mpp.androidSourceSetLayoutVersion=2
-                kotlin.js.compiler=ir
-                """.trimMargin()
-        )
-    }
+    private val androidBuildFileHeader =
+        buildFileHeader("kotlin-multiplatform", "com.android.kotlin.multiplatform.library")
 
     @Test
     fun `Applying the plugin works fine for the hierarchical multiplatform project`() {
         buildFile.writeText(
             """
             |$androidBuildFileHeader
-            |android {
-            |    compileSdkVersion 28
-            |
-            |    defaultConfig {
-            |        minSdkVersion 21
-            |        targetSdkVersion 28
-            |        versionCode 1
-            |        versionName "1.0"
-            |    }
-            |    buildTypes {
-            |        release {
-            |            minifyEnabled false
-            |            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            |        }
-            |    }
-            |
-            |    sourceSets {
-            |        main {
-            |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
-            |        }
-            |    }
-            |
-            |    namespace = "com.sample"
-            |}
             |buildkonfig {
             |    packageName = "com.sample"
             |
@@ -59,7 +27,7 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
             |            buildConfigField 'STRING', 'test', 'jvm'
             |            buildConfigField 'STRING', 'jvm', 'jvmHoge'
             |        }
-            |        customAndroid {
+            |        android {
             |            buildConfigField 'String', 'android', '${'$'}fuga'
             |        }
             |        iosX64 {
@@ -69,7 +37,11 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
             |}
             |
             |kotlin {
-            |   androidTarget('customAndroid')
+            |   android {
+            |       compileSdk = 28
+            |       minSdk = 21
+            |       namespace = "com.sample"
+            |   }
             |   jvm()
             |   js(IR) {
             |    browser()
@@ -83,7 +55,7 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
             |     commonMain {
             |       dependencies {}
             |     }
-            |     customAndroidMain {
+            |     androidMain {
             |       dependencies {}
             |     }
             |     jvmMain {
@@ -114,7 +86,7 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
                 doesNotContain("native")
             }
 
-        val androidResult = buildKonfigFile(buildDir, "customAndroidMain", "com.sample")
+        val androidResult = buildKonfigFile(buildDir, "androidMain", "com.sample")
         assertThat(androidResult.readText())
             .apply {
                 contains("actual val intValue: Int = 10")
@@ -163,30 +135,6 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
         buildFile.writeText(
             """
             |$androidBuildFileHeader
-            |android {
-            |    compileSdkVersion 28
-            |
-            |    defaultConfig {
-            |        minSdkVersion 21
-            |        targetSdkVersion 28
-            |        versionCode 1
-            |        versionName "1.0"
-            |    }
-            |    buildTypes {
-            |        release {
-            |            minifyEnabled false
-            |            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            |        }
-            |    }
-            |
-            |    sourceSets {
-            |        main {
-            |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
-            |        }
-            |    }
-            |
-            |    namespace = "com.sample"
-            |}
             |buildkonfig {
             |    packageName = "com.sample"
             |
@@ -222,7 +170,11 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
             |
             |kotlin {
             |    jvm {}
-            |    android {}
+            |    android {
+            |        compileSdk = 28
+            |        minSdk = 21
+            |        namespace = "com.sample"
+            |    }
             |    js("jsCommon", IR) {
             |        browser()
             |        nodejs()
@@ -404,30 +356,6 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
         buildFile.writeText(
             """
             |$androidBuildFileHeader
-            |android {
-            |    compileSdkVersion 28
-            |
-            |    defaultConfig {
-            |        minSdkVersion 21
-            |        targetSdkVersion 28
-            |        versionCode 1
-            |        versionName "1.0"
-            |    }
-            |    buildTypes {
-            |        release {
-            |            minifyEnabled false
-            |            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            |        }
-            |    }
-            |
-            |    sourceSets {
-            |        main {
-            |            manifest.srcFile 'src/androidMain/AndroidManifest.xml'
-            |        }
-            |    }
-            |
-            |    namespace = "com.sample"
-            |}
             |buildkonfig {
             |    packageName = "com.sample"
             |
@@ -449,7 +377,11 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
             |
             |kotlin {
             |    jvm {}
-            |    androidTarget {}
+            |    android {
+            |        compileSdk = 28
+            |        minSdk = 21
+            |        namespace = "com.sample"
+            |    }
             |    js("browser") {
             |        browser()
             |    }
