@@ -197,6 +197,64 @@ class BuildKonfigPluginNonKmpTest : BaseGradlePluginTest() {
     }
 
     @Test
+    fun `non-KMP JS project is compatible with Configuration Cache`() {
+        buildFile.writeText(
+            """
+            |plugins {
+            |    id 'org.jetbrains.kotlin.js'
+            |    id 'com.codingfeline.buildkonfig'
+            |}
+            |
+            |repositories {
+            |   mavenCentral()
+            |}
+            |
+            |kotlin {
+            |   js {
+            |       browser()
+            |       nodejs()
+            |       binaries.executable()
+            |   }
+            |}
+            |
+            |buildkonfig {
+            |   packageName = "com.sample"
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'env', 'production'
+            |   }
+            |}
+            """.trimMargin()
+        )
+
+        // kotlin-js requires a main entry point for the executable.
+        val srcDir = projectDir.newFolder("src", "main", "kotlin")
+        File(srcDir, "Main.kt").writeText("fun main() {}")
+
+        val runner = gradleRunner(projectDir)
+
+        val firstRun = runner
+            .withArguments(
+                "generateBuildKonfig",
+                "--configuration-cache",
+                "--configuration-cache-problems=fail",
+                "--stacktrace",
+            )
+            .build()
+        assertThat(firstRun.output).contains("Configuration cache entry stored")
+
+        val secondRun = runner
+            .withArguments(
+                "generateBuildKonfig",
+                "--configuration-cache",
+                "--configuration-cache-problems=fail",
+                "--stacktrace",
+            )
+            .build()
+        assertThat(secondRun.output).contains("Configuration cache entry reused")
+    }
+
+    @Test
     fun `targetConfigs are ignored with a warning on a non-KMP project`() {
         buildFile.writeText(
             """
