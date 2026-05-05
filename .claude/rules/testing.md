@@ -20,7 +20,7 @@ For Gradle TestKit-driven tests, extend `BaseGradlePluginTest` and rely on the h
 
 ### Build script header
 
-Use the `buildFileHeader(kotlinPluginId, vararg additionalPlugins)` helper (or `buildFileHeaderKts(kotlinPluginId)` for Kotlin DSL test fixtures) for the standard `plugins { ... }` + `repositories { mavenCentral() }` block.
+Use `buildFileHeader(kotlinPluginId, vararg additionalPlugins)` (or `buildFileHeaderKts` for Kotlin DSL fixtures) for the standard `plugins { ... }` + `repositories { google() mavenCentral() }` block. Both helpers always emit `google()` and `mavenCentral()`, which covers AGP-based fixtures without any extra arguments.
 
 **Store the result in a `private val` at class level** (one per plugin combination), then interpolate it into the test fixture. Do not call the helper inline inside the `buildFile.writeText` heredoc and do not hand-roll the equivalent `plugins { ... }` block:
 
@@ -69,4 +69,4 @@ buildFile.writeText(
 
 The two forms are functionally equivalent, but every test class in the suite uses the class-level-variable form; new tests should match.
 
-The exception is fixtures that need plugin DSL features the helper does not yet expose (e.g. `id 'com.android.library'` ordering or KTS variants without a `vararg additionalPlugins` overload) — in that case, hand-rolling is fine, but prefer extending the helper if the same shape will recur.
+The only exception is fixtures that intentionally omit a Kotlin plugin (e.g. tests asserting that the plugin fails when no Kotlin plugin is applied) — those obviously cannot use the helper. Anything else should go through `buildFileHeader` / `buildFileHeaderKts`; if a new plugin combination shows up, extend the helpers rather than hand-roll a fresh inline block.

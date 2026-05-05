@@ -61,9 +61,12 @@ fun createAndroidManifest(projectDir: TemporaryFolder, sourceSetName: String = "
 
 
 /**
- * Build script header — `plugins { ... }` plus a `mavenCentral()` repository — in Groovy
- * DSL syntax (`build.gradle`). The Kotlin compiler plugin is applied first, then any
- * [additionalPlugins] in order, then `com.codingfeline.buildkonfig` last.
+ * Build script header — `plugins { ... }` and a `repositories { google() mavenCentral() }`
+ * block — in Groovy DSL syntax (`build.gradle`). The Kotlin plugin is applied first, then
+ * any [additionalPlugins] in order, then `com.codingfeline.buildkonfig` last.
+ *
+ * `google()` is included unconditionally so the same header works for AGP-based fixtures;
+ * for fixtures that don't touch Android the extra repository is harmless.
  */
 fun buildFileHeader(kotlinPluginId: String, vararg additionalPlugins: String): String {
     val pluginIds = listOf(kotlinPluginId) + additionalPlugins + "com.codingfeline.buildkonfig"
@@ -74,6 +77,7 @@ $pluginLines
             |}
             |
             |repositories {
+            |   google()
             |   mavenCentral()
             |}
             |
@@ -81,20 +85,24 @@ $pluginLines
 }
 
 /**
- * Build script header — `plugins { ... }` plus a `mavenCentral()` repository — for the given
- * Kotlin plugin id, in Kotlin DSL syntax (`build.gradle.kts`).
+ * Kotlin DSL counterpart of [buildFileHeader] — `plugins { ... }` and a
+ * `repositories { google() mavenCentral() }` block in `build.gradle.kts` syntax.
  */
-fun buildFileHeaderKts(kotlinPluginId: String): String = """
+fun buildFileHeaderKts(kotlinPluginId: String, vararg additionalPlugins: String): String {
+    val pluginIds = listOf(kotlinPluginId) + additionalPlugins + "com.codingfeline.buildkonfig"
+    val pluginLines = pluginIds.joinToString("\n") { "            |    id(\"$it\")" }
+    return """
             |plugins {
-            |    id("$kotlinPluginId")
-            |    id("com.codingfeline.buildkonfig")
+$pluginLines
             |}
             |
             |repositories {
+            |   google()
             |   mavenCentral()
             |}
             |
         """.trimMargin()
+}
 
 val settingsGradle = """
             |pluginManagement {
