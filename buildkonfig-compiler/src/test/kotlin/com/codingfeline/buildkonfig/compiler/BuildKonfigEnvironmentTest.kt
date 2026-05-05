@@ -14,29 +14,20 @@ class BuildKonfigEnvironmentTest {
     @Test
     fun `single concrete object is generated when no target configs are present`() {
         val outputDir = tempFolder.newFolder("commonMain")
-        val data = BuildKonfigData(
-            packageName = "com.example",
-            objectName = "BuildKonfig",
-            exposeObject = false,
+        val data = buildData(
             commonConfig = configFile(
                 name = COMMON_SOURCESET_NAME,
                 platformType = PlatformType.common,
                 outputDirectory = outputDir,
                 fields = listOf(stringField("foo", "bar")),
             ),
-            targetConfigs = emptyList(),
-            hasJsTarget = false,
         )
 
-        val logger = RecordingLogger()
-        val status = BuildKonfigEnvironment(data).generateConfigs(logger)
+        val status = BuildKonfigEnvironment(data).generateConfigs(RecordingLogger())
 
         assertThat(status).isInstanceOf(BuildKonfigEnvironment.CompilationStatus.Success::class.java)
 
-        val generated = File(outputDir, "com/example/BuildKonfig.kt")
-        assertThat(generated.exists()).isTrue()
-
-        val content = generated.readText()
+        val content = File(outputDir, "com/example/BuildKonfig.kt").readText()
         assertThat(content).contains("internal object BuildKonfig")
         assertThat(content).contains("public val foo: String = \"bar\"")
         assertThat(content).doesNotContain("expect ")
@@ -48,10 +39,7 @@ class BuildKonfigEnvironmentTest {
         val commonDir = tempFolder.newFolder("commonMain")
         val jvmDir = tempFolder.newFolder("jvmMain")
 
-        val data = BuildKonfigData(
-            packageName = "com.example",
-            objectName = "BuildKonfig",
-            exposeObject = false,
+        val data = buildData(
             commonConfig = configFile(
                 name = COMMON_SOURCESET_NAME,
                 platformType = PlatformType.common,
@@ -66,7 +54,6 @@ class BuildKonfigEnvironmentTest {
                     fields = listOf(stringField("env", "jvm")),
                 ),
             ),
-            hasJsTarget = false,
         )
 
         val status = BuildKonfigEnvironment(data).generateConfigs(RecordingLogger())
@@ -90,10 +77,7 @@ class BuildKonfigEnvironmentTest {
     @Test
     fun `nullable and const fields are emitted with the right modifiers`() {
         val outputDir = tempFolder.newFolder("commonMain")
-        val data = BuildKonfigData(
-            packageName = "com.example",
-            objectName = "BuildKonfig",
-            exposeObject = false,
+        val data = buildData(
             commonConfig = configFile(
                 name = COMMON_SOURCESET_NAME,
                 platformType = PlatformType.common,
@@ -104,8 +88,6 @@ class BuildKonfigEnvironmentTest {
                     FieldSpec(FieldSpec.Type.INT, "regularInt", "42"),
                 ),
             ),
-            targetConfigs = emptyList(),
-            hasJsTarget = false,
         )
 
         BuildKonfigEnvironment(data).generateConfigs(RecordingLogger())
@@ -119,17 +101,14 @@ class BuildKonfigEnvironmentTest {
     @Test
     fun `exposeObjectWithName plus a JS target adds @JsExport`() {
         val outputDir = tempFolder.newFolder("commonMain")
-        val data = BuildKonfigData(
-            packageName = "com.example",
-            objectName = "BuildKonfig",
-            exposeObject = true,
+        val data = buildData(
             commonConfig = configFile(
                 name = COMMON_SOURCESET_NAME,
                 platformType = PlatformType.common,
                 outputDirectory = outputDir,
                 fields = listOf(stringField("foo", "bar")),
             ),
-            targetConfigs = emptyList(),
+            exposeObject = true,
             hasJsTarget = true,
         )
 
@@ -144,18 +123,14 @@ class BuildKonfigEnvironmentTest {
     @Test
     fun `exposeObjectWithName without a JS target does not add @JsExport`() {
         val outputDir = tempFolder.newFolder("commonMain")
-        val data = BuildKonfigData(
-            packageName = "com.example",
-            objectName = "BuildKonfig",
-            exposeObject = true,
+        val data = buildData(
             commonConfig = configFile(
                 name = COMMON_SOURCESET_NAME,
                 platformType = PlatformType.common,
                 outputDirectory = outputDir,
                 fields = listOf(stringField("foo", "bar")),
             ),
-            targetConfigs = emptyList(),
-            hasJsTarget = false,
+            exposeObject = true,
         )
 
         BuildKonfigEnvironment(data).generateConfigs(RecordingLogger())
@@ -171,10 +146,7 @@ class BuildKonfigEnvironmentTest {
         val commonDir = tempFolder.newFolder("commonMain")
         val jvmDir = tempFolder.newFolder("jvmMain")
 
-        val data = BuildKonfigData(
-            packageName = "com.example",
-            objectName = "BuildKonfig",
-            exposeObject = false,
+        val data = buildData(
             commonConfig = configFile(
                 name = COMMON_SOURCESET_NAME,
                 platformType = PlatformType.common,
@@ -191,7 +163,6 @@ class BuildKonfigEnvironmentTest {
                     fields = listOf(stringField("env", "jvm")),
                 ),
             ),
-            hasJsTarget = false,
         )
 
         val logger = RecordingLogger()
@@ -215,6 +186,22 @@ class BuildKonfigEnvironmentTest {
 
         fun stringField(name: String, value: String): FieldSpec =
             FieldSpec(FieldSpec.Type.STRING, name, value)
+
+        fun buildData(
+            commonConfig: TargetConfigFile,
+            targetConfigs: List<TargetConfigFile> = emptyList(),
+            exposeObject: Boolean = false,
+            hasJsTarget: Boolean = false,
+            packageName: String = "com.example",
+            objectName: String = "BuildKonfig",
+        ): BuildKonfigData = BuildKonfigData(
+            packageName = packageName,
+            objectName = objectName,
+            exposeObject = exposeObject,
+            commonConfig = commonConfig,
+            targetConfigs = targetConfigs,
+            hasJsTarget = hasJsTarget,
+        )
 
         fun configFile(
             name: String,
