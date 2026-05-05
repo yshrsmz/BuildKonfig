@@ -19,6 +19,9 @@ tasks.named<Delete>("clean") {
 
 dependencies {
     implementation(libs.kotlinpoet)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 tasks.register("pluginVersion") {
