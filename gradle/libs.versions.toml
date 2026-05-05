@@ -2,7 +2,7 @@
 gradle = "8.13"
 kotlin = "2.3.21"
 dokka = "2.2.0"
-android = "8.13.2"
+android = "9.2.1"
 ksp = "2.3.7"
 
 [libraries]
