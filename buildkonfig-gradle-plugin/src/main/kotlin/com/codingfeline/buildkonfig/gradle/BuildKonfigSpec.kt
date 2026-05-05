@@ -5,6 +5,7 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec
 import com.codingfeline.buildkonfig.compiler.TargetConfig
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.codingfeline.buildkonfig.compiler.TargetName
+import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -19,7 +20,7 @@ data class TargetConfigSource(
      * underlying source set comes from a KMP target, a standalone Kotlin/JVM project,
      * a standalone Kotlin/JS project, etc.
      */
-    val registerSourceDir: (Provider<List<File>>) -> Unit,
+    val registerSourceDir: (Provider<Directory>) -> Unit,
 )
 
 data class TargetConfigFileImpl(

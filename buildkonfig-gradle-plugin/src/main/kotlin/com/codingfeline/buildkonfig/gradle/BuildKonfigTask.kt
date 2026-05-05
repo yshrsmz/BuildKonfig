@@ -4,18 +4,18 @@ import com.codingfeline.buildkonfig.VERSION
 import com.codingfeline.buildkonfig.compiler.BuildKonfigData
 import com.codingfeline.buildkonfig.compiler.BuildKonfigEnvironment
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
-import org.gradle.api.tasks.OutputDirectories
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.work.DisableCachingByDefault
-import java.io.File
 
 const val FLAVOR_PROPERTY = "buildkonfig.flavor"
 
-@DisableCachingByDefault(because = "BuildKonfig generation is fast enough that caching adds little value")
+@CacheableTask
 abstract class BuildKonfigTask : DefaultTask() {
 
     // Required to invalidate the task on version updates.
@@ -50,20 +50,25 @@ abstract class BuildKonfigTask : DefaultTask() {
     @get:Nested
     abstract val targetConfigFiles: MapProperty<String, TargetConfigFileImpl>
 
-    @Suppress("unused")
-    @get:OutputDirectories
-    val outputDirectories: Map<String, File>
-        get() = targetConfigFiles.get().mapValues { it.value.outputDirectory }
+    /**
+     * Root directory containing all generated BuildKonfig sources, with one subdirectory
+     * per source set (e.g. `build/buildkonfig/commonMain`, `build/buildkonfig/jvmMain`).
+     * Declared as a single `@OutputDirectory` so the entire subtree participates in the
+     * cache key / restore cycle, and stale subdirectories from removed source sets
+     * cannot leak through.
+     */
+    @get:OutputDirectory
+    abstract val outputDirectory: DirectoryProperty
 
     @Suppress("unused")
     @TaskAction
     fun generateBuildKonfigFiles() {
-        val commonName = commonSourceSetName.get()
-        val outputDirs = outputDirectories
-        // clean up output directories
-        outputDirs.getValue(commonName).parentFile.cleanupDirectory()
-        outputDirs.forEach { it.value.mkdirs() }
+        // Gradle does not auto-clean `@OutputDirectory` content for ad-hoc tasks, so we
+        // wipe the root explicitly. On cache hits the action does not run and Gradle
+        // performs the cleanup + restore itself.
+        outputDirectory.get().asFile.deleteRecursively()
 
+        val commonName = commonSourceSetName.get()
         val configFiles = targetConfigFiles.get()
         val data = BuildKonfigData(
             packageName = packageName.get(),
@@ -75,10 +80,5 @@ abstract class BuildKonfigTask : DefaultTask() {
         )
 
         BuildKonfigEnvironment(data).generateConfigs(logger.toBuildKonfigLogger())
-    }
-
-    private fun File.cleanupDirectory() {
-        deleteRecursively()
-        mkdirs()
     }
 }
