@@ -52,8 +52,7 @@ class BuildKonfigPluginKotlinDSLFlavorTest : BaseGradlePluginTest() {
             """.trimMargin()
         )
 
-        val propertyFile = projectDir.newFile("gradle.properties")
-        propertyFile.writeText("buildkonfig.flavor=dev")
+        projectDir.newFile("gradle.properties").writeText("buildkonfig.flavor=dev")
 
         val buildDir = projectDir.buildKonfigDir()
 
