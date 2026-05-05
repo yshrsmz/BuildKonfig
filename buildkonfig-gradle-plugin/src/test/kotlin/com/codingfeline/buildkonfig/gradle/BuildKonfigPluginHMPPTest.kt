@@ -5,6 +5,8 @@ import org.junit.Test
 
 class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
 
+    private val buildFileHeader = buildFileHeader("kotlin-multiplatform")
+
     override fun extraSetup() {
         projectDir.newFile("gradle.properties").writeText(
             """
@@ -356,7 +358,7 @@ class BuildKonfigPluginHMPPTest : BaseGradlePluginTest() {
     fun `warns when a leaf target config is dominated by an intermediate source set with its own config`() {
         buildFile.writeText(
             """
-            |${buildFileHeader("kotlin-multiplatform")}
+            |$buildFileHeader
             |
             |buildkonfig {
             |    packageName = "com.sample"
