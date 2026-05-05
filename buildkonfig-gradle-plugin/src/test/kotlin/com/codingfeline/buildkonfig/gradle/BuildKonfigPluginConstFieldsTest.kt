@@ -1,6 +1,6 @@
 package com.codingfeline.buildkonfig.gradle
 
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class BuildKonfigPluginConstFieldsTest : BaseGradlePluginTest() {
@@ -52,14 +52,14 @@ class BuildKonfigPluginConstFieldsTest : BaseGradlePluginTest() {
             .build()
             .assertBuildSuccessful()
 
-        Truth.assertThat(result.output).apply {
+        assertThat(result.output).apply {
             contains("declared with `const = true` but target-specific configs are present")
             contains("foo")
             contains("bar")
         }
 
         val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example")
-        Truth.assertThat(commonResult.readText()).apply {
+        assertThat(commonResult.readText()).apply {
             contains("public val foo: String")
             contains("public val bar: String")
             doesNotContain("const val foo")
@@ -68,13 +68,13 @@ class BuildKonfigPluginConstFieldsTest : BaseGradlePluginTest() {
         }
 
         val jvmResult = buildKonfigFile(buildDir, "jvmMain", "com.example")
-        Truth.assertThat(jvmResult.readText()).apply {
+        assertThat(jvmResult.readText()).apply {
             contains("actual const val foo: String = \"defaultValue\"")
             contains("actual const val bar: String = \"defaultBarValue\"")
         }
 
         val jsResult = buildKonfigFile(buildDir, "jsMain", "com.example")
-        Truth.assertThat(jsResult.readText()).apply {
+        assertThat(jsResult.readText()).apply {
             contains("actual const val foo: String = \"jsValue\"")
             contains("actual const val bar: String = \"jsBarValue\"")
         }

@@ -1,6 +1,6 @@
 package com.codingfeline.buildkonfig.gradle
 
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
@@ -71,7 +71,7 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .assertBuildSuccessful()
 
         val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example")
-        Truth.assertThat(commonResult.readText())
+        assertThat(commonResult.readText())
             .isEqualTo(
                 """
                 |package com.example
@@ -85,9 +85,9 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             """.trimMargin()
             )
 
-        Truth.assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").exists()).isFalse()
-        Truth.assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").exists()).isFalse()
-        Truth.assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").exists()).isFalse()
     }
 
     @Test
@@ -120,12 +120,12 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .assertBuildSuccessful()
 
         val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example")
-        Truth.assertThat(commonResult.readText())
+        assertThat(commonResult.readText())
             .contains("val stringValue: String = \"devDefaultValue\"")
 
-        Truth.assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").exists()).isFalse()
-        Truth.assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").exists()).isFalse()
-        Truth.assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").exists()).isFalse()
     }
 
     @Test
@@ -161,12 +161,12 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .assertBuildSuccessful()
 
         val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example")
-        Truth.assertThat(commonResult.readText())
+        assertThat(commonResult.readText())
             .contains("val stringValue: String = \"releaseDefaultValue\"")
 
-        Truth.assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").exists()).isFalse()
-        Truth.assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").exists()).isFalse()
-        Truth.assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").exists()).isFalse()
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").exists()).isFalse()
     }
 
     @Test
@@ -203,11 +203,11 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .build()
             .assertBuildSuccessful()
 
-        Truth.assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").readText())
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").readText())
             .contains("jvmDefaultValue")
-        Truth.assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").readText())
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").readText())
             .contains("devDefaultValue")
-        Truth.assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").readText())
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").readText())
             .contains("devDefaultValue")
     }
 
@@ -245,11 +245,11 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .build()
             .assertBuildSuccessful()
 
-        Truth.assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").readText())
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").readText())
             .contains("devDefaultValue")
-        Truth.assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").readText())
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").readText())
             .contains("devJsValue")
-        Truth.assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").readText())
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").readText())
             .contains("devDefaultValue")
     }
 
@@ -281,7 +281,7 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .assertBuildSuccessful()
 
         val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example")
-        Truth.assertThat(commonResult.readText()).apply {
+        assertThat(commonResult.readText()).apply {
             contains("stringValue: String? = \"defaultValue\"")
             contains("intValue: Int? = 10")
         }
@@ -315,7 +315,7 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .assertBuildSuccessful()
 
         val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example")
-        Truth.assertThat(commonResult.readText()).apply {
+        assertThat(commonResult.readText()).apply {
             contains("stringValue: String? = null")
             contains("intValue: Int? = null")
         }
@@ -357,11 +357,11 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .build()
             .assertBuildSuccessful()
 
-        Truth.assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").readText())
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").readText())
             .contains("defaultValue")
-        Truth.assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").readText())
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").readText())
             .contains("devJsValue")
-        Truth.assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").readText())
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").readText())
             .contains("defaultValue")
     }
 
@@ -401,11 +401,11 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .build()
             .assertBuildSuccessful()
 
-        Truth.assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").readText())
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example").readText())
             .contains("defaultValue")
-        Truth.assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").readText())
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example").readText())
             .contains("defaultJsValue")
-        Truth.assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").readText())
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example").readText())
             .contains("defaultValue")
     }
 
@@ -437,7 +437,7 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .assertBuildSuccessful()
 
         val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example", objectName = "AwesomeConfig")
-        Truth.assertThat(commonResult.readText()).apply {
+        assertThat(commonResult.readText()).apply {
             contains("internal object AwesomeConfig")
         }
     }
@@ -475,15 +475,15 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .assertBuildSuccessful()
 
         val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example", objectName = "AwesomeConfig")
-        Truth.assertThat(commonResult.readText()).apply {
+        assertThat(commonResult.readText()).apply {
             contains("internal expect object AwesomeConfig")
         }
 
-        Truth.assertThat(buildKonfigFile(buildDir, "jsMain", "com.example", objectName = "AwesomeConfig").readText())
+        assertThat(buildKonfigFile(buildDir, "jsMain", "com.example", objectName = "AwesomeConfig").readText())
             .contains("internal actual object AwesomeConfig")
-        Truth.assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example", objectName = "AwesomeConfig").readText())
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example", objectName = "AwesomeConfig").readText())
             .contains("internal actual object AwesomeConfig")
-        Truth.assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example", objectName = "AwesomeConfig").readText())
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example", objectName = "AwesomeConfig").readText())
             .contains("internal actual object AwesomeConfig")
     }
 
@@ -515,7 +515,7 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .assertBuildSuccessful()
 
         val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example", objectName = "AwesomeConfig")
-        Truth.assertThat(commonResult.readText()).apply {
+        assertThat(commonResult.readText()).apply {
             contains("@JsExport")
             contains("@OptIn(ExperimentalJsExport::class)")
             contains("object AwesomeConfig")
@@ -555,20 +555,20 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .assertBuildSuccessful()
 
         val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example", objectName = "AwesomeConfig")
-        Truth.assertThat(commonResult.readText()).apply {
+        assertThat(commonResult.readText()).apply {
             contains("object AwesomeConfig")
         }
 
         val jsResult = buildKonfigFile(buildDir, "jsMain", "com.example", objectName = "AwesomeConfig")
-        Truth.assertThat(jsResult.readText()).apply {
+        assertThat(jsResult.readText()).apply {
             contains("@JsExport")
             contains("@OptIn(ExperimentalJsExport::class)")
             contains("object AwesomeConfig")
         }
 
-        Truth.assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example", objectName = "AwesomeConfig").readText())
+        assertThat(buildKonfigFile(buildDir, "jvmMain", "com.example", objectName = "AwesomeConfig").readText())
             .contains("object AwesomeConfig")
-        Truth.assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example", objectName = "AwesomeConfig").readText())
+        assertThat(buildKonfigFile(buildDir, "iosX64Main", "com.example", objectName = "AwesomeConfig").readText())
             .contains("object AwesomeConfig")
     }
 
@@ -601,14 +601,14 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
 
         // common should be expect (no @JsExport)
         val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example", objectName = "AwesomeConfig")
-        Truth.assertThat(commonResult.readText()).apply {
+        assertThat(commonResult.readText()).apply {
             doesNotContain("@JsExport")
             contains("expect object AwesomeConfig")
         }
 
         // js actual should have @JsExport
         val jsResult = buildKonfigFile(buildDir, "jsMain", "com.example", objectName = "AwesomeConfig")
-        Truth.assertThat(jsResult.readText()).apply {
+        assertThat(jsResult.readText()).apply {
             contains("@JsExport")
             contains("@OptIn(ExperimentalJsExport::class)")
             contains("actual object AwesomeConfig")
@@ -616,7 +616,7 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
 
         // wasmJs actual should NOT have @JsExport
         val wasmJsResult = buildKonfigFile(buildDir, "wasmJsMain", "com.example", objectName = "AwesomeConfig")
-        Truth.assertThat(wasmJsResult.readText()).apply {
+        assertThat(wasmJsResult.readText()).apply {
             doesNotContain("@JsExport")
             doesNotContain("@OptIn(ExperimentalJsExport::class)")
             contains("actual object AwesomeConfig")
@@ -651,7 +651,7 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .assertBuildSuccessful()
 
         val commonResult = buildKonfigFile(buildDir, "commonMain", "com.example", objectName = "AwesomeConfig")
-        Truth.assertThat(commonResult.readText()).apply {
+        assertThat(commonResult.readText()).apply {
             doesNotContain("@JsExport")
             doesNotContain("@OptIn(ExperimentalJsExport::class)")
             contains("object AwesomeConfig")
@@ -691,14 +691,14 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .assertBuildSuccessful()
 
         val jsResult = buildKonfigFile(buildDir, "jsMain", "com.example", objectName = "AwesomeConfig")
-        Truth.assertThat(jsResult.readText()).apply {
+        assertThat(jsResult.readText()).apply {
             contains("@JsExport")
             contains("@OptIn(ExperimentalJsExport::class)")
             contains("object AwesomeConfig")
         }
 
         val wasmJsResult = buildKonfigFile(buildDir, "wasmJsMain", "com.example", objectName = "AwesomeConfig")
-        Truth.assertThat(wasmJsResult.readText()).apply {
+        assertThat(wasmJsResult.readText()).apply {
             doesNotContain("@JsExport")
             doesNotContain("@OptIn(ExperimentalJsExport::class)")
             contains("object AwesomeConfig")
@@ -738,7 +738,7 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .build()
             .assertBuildSuccessful()
         val devCommon = buildKonfigFile(buildDir, "commonMain", "com.example")
-        Truth.assertThat(devCommon.readText())
+        assertThat(devCommon.readText())
             .contains("val stringValue: String = \"devDefaultValue\"")
 
         // Second build with flavor=release should NOT be UP-TO-DATE and must regenerate.
@@ -747,10 +747,10 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             .build()
             .assertBuildSuccessful()
 
-        Truth.assertThat(releaseResult.output).doesNotContain("generateBuildKonfig UP-TO-DATE")
+        assertThat(releaseResult.output).doesNotContain("generateBuildKonfig UP-TO-DATE")
 
         val releaseCommon = buildKonfigFile(buildDir, "commonMain", "com.example")
-        Truth.assertThat(releaseCommon.readText())
+        assertThat(releaseCommon.readText())
             .contains("val stringValue: String = \"releaseDefaultValue\"")
     }
 }

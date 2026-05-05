@@ -1,6 +1,6 @@
 package com.codingfeline.buildkonfig.gradle
 
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class BuildKonfigPluginKotlinDSLFlavorTest : BaseGradlePluginTest() {
@@ -63,18 +63,18 @@ class BuildKonfigPluginKotlinDSLFlavorTest : BaseGradlePluginTest() {
             .assertBuildSuccessful()
 
         val jvmResult = buildKonfigFile(buildDir, "jvmMain", "com.example")
-        Truth.assertThat(jvmResult.readText())
+        assertThat(jvmResult.readText())
             .contains("defaultValue")
 
         val jsResult = buildKonfigFile(buildDir, "jsMain", "com.example")
-        Truth.assertThat(jsResult.readText())
+        assertThat(jsResult.readText())
             .apply {
                 contains("foobar")
                 contains("devJsValue")
             }
 
         val iosResult = buildKonfigFile(buildDir, "iosX64Main", "com.example")
-        Truth.assertThat(iosResult.readText())
+        assertThat(iosResult.readText())
             .contains("defaultValue")
     }
 }
