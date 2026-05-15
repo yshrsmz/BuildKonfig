@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.20.0...v0.21.0) (2026-05-15)
+
+
+### Features
+
+* **deps:** migrate to AGP 9.2.1 / Gradle 9.4.1 ([#306](https://github.com/yshrsmz/BuildKonfig/issues/306)) ([1257beb](https://github.com/yshrsmz/BuildKonfig/commit/1257beb6b4e2c1ea36159fbeed49f49960498a91))
+
+
+### Bug Fixes
+
+* **deps:** update dependency com.google.devtools.ksp:symbol-processing-gradle-plugin to v2.3.8 ([#316](https://github.com/yshrsmz/BuildKonfig/issues/316)) ([75b5adf](https://github.com/yshrsmz/BuildKonfig/commit/75b5adf6c2694fd131b8cb5251344b0d0e6a7fa1))
+
 ## [0.20.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.19.0...v0.20.0) (2026-05-05)
 
 
