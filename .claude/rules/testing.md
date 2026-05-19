@@ -16,7 +16,7 @@ Do **not** import `com.google.common.truth.Truth` and call `Truth.assertThat(...
 
 ### Common scaffolding
 
-For Gradle TestKit-driven tests, extend `BaseGradlePluginTest` and rely on the helpers in `TestUtils.kt` (`gradleRunner()`, `TemporaryFolder.buildKonfigDir()`, `BuildResult.assertBuildSuccessful()`, `buildKonfigFile()`) instead of repeating the inlined `GradleRunner.create().withProjectDir(...).withPluginClasspath()` chain or `File(projectDir.root, "build/buildkonfig").also { it.deleteRecursively() }` pattern.
+For Gradle TestKit-driven tests, extend `BaseGradlePluginTest` and rely on the helpers in `TestUtils.kt` (`gradleRunner()`, `TemporaryFolder.buildKonfigDir()`, `BuildResult.assertBuildSuccessful()`, `buildKonfigFile()`) instead of repeating the inlined `GradleRunner.create().withProjectDir(...).withPluginClasspath()` chain or `File(projectDir.root, "build/generated/source/buildkonfig").also { it.deleteRecursively() }` pattern.
 
 ### Build script header
 
