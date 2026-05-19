@@ -6,11 +6,12 @@ import org.gradle.testkit.runner.GradleRunner
 import org.junit.rules.TemporaryFolder
 import java.io.File
 
-const val BUILDKONFIG_BUILD_DIR = "build/buildkonfig"
+const val BUILDKONFIG_BUILD_DIR = "build/generated/source/buildkonfig"
 
 /**
- * Returns the (freshly cleaned) `build/buildkonfig` directory under [TemporaryFolder.getRoot].
- * Tests assert on files inside this directory, so they need a clean slate per run.
+ * Returns the (freshly cleaned) `build/generated/source/buildkonfig` directory under
+ * [TemporaryFolder.getRoot]. Tests assert on files inside this directory, so they need
+ * a clean slate per run.
  */
 fun TemporaryFolder.buildKonfigDir(): File =
     File(root, BUILDKONFIG_BUILD_DIR).also { it.deleteRecursively() }

@@ -23,7 +23,12 @@ const val DEFAULT_FLAVOR: Flavor = ""
 const val COMMON_SOURCESET_NAME = "commonMain"
 const val MAIN_SOURCESET_NAME = "main"
 
-private const val OUTPUT_DIR_NAME = "buildkonfig"
+// Generated sources live under `build/generated/source/buildkonfig`, following the
+// convention shared by KSP, SQLDelight, and Apollo. The previous `build/buildkonfig`
+// location overlapped with paths AGP 9.0+ scans for baseline-profile inputs
+// (`prepareAndroidMainArtProfile`), causing Gradle's strict input/output overlap
+// validation to fail with an implicit-dependency error.
+private const val OUTPUT_DIR_NAME = "generated/source/buildkonfig"
 
 @Suppress("unused")
 abstract class BuildKonfigPlugin : Plugin<Project> {

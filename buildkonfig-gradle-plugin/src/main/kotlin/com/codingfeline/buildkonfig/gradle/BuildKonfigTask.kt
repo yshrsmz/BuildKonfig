@@ -56,7 +56,8 @@ abstract class BuildKonfigTask : DefaultTask() {
 
     /**
      * Root directory containing all generated BuildKonfig sources, with one subdirectory
-     * per source set (e.g. `build/buildkonfig/commonMain`, `build/buildkonfig/jvmMain`).
+     * per source set (e.g. `build/generated/source/buildkonfig/commonMain`,
+     * `build/generated/source/buildkonfig/jvmMain`).
      * Declared as a single `@OutputDirectory` so the entire subtree participates in the
      * cache key / restore cycle, and stale subdirectories from removed source sets
      * cannot leak through.
