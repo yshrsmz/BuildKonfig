@@ -86,6 +86,11 @@ abstract class BuildKonfigTask : DefaultTask() {
         // [outputDirectories] (e.g. a target the user just removed) don't linger. The root
         // itself is `@Internal` — only the per-source-set leaves below participate in
         // Gradle's cache key / restore cycle — so this cleanup must happen explicitly here.
+        //
+        // Limitation: on a build-cache hit this action does not run; Gradle restores only
+        // the declared per-leaf `@OutputDirectories`. Orphan subdirectories left over from
+        // a previous non-cached run for a since-removed source set will persist on disk in
+        // that case. `./gradlew clean` clears them.
         val outputRoot = outputDirectory.get().asFile
         outputRoot.deleteRecursively()
 

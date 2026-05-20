@@ -1,6 +1,7 @@
 package com.codingfeline.buildkonfig.gradle
 
 import com.google.common.truth.Truth.assertThat
+import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Test
 
 /**
@@ -72,6 +73,12 @@ class BuildKonfigPluginAgpBaselineProfileTest : BaseGradlePluginTest() {
         projectDir.buildKonfigDir()
 
         val result = gradleRunner(projectDir)
+            // Pin to a Gradle 9.x release so the strict input/output overlap validation
+            // (the rule whose absence this test is guarding against) is always exercised
+            // regardless of the runtime Gradle TestKit happens to default to. AGP 9.2.x
+            // — the version used by this fixture's `com.android.kotlin.multiplatform.library`
+            // plugin — requires Gradle 9.4.1 or newer, so we pin to 9.4.1.
+            .withGradleVersion("9.4.1")
             .withArguments("assembleAndroidMain", "--stacktrace")
             .build()
             .assertBuildSuccessful()
@@ -79,6 +86,13 @@ class BuildKonfigPluginAgpBaselineProfileTest : BaseGradlePluginTest() {
         // The exact validation error message from Gradle 9.x must not surface.
         assertThat(result.output)
             .doesNotContain("without declaring an explicit or implicit dependency")
-        assertThat(result.output).contains("generateBuildKonfig")
+        // generateBuildKonfig must have actually been included in the task graph
+        // (i.e. its srcDir is correctly wired into the androidMain Kotlin source set).
+        val outcome = result.task(":generateBuildKonfig")?.outcome
+        assertThat(outcome).isAnyOf(
+            TaskOutcome.SUCCESS,
+            TaskOutcome.FROM_CACHE,
+            TaskOutcome.UP_TO_DATE,
+        )
     }
 }
