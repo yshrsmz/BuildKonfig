@@ -121,10 +121,19 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             t.hasJsTarget.set(hasJsTarget)
             t.commonSourceSetName.set(COMMON_SOURCESET_NAME)
             t.targetConfigFiles.set(targetConfigSources.mapValues { (_, value) -> value.configFile })
+            // Populate per-source-set `@OutputDirectories` so each leaf — not the shared
+            // root — participates in cache-key snapshotting and task dependency inference.
+            targetConfigSources.keys.forEach { key ->
+                t.outputDirectories.put(key, t.outputDirectory.dir(key))
+            }
         }
 
         targetConfigSources.forEach { (key, configSource) ->
-            configSource.registerSourceDir(task.flatMap { it.outputDirectory.dir(key) })
+            // Route srcDir registration through `outputDirectories` (the tracked
+            // `@OutputDirectories` map) — not the `@Internal` root — so the Provider
+            // chain into the Kotlin source set carries the implicit task dependency
+            // that Gradle 9.x's strict validation requires.
+            configSource.registerSourceDir(task.flatMap { it.outputDirectories.getting(key) })
         }
     }
 
@@ -175,10 +184,11 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             t.hasJsTarget.set(platformType == KotlinPlatformType.js)
             t.commonSourceSetName.set(MAIN_SOURCESET_NAME)
             t.targetConfigFiles.set(mapOf(MAIN_SOURCESET_NAME to targetConfigFile))
+            t.outputDirectories.put(MAIN_SOURCESET_NAME, t.outputDirectory.dir(MAIN_SOURCESET_NAME))
         }
 
         val mainSourceSet = kotlinExtension.sourceSets.getByName(MAIN_SOURCESET_NAME)
-        mainSourceSet.kotlin.srcDir(task.flatMap { it.outputDirectory.dir(MAIN_SOURCESET_NAME) })
+        mainSourceSet.kotlin.srcDir(task.flatMap { it.outputDirectories.getting(MAIN_SOURCESET_NAME) })
     }
 }
 

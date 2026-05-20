@@ -7,13 +7,15 @@ import com.codingfeline.buildkonfig.compiler.TargetConfig
 import com.codingfeline.buildkonfig.compiler.TargetConfigFile
 import com.codingfeline.buildkonfig.compiler.TargetName
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
-import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputDirectories
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
@@ -55,30 +57,44 @@ abstract class BuildKonfigTask : DefaultTask() {
     abstract val targetConfigFiles: MapProperty<String, TargetConfigInput>
 
     /**
-     * Root directory containing all generated BuildKonfig sources, with one subdirectory
-     * per source set (e.g. `build/generated/source/buildkonfig/commonMain`,
-     * `build/generated/source/buildkonfig/jvmMain`).
-     * Declared as a single `@OutputDirectory` so the entire subtree participates in the
-     * cache key / restore cycle, and stale subdirectories from removed source sets
-     * cannot leak through.
+     * Root directory beneath which per-source-set outputs live. Declared `@Internal`
+     * (not an output) because AGP 9+ `prepareAndroidMainArtProfile`
+     * (`ProcessLibraryArtProfileTask`) probes `<root>/baselineProfiles/baseline-prof.txt`
+     * for each generated source root it inherits from the Kotlin source set. If the
+     * root itself were an `@OutputDirectory`, Gradle's strict input/output overlap
+     * validation would reject the build with an "implicit dependency" error from
+     * `prepareAndroidMainArtProfile` to this task. The actual outputs are tracked via
+     * [outputDirectories], which list only the per-source-set leaves.
      */
-    @get:OutputDirectory
+    @get:Internal
     abstract val outputDirectory: DirectoryProperty
+
+    /**
+     * Per-source-set output directories — one entry per source set the merged config
+     * resolves to (e.g. `build/generated/source/buildkonfig/commonMain`,
+     * `.../jvmMain`). Each leaf matches the Kotlin source set's registered `srcDir`,
+     * and is the cache-key + task-dependency surface for downstream consumers
+     * (KSP, baseline profiles, ...).
+     */
+    @get:OutputDirectories
+    abstract val outputDirectories: MapProperty<String, Directory>
 
     @Suppress("unused")
     @TaskAction
     fun generateBuildKonfigFiles() {
-        // Gradle does not auto-clean `@OutputDirectory` content for ad-hoc tasks, so we
-        // wipe the root explicitly. On cache hits the action does not run and Gradle
-        // performs the cleanup + restore itself.
+        // Wipe the entire root so subdirectories from source sets that no longer appear in
+        // [outputDirectories] (e.g. a target the user just removed) don't linger. The root
+        // itself is `@Internal` — only the per-source-set leaves below participate in
+        // Gradle's cache key / restore cycle — so this cleanup must happen explicitly here.
         val outputRoot = outputDirectory.get().asFile
         outputRoot.deleteRecursively()
 
+        val outputs = outputDirectories.get()
         val commonName = commonSourceSetName.get()
         val resolvedConfigs = targetConfigFiles.get().mapValues { (name, input) ->
             ResolvedTargetConfigFile(
                 targetName = input.targetName,
-                outputDirectory = outputRoot.resolve(name),
+                outputDirectory = outputs.getValue(name).asFile,
                 config = input.config,
             )
         }
