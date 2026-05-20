@@ -85,6 +85,12 @@ class BuildKonfigPluginConfigurationCacheTest : BaseGradlePluginTest() {
      */
     @Test
     fun `compileKotlinJvm exercises the source set Provider chain under Configuration Cache`() {
+        // `targetConfigs.jvm` is required so `decideOutputs()` registers a `jvmMain`
+        // entry in `outputDirectories` in addition to `commonMain`. Without it the map
+        // is single-entry and `compileKotlinJvm` would only reach `generateBuildKonfig`
+        // through the commonMain srcDir wiring — the per-leaf jvmMain Provider chain
+        // (`task.flatMap { it.outputDirectories.getting("jvmMain") }`) we want to guard
+        // against CC regressions would not actually be walked.
         buildFile.writeText(
             """
             |$buildFileHeader
@@ -94,6 +100,12 @@ class BuildKonfigPluginConfigurationCacheTest : BaseGradlePluginTest() {
             |
             |   defaultConfigs {
             |       buildConfigField 'STRING', 'test', 'hoge'
+            |   }
+            |
+            |   targetConfigs {
+            |       jvm {
+            |           buildConfigField 'STRING', 'jvmOnly', 'x'
+            |       }
             |   }
             |}
             |
