@@ -3,7 +3,7 @@ BuildKonfig
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.codingfeline.buildkonfig/buildkonfig-gradle-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.codingfeline.buildkonfig/buildkonfig-gradle-plugin)
 
-BuildConfig for Kotlin Multiplatform, Kotlin/JVM, and Kotlin/JS projects.  
+BuildConfig for Kotlin Multiplatform and Kotlin/JVM projects.  
 It currently supports embedding values from gradle file.
 
 ## Table Of Contents
@@ -37,7 +37,7 @@ Rather I'd like to do it once.
 ### Requirements
 
 - Kotlin **2.1.0** or later
-- One of: Kotlin Multiplatform, Kotlin/JVM, or Kotlin/JS plugin applied to the project
+- One of: Kotlin Multiplatform or Kotlin/JVM plugin applied to the project (use Kotlin/JS via the KMP `js()` target)
 - Gradle 8 or later
 
 <a name="gradle-configuration"/>
@@ -304,8 +304,9 @@ internal actual object BuildKonfig {
 
 ### Non-multiplatform projects
 
-BuildKonfig also works on standalone Kotlin/JVM and Kotlin/JS projects.
-Apply `org.jetbrains.kotlin.jvm` or `org.jetbrains.kotlin.js` instead of multiplatform, and use the same `buildkonfig { ... }` block.
+BuildKonfig also works on standalone Kotlin/JVM projects.
+Apply `org.jetbrains.kotlin.jvm` instead of multiplatform, and use the same `buildkonfig { ... }` block.
+For Kotlin/JS, use the Kotlin Multiplatform plugin with a `js()` target — the standalone `org.jetbrains.kotlin.js` plugin was removed in Kotlin 2.4.0.
 
 <details open>
 <summary>Kotlin DSL</summary>
@@ -358,7 +359,7 @@ internal object BuildKonfig {
 }
 ```
 
-For Kotlin/JS projects, `@JsExport` is auto-added when `exposeObjectWithName` is set, exactly like the multiplatform path. The `defaultConfigs` block (including flavors) is fully supported. `targetConfigs` are not meaningful for a single-target project; if you declare them, a warning is logged and they are ignored.
+The `defaultConfigs` block (including flavors) is fully supported. `targetConfigs` are not meaningful for a single-target project; if you declare them, a warning is logged and they are ignored.
 
 <a name="product-flavor"/>
 

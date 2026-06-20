@@ -10,7 +10,6 @@ import com.codingfeline.buildkonfig.gradle.kotlin.sources
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskProvider
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
@@ -38,7 +37,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         val extension = target.extensions.create("buildkonfig", BuildKonfigExtension::class.java, target.logger)
 
-        // Detect any supported Kotlin plugin (multiplatform / jvm / js / android).
+        // Detect any supported Kotlin plugin (multiplatform / jvm / android).
         // KotlinBasePlugin is the common interface implemented by all Kotlin compiler
         // plugin wrappers, so this fires once for whichever Kotlin plugin the user applied.
         target.plugins.withType(KotlinBasePlugin::class.java) {
@@ -51,7 +50,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             check(configured) {
                 "BuildKonfig Gradle plugin applied in project '${target.path}' " +
                     "but no supported Kotlin plugin was found. " +
-                    "Apply one of: kotlin-multiplatform, kotlin-jvm, or kotlin-js."
+                    "Apply one of: kotlin-multiplatform or kotlin-jvm."
             }
         }
     }
@@ -146,7 +145,6 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
         val platformType = when (kotlinExtension) {
             is KotlinJvmProjectExtension -> KotlinPlatformType.jvm
-            is KotlinJsProjectExtension -> KotlinPlatformType.js
             else -> {
                 project.logger.warn(
                     "BuildKonfig: unsupported Kotlin extension '${kotlinExtension::class.java.simpleName}'. " +
@@ -181,7 +179,9 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
 
         task.configure { t ->
             t.flavor.set(flavor)
-            t.hasJsTarget.set(platformType == KotlinPlatformType.js)
+            // Standalone Kotlin/JS is no longer supported (kotlin-js plugin removed in Kotlin 2.4.0);
+            // the only non-KMP target here is JVM, which never needs @JsExport.
+            t.hasJsTarget.set(false)
             t.commonSourceSetName.set(MAIN_SOURCESET_NAME)
             t.targetConfigFiles.set(mapOf(MAIN_SOURCESET_NAME to targetConfigFile))
             t.outputDirectories.put(MAIN_SOURCESET_NAME, t.outputDirectory.dir(MAIN_SOURCESET_NAME))
