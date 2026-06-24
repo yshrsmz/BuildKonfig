@@ -11,11 +11,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### ⚠ BREAKING CHANGES
 
 * remove standalone Kotlin/JS plugin support to unblock Kotlin 2.4.0 ([#333](https://github.com/yshrsmz/BuildKonfig/issues/333))
-* update Kotlin monorepo to 2.4.0 ([#333](https://github.com/yshrsmz/BuildKonfig/issues/333))
 
 ### Features
 
 * remove standalone Kotlin/JS plugin support to unblock Kotlin 2.4.0 ([#333](https://github.com/yshrsmz/BuildKonfig/issues/333)) ([52f8fe8](https://github.com/yshrsmz/BuildKonfig/commit/52f8fe8ff0248246f2132b9dc37d215808fb891d))
+* update Kotlin monorepo to 2.4.0 ([#333](https://github.com/yshrsmz/BuildKonfig/issues/333)) ([52f8fe8](https://github.com/yshrsmz/BuildKonfig/commit/52f8fe8ff0248246f2132b9dc37d215808fb891d))
 
 
 ### Bug Fixes
