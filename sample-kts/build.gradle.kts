@@ -38,7 +38,7 @@ kotlin {
         val commonMain by getting
         val commonTest by getting
 
-        val appMain by creating {
+        val appMain = create("appMain") {
             dependsOn(commonMain)
         }
 
@@ -46,7 +46,7 @@ kotlin {
             dependsOn(appMain)
         }
 
-        val desktopMain by creating {
+        val desktopMain = create("desktopMain") {
             dependsOn(appMain)
         }
 

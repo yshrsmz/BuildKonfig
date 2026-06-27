@@ -12,9 +12,9 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-val POM_URL: String by project
-val POM_DESCRIPTION: String by project
-val POM_NAME: String by project
+val POM_URL = project.property("POM_URL") as String
+val POM_DESCRIPTION = project.property("POM_DESCRIPTION") as String
+val POM_NAME = project.property("POM_NAME") as String
 
 gradlePlugin {
     website.set(POM_URL)
@@ -30,7 +30,7 @@ gradlePlugin {
     }
 }
 
-val fixtureClasspath by configurations.creating
+val fixtureClasspath = configurations.create("fixtureClasspath")
 
 // Append any extra dependencies to the test fixtures via a custom configuration classpath. This
 // allows us to apply additional plugins in a fixture while still leveraging dependency resolution
