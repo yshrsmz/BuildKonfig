@@ -6,8 +6,8 @@ plugins {
 }
 
 
-val GROUP: String by project
-val VERSION_NAME: String by project
+val GROUP = project.property("GROUP") as String
+val VERSION_NAME = project.property("VERSION_NAME") as String
 
 allprojects {
     repositories {
@@ -29,6 +29,5 @@ tasks.register("clean", Delete::class.java) {
 }
 
 tasks.wrapper {
-    gradleVersion = libs.versions.gradle.get()
     distributionType = Wrapper.DistributionType.ALL
 }
