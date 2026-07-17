@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.4.10"
 dokka = "2.2.0"
-android = "9.2.1"
+android = "9.3.0"
 ksp = "2.3.10"
 
 [libraries]
