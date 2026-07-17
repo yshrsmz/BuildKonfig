@@ -75,10 +75,10 @@ class BuildKonfigPluginAgpBaselineProfileTest : BaseGradlePluginTest() {
         val result = gradleRunner(projectDir)
             // Pin to a Gradle 9.x release so the strict input/output overlap validation
             // (the rule whose absence this test is guarding against) is always exercised
-            // regardless of the runtime Gradle TestKit happens to default to. AGP 9.2.x
+            // regardless of the runtime Gradle TestKit happens to default to. AGP 9.3.x
             // — the version used by this fixture's `com.android.kotlin.multiplatform.library`
-            // plugin — requires Gradle 9.4.1 or newer, so we pin to 9.4.1.
-            .withGradleVersion("9.4.1")
+            // plugin — requires Gradle 9.5.0 or newer, so we pin to 9.5.0.
+            .withGradleVersion("9.5.0")
             .withArguments("assembleAndroidMain", "--stacktrace")
             .build()
             .assertBuildSuccessful()
