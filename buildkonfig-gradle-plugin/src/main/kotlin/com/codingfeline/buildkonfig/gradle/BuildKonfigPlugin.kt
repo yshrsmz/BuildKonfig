@@ -271,15 +271,8 @@ fun decideOutputs(
  * before any `afterEvaluate` block runs. Resolution happens once during configuration and the
  * result is captured as a String constant on the task input, so configuration cache is unaffected.
  */
-internal fun Project.findFlavor(): String {
-    val flavor = findProperty(FLAVOR_PROPERTY) ?: ""
-    return if (flavor is String) {
-        flavor
-    } else {
-        logger.error("$FLAVOR_PROPERTY must be string. Fallback to non-flavored config: ${flavor::class.java}")
-        DEFAULT_FLAVOR
-    }
-}
+internal fun Project.findFlavor(): String =
+    providers.gradleProperty(FLAVOR_PROPERTY).orNull ?: DEFAULT_FLAVOR
 
 internal fun Logger.toBuildKonfigLogger(): BuildKonfigLogger {
     return BuildKonfigLogger { level, message ->
