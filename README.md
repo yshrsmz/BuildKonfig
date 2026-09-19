@@ -36,9 +36,10 @@ Rather I'd like to do it once.
 
 ### Requirements
 
-- Kotlin **2.1.0** or later
+- Kotlin **2.4.20** or later
+    - The plugin depends on the Kotlin Gradle Plugin 2.4.20, so declaring an older version resolves to 2.4.20 anyway.
 - One of: Kotlin Multiplatform or Kotlin/JVM plugin applied to the project (use Kotlin/JS via the KMP `js()` target)
-- Gradle 8 or later
+- Gradle **8.14** or later
 
 <a name="gradle-configuration"/>
 
@@ -57,7 +58,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.20")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.20")
         classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version")
     }
 }
@@ -95,7 +96,7 @@ buildScript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.20'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.20'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
 }
@@ -156,7 +157,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.20")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.20")
         classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version")
     }
 }
@@ -205,7 +206,7 @@ buildScript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.20'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.20'
         classpath 'com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:latest_version'
     }
 }
