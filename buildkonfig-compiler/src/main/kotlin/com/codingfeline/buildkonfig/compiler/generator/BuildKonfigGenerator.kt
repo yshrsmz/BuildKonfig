@@ -16,10 +16,12 @@ abstract class BuildKonfigGenerator(
     val objectAnnotations: List<AnnotationSpec>,
     val objectModifiers: List<KModifier>,
     val propertyModifiers: List<KModifier>,
-    val logger: BuildKonfigLogger
+    val logger: BuildKonfigLogger,
+    val fileSuppressions: List<String> = listOf(REDUNDANT_VISIBILITY_MODIFIER)
 ) {
     fun generateFile(packageName: String, objectName: String): FileSpec {
         val builder = FileSpec.builder(packageName, objectName)
+        builder.addAnnotation(suppressAnnotation(fileSuppressions))
         builder.addType(generateType(objectName))
         return builder.build()
     }
@@ -40,6 +42,18 @@ abstract class BuildKonfigGenerator(
     abstract fun generateProp(fieldSpec: FieldSpec): PropertySpec
 
     companion object {
+        /**
+         * KotlinPoet always emits an explicit `public` modifier, which the Kotlin compiler reports
+         * as a warning once `extraWarnings` is enabled.
+         */
+        private const val REDUNDANT_VISIBILITY_MODIFIER = "REDUNDANT_VISIBILITY_MODIFIER"
+
+        /**
+         * `expect`/`actual` objects are still in Beta and warned about on every use.
+         */
+        private const val EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA =
+            "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING"
+
         /**
          * Generate common object
          */
@@ -85,7 +99,8 @@ abstract class BuildKonfigGenerator(
                 objectAnnotations = emptyList(),
                 objectModifiers = objectModifiers,
                 propertyModifiers = emptyList(),
-                logger = logger
+                logger = logger,
+                fileSuppressions = listOf(REDUNDANT_VISIBILITY_MODIFIER, EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA)
             ) {
                 override fun generateProp(fieldSpec: FieldSpec): PropertySpec {
                     return PropertySpec.builder(fieldSpec.name, fieldSpec.typeName)
@@ -110,7 +125,8 @@ abstract class BuildKonfigGenerator(
                 objectAnnotations = annotations,
                 objectModifiers = objectModifiers,
                 propertyModifiers = listOf(KModifier.ACTUAL),
-                logger = logger
+                logger = logger,
+                fileSuppressions = listOf(REDUNDANT_VISIBILITY_MODIFIER, EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA)
             ) {
                 override fun generateProp(fieldSpec: FieldSpec): PropertySpec {
                     val spec = PropertySpec.builder(fieldSpec.name, fieldSpec.typeName)
@@ -133,6 +149,16 @@ abstract class BuildKonfigGenerator(
 
 private fun getVisibilityModifier(exposeObject: Boolean): KModifier =
     if (exposeObject) KModifier.PUBLIC else KModifier.INTERNAL
+
+/**
+ * Generated code is not meant to be hand-edited, so warnings it inevitably triggers are suppressed
+ * at the file level. Without this, projects using `allWarningsAsErrors` fail to compile.
+ */
+private fun suppressAnnotation(names: List<String>): AnnotationSpec =
+    AnnotationSpec.builder(ClassName("kotlin", "Suppress"))
+        .useSiteTarget(AnnotationSpec.UseSiteTarget.FILE)
+        .apply { names.forEach { addMember("%S", it) } }
+        .build()
 
 private fun getJsObjectAnnotations(): List<AnnotationSpec> {
     return listOf(

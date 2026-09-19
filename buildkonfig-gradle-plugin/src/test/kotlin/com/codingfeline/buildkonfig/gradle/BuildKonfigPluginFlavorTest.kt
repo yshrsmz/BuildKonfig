@@ -74,9 +74,12 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
         assertThat(commonResult.readText())
             .isEqualTo(
                 """
+                |@file:Suppress("REDUNDANT_VISIBILITY_MODIFIER")
+                |
                 |package com.example
                 |
                 |import kotlin.String
+                |import kotlin.Suppress
                 |
                 |internal object BuildKonfig {
                 |  public val stringValue: String = "defaultValue"
