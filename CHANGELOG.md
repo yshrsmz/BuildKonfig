@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.22.0...v0.23.0) (2026-09-19)
+
+
+### Features
+
+* fail fast on unsupported Gradle versions ([#367](https://github.com/yshrsmz/BuildKonfig/issues/367)) ([5ed0552](https://github.com/yshrsmz/BuildKonfig/commit/5ed0552bad607efef668a10f9601a8421e48b65c))
+
+
+### Bug Fixes
+
+* **deps:** update dependency com.android.tools.build:gradle to v9.3.0 ([#343](https://github.com/yshrsmz/BuildKonfig/issues/343)) ([d180407](https://github.com/yshrsmz/BuildKonfig/commit/d1804079c3680cafcf914a9882745b2fc29fe091))
+* **deps:** update dependency com.android.tools.build:gradle to v9.3.1 ([#346](https://github.com/yshrsmz/BuildKonfig/issues/346)) ([a1ddd29](https://github.com/yshrsmz/BuildKonfig/commit/a1ddd29590a60a0f87d6abdb0d0c91752eb82e52))
+* **deps:** update dependency com.android.tools.build:gradle to v9.3.2 ([#353](https://github.com/yshrsmz/BuildKonfig/issues/353)) ([9722fea](https://github.com/yshrsmz/BuildKonfig/commit/9722fea3839d622972cf9d9a00d1bd0d5955970c))
+* **deps:** update dependency com.android.tools.build:gradle to v9.4.0 ([#355](https://github.com/yshrsmz/BuildKonfig/issues/355)) ([a45fbe2](https://github.com/yshrsmz/BuildKonfig/commit/a45fbe21bc33476e67c959c8014814207ef0ab69))
+* **deps:** update dependency com.android.tools.build:gradle to v9.4.1 ([#364](https://github.com/yshrsmz/BuildKonfig/issues/364)) ([b167e34](https://github.com/yshrsmz/BuildKonfig/commit/b167e34105710664fb98d04fee6da303f7e11ee8))
+* **deps:** update dependency com.google.devtools.ksp:symbol-processing-gradle-plugin to v2.3.10 ([#340](https://github.com/yshrsmz/BuildKonfig/issues/340)) ([d3f11f3](https://github.com/yshrsmz/BuildKonfig/commit/d3f11f380ee45f7ebad565a83be0503b2daafb01))
+* **deps:** update dependency com.google.devtools.ksp:symbol-processing-gradle-plugin to v2.3.11 ([#350](https://github.com/yshrsmz/BuildKonfig/issues/350)) ([2e64b71](https://github.com/yshrsmz/BuildKonfig/commit/2e64b71a7e0f023a41cec28bd05806976cf1a76b))
+* **deps:** update dependency com.google.devtools.ksp:symbol-processing-gradle-plugin to v2.3.12 ([#359](https://github.com/yshrsmz/BuildKonfig/issues/359)) ([beeccb6](https://github.com/yshrsmz/BuildKonfig/commit/beeccb6fe709a4f4156274f29d8592eeea229778))
+* **deps:** update dependency com.squareup:kotlinpoet to v2.4.0 ([#357](https://github.com/yshrsmz/BuildKonfig/issues/357)) ([3f1b2bf](https://github.com/yshrsmz/BuildKonfig/commit/3f1b2bf7caa8065bc58569721eea643eae20ad93))
+* **deps:** update kotlin monorepo to v2.4.10 ([#342](https://github.com/yshrsmz/BuildKonfig/issues/342)) ([6c1ff7b](https://github.com/yshrsmz/BuildKonfig/commit/6c1ff7b775a99fe1f820ae66c14fee12977cf2e7))
+* **deps:** update kotlin monorepo to v2.4.20 ([#356](https://github.com/yshrsmz/BuildKonfig/issues/356)) ([0cc8564](https://github.com/yshrsmz/BuildKonfig/commit/0cc8564293c34ffe120ab070ed680c6483002793))
+* suppress compiler warnings in generated code ([#366](https://github.com/yshrsmz/BuildKonfig/issues/366)) ([2ca4927](https://github.com/yshrsmz/BuildKonfig/commit/2ca4927cf5a02979f7073d2445555cfd19fc3029))
+
 ## [0.22.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.21.2...v0.22.0) (2026-06-24)
 
 
