@@ -10,6 +10,7 @@ import com.codingfeline.buildkonfig.gradle.kotlin.sources
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
@@ -29,12 +30,32 @@ const val MAIN_SOURCESET_NAME = "main"
 // validation to fail with an implicit-dependency error.
 private const val OUTPUT_DIR_NAME = "generated/source/buildkonfig"
 
+/**
+ * Oldest Gradle version the plugin is known to work on.
+ *
+ * Below this, Kotlin DSL build scripts fail to configure because Gradle's bundled Kotlin
+ * compiler cannot read the metadata of the plugin classes, and Groovy DSL builds fail
+ * validation because `compileKotlin*` does not pick up the implicit dependency on
+ * `generateBuildKonfig`. Neither failure names this plugin, so the version is checked up
+ * front to fail with something actionable.
+ */
+private val MINIMUM_GRADLE_VERSION = GradleVersion.version("8.14")
+
+internal fun checkGradleVersion(current: GradleVersion) {
+    check(current >= MINIMUM_GRADLE_VERSION) {
+        "BuildKonfig requires Gradle ${MINIMUM_GRADLE_VERSION.version} or later, " +
+            "but is applied to ${current.version}."
+    }
+}
+
 @Suppress("unused")
 abstract class BuildKonfigPlugin : Plugin<Project> {
 
     private var configured = false
 
     override fun apply(target: Project) {
+        checkGradleVersion(GradleVersion.current())
+
         val extension = target.extensions.create("buildkonfig", BuildKonfigExtension::class.java, target.logger)
 
         // Detect any supported Kotlin plugin (multiplatform / jvm / android).
