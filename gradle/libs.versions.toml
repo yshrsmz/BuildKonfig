@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.4.20"
+kotlin = "2.4.21"
 dokka = "2.2.0"
 android = "9.4.1"
 ksp = "2.3.12"
