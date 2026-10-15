@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.1](https://github.com/yshrsmz/BuildKonfig/compare/v0.23.0...v0.23.1) (2026-10-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.jetbrains.kotlin:kotlin-gradle-plugin to v2.4.21 ([#372](https://github.com/yshrsmz/BuildKonfig/issues/372)) ([0bc13c5](https://github.com/yshrsmz/BuildKonfig/commit/0bc13c59e325d385fed680b6127141b71873698b))
+
 ## [0.23.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.22.0...v0.23.0) (2026-09-19)
 
 
