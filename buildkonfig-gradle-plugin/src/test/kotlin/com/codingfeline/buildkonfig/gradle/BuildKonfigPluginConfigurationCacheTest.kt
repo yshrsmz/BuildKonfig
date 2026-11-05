@@ -3,6 +3,7 @@ package com.codingfeline.buildkonfig.gradle
 import com.google.common.truth.Truth.assertThat
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Test
+import java.io.File
 
 class BuildKonfigPluginConfigurationCacheTest : BaseGradlePluginTest() {
 
@@ -158,5 +159,110 @@ class BuildKonfigPluginConfigurationCacheTest : BaseGradlePluginTest() {
             TaskOutcome.UP_TO_DATE,
             TaskOutcome.FROM_CACHE,
         )
+    }
+
+    private val configurationCacheArgs = listOf(
+        "generateBuildKonfig",
+        "--configuration-cache",
+        "--configuration-cache-problems=fail",
+        "--stacktrace",
+    )
+
+    private fun writeFlavorPropertiesBuild() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |   flavorPropertiesFile.set(layout.projectDirectory.file('flavor.properties'))
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
+            |   }
+            |   defaultConfigs("dev") {
+            |       buildConfigField 'STRING', 'stringValue', 'devDefaultValue'
+            |   }
+            |   defaultConfigs("release") {
+            |       buildConfigField 'STRING', 'stringValue', 'releaseDefaultValue'
+            |   }
+            |}
+            |
+            |$buildFileKMPConfig
+            """.trimMargin()
+        )
+    }
+
+    private fun commonConfigText(buildDir: File): String =
+        buildKonfigFile(buildDir, "commonMain", "com.example").readText()
+
+    @Test
+    fun `editing the flavor properties file invalidates the configuration cache`() {
+        writeFlavorPropertiesBuild()
+        val flavorFile = projectDir.newFile("flavor.properties")
+        flavorFile.writeText("buildkonfig.flavor=dev\n")
+
+        val buildDir = projectDir.buildKonfigDir()
+        val runner = gradleRunner(projectDir)
+
+        val firstRun = runner.withArguments(configurationCacheArgs).build().assertBuildSuccessful()
+        assertThat(firstRun.output).contains("Configuration cache entry stored")
+        assertThat(commonConfigText(buildDir)).contains("val stringValue: String = \"devDefaultValue\"")
+
+        val secondRun = runner.withArguments(configurationCacheArgs).build().assertBuildSuccessful()
+        assertThat(secondRun.output).contains("Configuration cache entry reused")
+
+        flavorFile.writeText("buildkonfig.flavor=release\n")
+
+        val thirdRun = runner.withArguments(configurationCacheArgs).build().assertBuildSuccessful()
+        assertThat(thirdRun.output).contains("cannot be reused")
+        assertThat(thirdRun.output).doesNotContain("Configuration cache entry reused")
+        assertThat(commonConfigText(buildDir)).contains("val stringValue: String = \"releaseDefaultValue\"")
+    }
+
+    @Test
+    fun `creating a missing flavor properties file invalidates the configuration cache`() {
+        writeFlavorPropertiesBuild()
+
+        val buildDir = projectDir.buildKonfigDir()
+        val runner = gradleRunner(projectDir)
+
+        val firstRun = runner.withArguments(configurationCacheArgs).build().assertBuildSuccessful()
+        assertThat(firstRun.output).contains("Configuration cache entry stored")
+        assertThat(commonConfigText(buildDir)).contains("val stringValue: String = \"defaultValue\"")
+
+        val secondRun = runner.withArguments(configurationCacheArgs).build().assertBuildSuccessful()
+        assertThat(secondRun.output).contains("Configuration cache entry reused")
+
+        projectDir.newFile("flavor.properties").writeText("buildkonfig.flavor=dev\n")
+
+        val thirdRun = runner.withArguments(configurationCacheArgs).build().assertBuildSuccessful()
+        assertThat(thirdRun.output).contains("cannot be reused")
+        assertThat(thirdRun.output).doesNotContain("Configuration cache entry reused")
+        assertThat(commonConfigText(buildDir)).contains("val stringValue: String = \"devDefaultValue\"")
+    }
+
+    @Test
+    fun `deleting the flavor properties file invalidates the configuration cache`() {
+        writeFlavorPropertiesBuild()
+        val flavorFile = projectDir.newFile("flavor.properties")
+        flavorFile.writeText("buildkonfig.flavor=dev\n")
+
+        val buildDir = projectDir.buildKonfigDir()
+        val runner = gradleRunner(projectDir)
+
+        val firstRun = runner.withArguments(configurationCacheArgs).build().assertBuildSuccessful()
+        assertThat(firstRun.output).contains("Configuration cache entry stored")
+        assertThat(commonConfigText(buildDir)).contains("val stringValue: String = \"devDefaultValue\"")
+
+        val secondRun = runner.withArguments(configurationCacheArgs).build().assertBuildSuccessful()
+        assertThat(secondRun.output).contains("Configuration cache entry reused")
+
+        check(flavorFile.delete())
+
+        val thirdRun = runner.withArguments(configurationCacheArgs).build().assertBuildSuccessful()
+        assertThat(thirdRun.output).contains("cannot be reused")
+        assertThat(thirdRun.output).doesNotContain("Configuration cache entry reused")
+        assertThat(commonConfigText(buildDir)).contains("val stringValue: String = \"defaultValue\"")
     }
 }

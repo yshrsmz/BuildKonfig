@@ -46,6 +46,53 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
         appendGradleProperties("buildkonfig.flavor=dev")
     }
 
+    private fun writeFlavoredBuildFile(extraInside: String = "", trailing: String = "") {
+        val extraBlock = if (extraInside.isBlank()) {
+            ""
+        } else {
+            extraInside.trimIndent().lineSequence().joinToString("\n") { "   $it" } + "\n"
+        }
+        val trailingBlock = if (trailing.isBlank()) {
+            ""
+        } else {
+            "\n" + trailing.trimIndent() + "\n"
+        }
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |$extraBlock
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
+            |   }
+            |   defaultConfigs("dev") {
+            |       buildConfigField 'STRING', 'stringValue', 'devDefaultValue'
+            |   }
+            |   defaultConfigs("release") {
+            |       buildConfigField 'STRING', 'stringValue', 'releaseDefaultValue'
+            |   }
+            |}
+            |$buildFileKMPConfig
+            |$trailingBlock
+            """.trimMargin()
+        )
+    }
+
+    private fun generateCommon(vararg extraArgs: String): String {
+        val buildDir = projectDir.buildKonfigDir()
+        gradleRunner(projectDir)
+            .withArguments(listOf("generateBuildKonfig", "--stacktrace") + extraArgs)
+            .build()
+            .assertBuildSuccessful()
+        return buildKonfigFile(buildDir, "commonMain", "com.example").readText()
+    }
+
+    private fun writeProperties(name: String, contents: String) {
+        projectDir.newFile(name).writeText(if (contents.endsWith("\n")) contents else "$contents\n")
+    }
+
     @Test
     fun `common object should be generated if there is no targetConfigs`() {
         buildFile.writeText(
@@ -795,5 +842,217 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
         val releaseCommon = buildKonfigFile(buildDir, "commonMain", "com.example")
         assertThat(releaseCommon.readText())
             .contains("val stringValue: String = \"releaseDefaultValue\"")
+    }
+
+    @Test
+    fun `flavor can be obtained from a properties file`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile = layout.projectDirectory.file('konfig.properties')",
+        )
+        writeProperties("konfig.properties", "buildkonfig.flavor=dev")
+
+        assertThat(generateCommon())
+            .contains("val stringValue: String = \"devDefaultValue\"")
+    }
+
+    @Test
+    fun `flavor properties file overrides gradle properties`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(layout.projectDirectory.file('konfig.properties'))",
+        )
+        appendGradleProperties("buildkonfig.flavor=release")
+        writeProperties("konfig.properties", "buildkonfig.flavor=dev")
+
+        assertThat(generateCommon())
+            .contains("val stringValue: String = \"devDefaultValue\"")
+    }
+
+    @Test
+    fun `cli parameter overrides flavor properties file and gradle properties`() {
+        writeFlavoredBuildFile(
+            extraInside = """
+                flavorPropertiesFile.set(layout.projectDirectory.file('konfig.properties'))
+                defaultConfigs("ci") {
+                    buildConfigField 'STRING', 'stringValue', 'ciValue'
+                }
+            """,
+        )
+        appendGradleProperties("buildkonfig.flavor=dev")
+        writeProperties("konfig.properties", "buildkonfig.flavor=release")
+
+        assertThat(generateCommon("-Pbuildkonfig.flavor=ci"))
+            .contains("val stringValue: String = \"ciValue\"")
+    }
+
+    @Test
+    fun `flavor properties file can be the root project local properties`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(rootProject.layout.projectDirectory.file('local.properties'))",
+        )
+        writeProperties("local.properties", "buildkonfig.flavor=dev")
+
+        assertThat(generateCommon())
+            .contains("val stringValue: String = \"devDefaultValue\"")
+    }
+
+    @Test
+    fun `unset flavor properties file does not read local properties`() {
+        writeFlavoredBuildFile()
+        writeProperties("local.properties", "buildkonfig.flavor=dev")
+
+        assertThat(generateCommon())
+            .contains("val stringValue: String = \"defaultValue\"")
+    }
+
+    @Test
+    fun `missing flavor properties file falls back to gradle properties`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(layout.projectDirectory.file('konfig.properties'))",
+        )
+        appendGradleProperties("buildkonfig.flavor=dev")
+
+        assertThat(generateCommon())
+            .contains("val stringValue: String = \"devDefaultValue\"")
+    }
+
+    @Test
+    fun `flavor properties file without the key falls back to gradle properties`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(layout.projectDirectory.file('konfig.properties'))",
+        )
+        writeProperties("konfig.properties", "some.other=value")
+        appendGradleProperties("buildkonfig.flavor=dev")
+
+        assertThat(generateCommon())
+            .contains("val stringValue: String = \"devDefaultValue\"")
+    }
+
+    @Test
+    fun `flavor properties file without the key and without project properties uses defaults`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(layout.projectDirectory.file('konfig.properties'))",
+        )
+        writeProperties("konfig.properties", "some.other=value")
+
+        assertThat(generateCommon())
+            .contains("val stringValue: String = \"defaultValue\"")
+    }
+
+    @Test
+    fun `empty flavor in properties file selects non-flavored defaults`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(layout.projectDirectory.file('konfig.properties'))",
+        )
+        writeProperties("konfig.properties", "buildkonfig.flavor=")
+        appendGradleProperties("buildkonfig.flavor=dev")
+
+        assertThat(generateCommon())
+            .contains("val stringValue: String = \"defaultValue\"")
+    }
+
+    @Test
+    fun `unrelated keys in flavor properties file do not become project properties`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(layout.projectDirectory.file('konfig.properties'))",
+            trailing = """
+                afterEvaluate {
+                    if (findProperty('some.unrelated') != null) {
+                        throw new GradleException('unrelated key leaked: ' + findProperty('some.unrelated'))
+                    }
+                }
+            """,
+        )
+        writeProperties(
+            "konfig.properties",
+            """
+            some.unrelated=leaked
+            buildkonfig.flavor=dev
+            """.trimIndent(),
+        )
+
+        assertThat(generateCommon())
+            .contains("val stringValue: String = \"devDefaultValue\"")
+    }
+
+    @Test
+    fun `script-defined flavor is used when flavor properties file is unset`() {
+        writeFlavoredBuildFile(
+            trailing = "extensions.extraProperties.set('buildkonfig.flavor', 'dev')",
+        )
+
+        assertThat(generateCommon())
+            .contains("val stringValue: String = \"devDefaultValue\"")
+    }
+
+    @Test
+    fun `script-defined flavor is used when flavor properties file lacks the key`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(layout.projectDirectory.file('konfig.properties'))",
+            trailing = "extensions.extraProperties.set('buildkonfig.flavor', 'dev')",
+        )
+        writeProperties("konfig.properties", "some.other=value")
+
+        assertThat(generateCommon())
+            .contains("val stringValue: String = \"devDefaultValue\"")
+    }
+
+    @Test
+    fun `malformed flavor properties file fails with the file path`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(layout.projectDirectory.file('broken.properties'))",
+        )
+        writeProperties("broken.properties", "buildkonfig.flavor=\\uZZZZ")
+
+        val result = gradleRunner(projectDir)
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .buildAndFail()
+
+        assertThat(result.output).contains("Failed to read BuildKonfig flavor properties file")
+        assertThat(result.output).contains("broken.properties")
+    }
+
+    @Test
+    fun `flavor properties file that is a directory fails with the path`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(layout.projectDirectory.file('flavor-dir'))",
+        )
+        projectDir.newFolder("flavor-dir")
+
+        val result = gradleRunner(projectDir)
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .buildAndFail()
+
+        assertThat(result.output).contains("Failed to read BuildKonfig flavor properties file")
+        assertThat(result.output).contains("flavor-dir")
+        assertThat(result.output).contains("directory")
+    }
+
+    @Test
+    fun `cli flavor bypasses an unreadable flavor properties file`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(layout.projectDirectory.file('broken.properties'))",
+        )
+        writeProperties("broken.properties", "buildkonfig.flavor=\\uZZZZ")
+
+        val buildDir = projectDir.buildKonfigDir()
+        val result = gradleRunner(projectDir)
+            .withArguments("generateBuildKonfig", "--stacktrace", "-Pbuildkonfig.flavor=release")
+            .build()
+            .assertBuildSuccessful()
+
+        assertThat(result.output).doesNotContain("Failed to read BuildKonfig flavor properties file")
+        assertThat(buildKonfigFile(buildDir, "commonMain", "com.example").readText())
+            .contains("val stringValue: String = \"releaseDefaultValue\"")
+    }
+
+    @Test
+    fun `empty cli flavor overrides flavor properties file`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(layout.projectDirectory.file('konfig.properties'))",
+        )
+        writeProperties("konfig.properties", "buildkonfig.flavor=dev")
+
+        assertThat(generateCommon("-Pbuildkonfig.flavor="))
+            .contains("val stringValue: String = \"defaultValue\"")
     }
 }

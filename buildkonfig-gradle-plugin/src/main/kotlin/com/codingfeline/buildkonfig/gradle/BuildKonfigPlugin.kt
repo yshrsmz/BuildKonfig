@@ -7,9 +7,12 @@ import org.gradle.api.logging.Logger
 import com.codingfeline.buildkonfig.compiler.TargetConfig
 import com.codingfeline.buildkonfig.compiler.TargetName
 import com.codingfeline.buildkonfig.gradle.kotlin.sources
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFile
 import org.gradle.api.tasks.TaskProvider
+import java.util.Properties
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -120,7 +123,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
         task: TaskProvider<BuildKonfigTask>,
         kmpExtension: KotlinMultiplatformExtension,
     ) {
-        val flavor = project.findFlavor()
+        val flavor = project.findFlavor(extension)
 
         val mergedConfigs = extension.mergeConfigs(project.logger.toBuildKonfigLogger(), flavor)
             ?: return
@@ -182,7 +185,7 @@ abstract class BuildKonfigPlugin : Plugin<Project> {
             )
         }
 
-        val flavor = project.findFlavor()
+        val flavor = project.findFlavor(extension)
         val mergedConfigs = extension.mergeConfigs(
             project.logger.toBuildKonfigLogger(),
             flavor,
@@ -284,22 +287,93 @@ fun decideOutputs(
 }
 
 /**
- * Resolves the BuildKonfig flavor from project properties.
+ * Resolves the BuildKonfig flavor.
  *
- * Uses [Project.findProperty] (rather than [org.gradle.api.provider.ProviderFactory.gradleProperty])
- * so that callers can influence the flavor from the build script — e.g. by inspecting
- * `gradle.startParameter.taskNames` and calling `project.extensions.extraProperties.set(...)` —
- * before any `afterEvaluate` block runs. Resolution happens once during configuration and the
- * result is captured as a String constant on the task input, so configuration cache is unaffected.
+ * Precedence, highest first:
+ * 1. An explicit `-Pbuildkonfig.flavor`, including an empty string. Command-line properties
+ *    come from [org.gradle.StartParameter.getProjectProperties], so this wins over the flavor
+ *    file and over `gradle.properties`. The file is not read.
+ * 2. `buildkonfig.flavor` in [BuildKonfigExtension.flavorPropertiesFile], when that property
+ *    is set and the key is present, including an empty string. A missing file or a missing
+ *    key falls through. Contents are read with
+ *    [org.gradle.api.provider.ProviderFactory.fileContents] so the configuration cache tracks
+ *    the file, including creation and deletion.
+ * 3. [Project.findProperty]. This sees `gradle.properties` and extra properties set from the
+ *    build script — for example after inspecting `gradle.startParameter.taskNames` and calling
+ *    `project.extensions.extraProperties.set` — before `afterEvaluate`. A non-string value logs
+ *    an error and selects the non-flavored config.
+ *
+ * The resolved string is captured on the task input. Project properties are left unchanged.
  */
-internal fun Project.findFlavor(): String {
-    val flavor = findProperty(FLAVOR_PROPERTY) ?: ""
+internal fun Project.findFlavor(extension: BuildKonfigExtension): String {
+    val commandLineProperties = gradle.startParameter.projectProperties
+    if (commandLineProperties.containsKey(FLAVOR_PROPERTY)) {
+        return commandLineProperties[FLAVOR_PROPERTY] ?: DEFAULT_FLAVOR
+    }
+
+    val propertiesFile = extension.flavorPropertiesFile.orNull
+    if (propertiesFile != null) {
+        val flavorFromFile = readFlavorFromPropertiesFile(propertiesFile)
+        if (flavorFromFile != null) {
+            return flavorFromFile
+        }
+    }
+
+    val flavor = findProperty(FLAVOR_PROPERTY) ?: return DEFAULT_FLAVOR
     return if (flavor is String) {
         flavor
     } else {
         logger.error("$FLAVOR_PROPERTY must be string. Fallback to non-flavored config: ${flavor::class.java}")
         DEFAULT_FLAVOR
     }
+}
+
+/**
+ * @return the file's flavor, [DEFAULT_FLAVOR] when the key is present but empty, or `null`
+ * when the file or the key is absent so the caller can fall back.
+ */
+private fun Project.readFlavorFromPropertiesFile(file: RegularFile): String? {
+    val contents = try {
+        providers.fileContents(file).asBytes.orNull
+    } catch (e: Exception) {
+        throw flavorPropertiesFailure(file, e)
+    }
+
+    if (contents == null) {
+        // fileContents has no value when the path is missing or is a directory.
+        if (file.asFile.isDirectory) {
+            throw flavorPropertiesFailure(file, "the path is a directory.")
+        }
+        return null
+    }
+
+    val properties = Properties()
+    try {
+        // Standard Java properties: ISO-8859-1, with unicode escapes decoded by Properties.load.
+        contents.inputStream().use { stream -> properties.load(stream) }
+    } catch (e: Exception) {
+        throw flavorPropertiesFailure(file, e)
+    }
+
+    if (!properties.containsKey(FLAVOR_PROPERTY)) {
+        return null
+    }
+    // An empty value is an intentional non-flavored selection, distinct from a missing key.
+    return properties.getProperty(FLAVOR_PROPERTY) ?: DEFAULT_FLAVOR
+}
+
+private fun flavorPropertiesFailure(file: RegularFile, cause: Exception): GradleException {
+    return flavorPropertiesFailure(file, cause.message ?: cause.javaClass.simpleName, cause)
+}
+
+private fun flavorPropertiesFailure(
+    file: RegularFile,
+    detail: String,
+    cause: Throwable? = null,
+): GradleException {
+    val message =
+        "Failed to read BuildKonfig flavor properties file '${file.asFile.absolutePath}': $detail"
+    return if (cause == null) GradleException(message) else GradleException(message, cause)
 }
 
 internal fun Logger.toBuildKonfigLogger(): BuildKonfigLogger {
