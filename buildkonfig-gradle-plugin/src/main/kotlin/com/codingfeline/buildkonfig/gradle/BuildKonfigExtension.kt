@@ -3,6 +3,7 @@ package com.codingfeline.buildkonfig.gradle
 import com.codingfeline.buildkonfig.compiler.DEFAULT_KONFIG_OBJECT_NAME
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logger
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -17,6 +18,16 @@ abstract class BuildKonfigExtension @Inject constructor(
     abstract val packageName: Property<String>
     abstract val objectName: Property<String>
     abstract val exposeObjectWithName: Property<String>
+
+    /**
+     * Optional Java properties file whose `buildkonfig.flavor` entry selects the flavor.
+     *
+     * Leave this unset to resolve the flavor from project properties only. Point it at an
+     * explicit file, such as the root project's `local.properties`, to read the flavor from
+     * that file. A missing file or a missing key falls back to project properties. An empty
+     * value selects the non-flavored config.
+     */
+    abstract val flavorPropertiesFile: RegularFileProperty
 
     val defaultConfigs: MutableMap<String, TargetConfigDsl> = mutableMapOf()
     val targetConfigs: MutableMap<String, NamedDomainObjectContainer<TargetConfigDsl>> = mutableMapOf()

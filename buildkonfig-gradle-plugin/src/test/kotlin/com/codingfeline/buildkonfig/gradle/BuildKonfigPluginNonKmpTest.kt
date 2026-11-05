@@ -108,6 +108,39 @@ class BuildKonfigPluginNonKmpTest : BaseGradlePluginTest() {
     }
 
     @Test
+    fun `flavor properties file selects the flavor on a Kotlin JVM project`() {
+        buildFile.writeText(
+            """
+            |$jvmBuildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.sample"
+            |   flavorPropertiesFile.set(layout.projectDirectory.file('flavor.properties'))
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'env', 'production'
+            |   }
+            |   defaultConfigs("staging") {
+            |       buildConfigField 'STRING', 'env', 'staging'
+            |   }
+            |}
+            """.trimMargin()
+        )
+
+        projectDir.newFile("flavor.properties").writeText("buildkonfig.flavor=staging\n")
+
+        val buildDir = projectDir.buildKonfigDir()
+
+        gradleRunner(projectDir)
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+            .assertBuildSuccessful()
+
+        assertThat(buildKonfigFile(buildDir, "main", "com.sample").readText())
+            .contains("public val env: String = \"staging\"")
+    }
+
+    @Test
     fun `non-KMP JVM project is compatible with Configuration Cache`() {
         buildFile.writeText(
             """
