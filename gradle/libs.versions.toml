@@ -2,7 +2,7 @@
 kotlin = "2.4.21"
 dokka = "2.2.0"
 android = "9.5.0"
-ksp = "2.3.12"
+ksp = "2.3.13"
 
 [libraries]
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "2.4.0" }
