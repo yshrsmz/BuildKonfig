@@ -24,6 +24,13 @@ class BuildKonfigPluginConfigurationCacheTest : BaseGradlePluginTest() {
         |}
     """.trimMargin()
 
+    private val configurationCacheArgs = listOf(
+        "generateBuildKonfig",
+        "--configuration-cache",
+        "--configuration-cache-problems=fail",
+        "--stacktrace",
+    )
+
     @Test
     fun `generateBuildKonfig is compatible with Configuration Cache`() {
         buildFile.writeText(
@@ -53,24 +60,14 @@ class BuildKonfigPluginConfigurationCacheTest : BaseGradlePluginTest() {
 
         // First run: store the configuration cache entry.
         val firstRun = runner
-            .withArguments(
-                "generateBuildKonfig",
-                "--configuration-cache",
-                "--configuration-cache-problems=fail",
-                "--stacktrace"
-            )
+            .withArguments(configurationCacheArgs)
             .build()
 
         assertThat(firstRun.output).contains("Configuration cache entry stored")
 
         // Second run: reuse the configuration cache entry.
         val secondRun = runner
-            .withArguments(
-                "generateBuildKonfig",
-                "--configuration-cache",
-                "--configuration-cache-problems=fail",
-                "--stacktrace"
-            )
+            .withArguments(configurationCacheArgs)
             .build()
 
         assertThat(secondRun.output).contains("Configuration cache entry reused")
@@ -157,6 +154,97 @@ class BuildKonfigPluginConfigurationCacheTest : BaseGradlePluginTest() {
         assertThat(secondRun.task(":generateBuildKonfig")?.outcome).isAnyOf(
             TaskOutcome.UP_TO_DATE,
             TaskOutcome.FROM_CACHE,
+        )
+    }
+
+    private fun writeFlavorPropertiesBuild() {
+        buildFile.writeText(
+            """
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |   flavorPropertiesFile.set(layout.projectDirectory.file('flavor.properties'))
+            |
+            |   defaultConfigs {
+            |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
+            |   }
+            |   defaultConfigs("dev") {
+            |       buildConfigField 'STRING', 'stringValue', 'devDefaultValue'
+            |   }
+            |   defaultConfigs("release") {
+            |       buildConfigField 'STRING', 'stringValue', 'releaseDefaultValue'
+            |   }
+            |}
+            |
+            |$buildFileKMPConfig
+            """.trimMargin()
+        )
+    }
+
+    /**
+     * Stores and reuses a configuration cache entry, applies [changeFlavorFile], and asserts
+     * that the next run discards the entry and generates [expectedAfter].
+     */
+    private fun assertFlavorFileChangeInvalidatesCache(
+        expectedBefore: String,
+        changeFlavorFile: () -> Unit,
+        expectedAfter: String,
+    ) {
+        val buildDir = projectDir.buildKonfigDir()
+        val runner = gradleRunner(projectDir).withArguments(configurationCacheArgs)
+
+        val firstRun = runner.build().assertBuildSuccessful()
+        assertThat(firstRun.output).contains("Configuration cache entry stored")
+        assertThat(buildKonfigFile(buildDir, "commonMain", "com.example").readText())
+            .contains("val stringValue: String = \"$expectedBefore\"")
+
+        val secondRun = runner.build().assertBuildSuccessful()
+        assertThat(secondRun.output).contains("Configuration cache entry reused")
+
+        changeFlavorFile()
+
+        val thirdRun = runner.build().assertBuildSuccessful()
+        assertThat(thirdRun.output).contains("cannot be reused")
+        assertThat(thirdRun.output).doesNotContain("Configuration cache entry reused")
+        assertThat(buildKonfigFile(buildDir, "commonMain", "com.example").readText())
+            .contains("val stringValue: String = \"$expectedAfter\"")
+    }
+
+    @Test
+    fun `editing the flavor properties file invalidates the configuration cache`() {
+        writeFlavorPropertiesBuild()
+        val flavorFile = projectDir.newFile("flavor.properties")
+        flavorFile.writeText("buildkonfig.flavor=dev")
+
+        assertFlavorFileChangeInvalidatesCache(
+            expectedBefore = "devDefaultValue",
+            changeFlavorFile = { flavorFile.writeText("buildkonfig.flavor=release") },
+            expectedAfter = "releaseDefaultValue",
+        )
+    }
+
+    @Test
+    fun `creating a missing flavor properties file invalidates the configuration cache`() {
+        writeFlavorPropertiesBuild()
+
+        assertFlavorFileChangeInvalidatesCache(
+            expectedBefore = "defaultValue",
+            changeFlavorFile = { projectDir.newFile("flavor.properties").writeText("buildkonfig.flavor=dev") },
+            expectedAfter = "devDefaultValue",
+        )
+    }
+
+    @Test
+    fun `deleting the flavor properties file invalidates the configuration cache`() {
+        writeFlavorPropertiesBuild()
+        val flavorFile = projectDir.newFile("flavor.properties")
+        flavorFile.writeText("buildkonfig.flavor=dev")
+
+        assertFlavorFileChangeInvalidatesCache(
+            expectedBefore = "devDefaultValue",
+            changeFlavorFile = { check(flavorFile.delete()) },
+            expectedAfter = "defaultValue",
         )
     }
 }

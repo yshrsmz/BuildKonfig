@@ -458,6 +458,81 @@ buildkonfig {
 In a development phase you can change value in `gradle.properties` as you like.  
 In CI environment, you can pass value via CLI `$ ./gradlew build -Pbuildkonfig.flavor=release`
 
+<a name="flavor-properties-file"/>
+
+#### Flavor from a properties file
+
+Set `flavorPropertiesFile` to read `buildkonfig.flavor` from a Java properties file.
+
+The flavor is chosen in this order:
+
+1. A flavor passed from outside the build, including when the value is empty, in this order: `-Pbuildkonfig.flavor`, `-Dorg.gradle.project.buildkonfig.flavor`, the `ORG_GRADLE_PROJECT_buildkonfig.flavor` environment variable
+2. `buildkonfig.flavor` in the configured file, including when the value is empty
+3. The `buildkonfig.flavor` project property (`gradle.properties` in the project or in `GRADLE_USER_HOME`, or a property set from the build script)
+
+An empty value selects the non-flavored `defaultConfigs`. When the configured file is missing or does not define the key, step 3 is used. Only `buildkonfig.flavor` is read from the file.
+
+Step 1 applies even when `flavorPropertiesFile` is not set, so a flavor passed with `-P`, `-D`, or the environment variable also overrides a flavor that the build script sets through `ext` or `extraProperties`.
+
+Root project `local.properties`:
+
+<details open>
+<summary>Kotlin DSL</summary>
+
+```kotlin
+buildkonfig {
+    packageName = "com.example.app"
+    flavorPropertiesFile.set(rootProject.layout.projectDirectory.file("local.properties"))
+}
+```
+
+</details>
+
+<details>
+<summary>Groovy DSL</summary>
+
+```gradle
+buildkonfig {
+    packageName = 'com.example.app'
+    flavorPropertiesFile.set(rootProject.layout.projectDirectory.file('local.properties'))
+}
+```
+
+</details>
+
+Any other properties file:
+
+<details open>
+<summary>Kotlin DSL</summary>
+
+```kotlin
+buildkonfig {
+    packageName = "com.example.app"
+    flavorPropertiesFile.set(layout.projectDirectory.file("config/flavor.properties"))
+}
+```
+
+</details>
+
+<details>
+<summary>Groovy DSL</summary>
+
+```gradle
+buildkonfig {
+    packageName = 'com.example.app'
+    flavorPropertiesFile.set(layout.projectDirectory.file('config/flavor.properties'))
+}
+```
+
+</details>
+
+```properties
+# local.properties or config/flavor.properties
+buildkonfig.flavor=dev
+```
+
+In CI, `-Pbuildkonfig.flavor=release` or `ORG_GRADLE_PROJECT_buildkonfig.flavor=release` still overrides the file.
+
 
 <a name="overwriting-values"/>
 

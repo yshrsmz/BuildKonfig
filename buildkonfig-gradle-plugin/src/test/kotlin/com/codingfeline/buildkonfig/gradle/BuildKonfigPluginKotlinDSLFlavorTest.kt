@@ -76,4 +76,40 @@ class BuildKonfigPluginKotlinDSLFlavorTest : BaseGradlePluginTest() {
         assertThat(iosResult.readText())
             .contains("defaultValue")
     }
+
+    @Test
+    fun `flavor can be obtained from root project local properties`() {
+        buildFile.writeText(
+            """
+            |import com.codingfeline.buildkonfig.compiler.FieldSpec.Type
+            |$buildFileHeader
+            |
+            |buildkonfig {
+            |   packageName = "com.example"
+            |   flavorPropertiesFile.set(rootProject.layout.projectDirectory.file("local.properties"))
+            |
+            |   defaultConfigs {
+            |       buildConfigField(Type.STRING, "stringValue", "defaultValue")
+            |   }
+            |   defaultConfigs("dev") {
+            |       buildConfigField(Type.STRING, "stringValue", "devValue")
+            |   }
+            |}
+            |
+            |$buildFileKMPConfig
+            """.trimMargin()
+        )
+
+        projectDir.newFile("local.properties").writeText("buildkonfig.flavor=dev\n")
+
+        val buildDir = projectDir.buildKonfigDir()
+
+        gradleRunner(projectDir)
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+            .assertBuildSuccessful()
+
+        assertThat(buildKonfigFile(buildDir, "commonMain", "com.example").readText())
+            .contains("val stringValue: String = \"devValue\"")
+    }
 }
