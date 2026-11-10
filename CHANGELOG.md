@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.23.0...v0.24.0) (2026-11-10)
+
+
+### Features
+
+* load flavor from a configurable properties file ([#381](https://github.com/yshrsmz/BuildKonfig/issues/381)) ([3a0a74e](https://github.com/yshrsmz/BuildKonfig/commit/3a0a74e6c8f67eaaad6510c48499fcab570bb818))
+
+
+### Bug Fixes
+
+* **deps:** update dependency com.android.tools.build:gradle to v9.5.0 ([#380](https://github.com/yshrsmz/BuildKonfig/issues/380)) ([61e4641](https://github.com/yshrsmz/BuildKonfig/commit/61e46413048a74e7a552f5da1d4c0654944a6712))
+* **deps:** update dependency com.google.devtools.ksp:symbol-processing-gradle-plugin to v2.3.13 ([#382](https://github.com/yshrsmz/BuildKonfig/issues/382)) ([2502c70](https://github.com/yshrsmz/BuildKonfig/commit/2502c7057c070cd5176f82392c22ee757965be3c))
+* **deps:** update dependency org.jetbrains.kotlin:kotlin-gradle-plugin to v2.4.21 ([#372](https://github.com/yshrsmz/BuildKonfig/issues/372)) ([0bc13c5](https://github.com/yshrsmz/BuildKonfig/commit/0bc13c59e325d385fed680b6127141b71873698b))
+
 ## [0.23.0](https://github.com/yshrsmz/BuildKonfig/compare/v0.22.0...v0.23.0) (2026-09-19)
 
 
