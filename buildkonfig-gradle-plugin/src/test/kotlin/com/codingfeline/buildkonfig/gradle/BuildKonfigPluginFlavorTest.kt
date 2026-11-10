@@ -1055,4 +1055,46 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
         assertThat(generateCommon("-Pbuildkonfig.flavor="))
             .contains("val stringValue: String = \"defaultValue\"")
     }
+
+    @Test
+    fun `system property flavor overrides flavor properties file and gradle properties`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(layout.projectDirectory.file('konfig.properties'))",
+        )
+        appendGradleProperties("buildkonfig.flavor=dev")
+        writeProperties("konfig.properties", "buildkonfig.flavor=dev")
+
+        assertThat(generateCommon("-Dorg.gradle.project.buildkonfig.flavor=release"))
+            .contains("val stringValue: String = \"releaseDefaultValue\"")
+    }
+
+    @Test
+    fun `environment variable flavor overrides flavor properties file and gradle properties`() {
+        writeFlavoredBuildFile(
+            extraInside = "flavorPropertiesFile.set(layout.projectDirectory.file('konfig.properties'))",
+        )
+        appendGradleProperties("buildkonfig.flavor=dev")
+        writeProperties("konfig.properties", "buildkonfig.flavor=dev")
+
+        val buildDir = projectDir.buildKonfigDir()
+        gradleRunner(projectDir)
+            // withEnvironment replaces the whole environment, so keep the inherited variables.
+            .withEnvironment(System.getenv() + ("ORG_GRADLE_PROJECT_buildkonfig.flavor" to "release"))
+            .withArguments("generateBuildKonfig", "--stacktrace")
+            .build()
+            .assertBuildSuccessful()
+
+        assertThat(buildKonfigFile(buildDir, "commonMain", "com.example").readText())
+            .contains("val stringValue: String = \"releaseDefaultValue\"")
+    }
+
+    @Test
+    fun `cli flavor overrides script-defined flavor when flavor properties file is unset`() {
+        writeFlavoredBuildFile(
+            trailing = "extensions.extraProperties.set('buildkonfig.flavor', 'dev')",
+        )
+
+        assertThat(generateCommon("-Pbuildkonfig.flavor=release"))
+            .contains("val stringValue: String = \"releaseDefaultValue\"")
+    }
 }

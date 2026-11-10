@@ -25,7 +25,9 @@ abstract class BuildKonfigExtension @Inject constructor(
      * Leave this unset to resolve the flavor from project properties only. Point it at an
      * explicit file, such as the root project's `local.properties`, to read the flavor from
      * that file. A missing file or a missing key falls back to project properties. An empty
-     * value selects the non-flavored config.
+     * value selects the non-flavored config. A flavor passed with `-P`,
+     * `-Dorg.gradle.project.`, or an `ORG_GRADLE_PROJECT_` environment variable overrides the
+     * file.
      */
     abstract val flavorPropertiesFile: RegularFileProperty
 
