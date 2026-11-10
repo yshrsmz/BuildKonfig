@@ -287,26 +287,12 @@ fun decideOutputs(
 }
 
 /**
- * Resolves the BuildKonfig flavor.
+ * Resolves the flavor: a flavor passed from outside the build (`-P`, `-Dorg.gradle.project.`,
+ * `ORG_GRADLE_PROJECT_`), then [BuildKonfigExtension.flavorPropertiesFile], then
+ * [Project.findProperty].
  *
- * Precedence, highest first:
- * 1. A flavor passed from outside the build, in Gradle's own order: `-Pbuildkonfig.flavor`,
- *    `-Dorg.gradle.project.buildkonfig.flavor`, then the `ORG_GRADLE_PROJECT_buildkonfig.flavor`
- *    environment variable. An empty string counts. These win over the flavor file and over a
- *    flavor set from the build script, even when no flavor file is configured. The file is not
- *    read.
- * 2. `buildkonfig.flavor` in [BuildKonfigExtension.flavorPropertiesFile], when that property
- *    is set and the key is present, including an empty string. A missing file or a missing
- *    key falls through. Contents are read with
- *    [org.gradle.api.provider.ProviderFactory.fileContents] so the configuration cache tracks
- *    the file, including creation and deletion.
- * 3. [Project.findProperty]. This sees `gradle.properties` (including the one in
- *    `GRADLE_USER_HOME`) and extra properties set from the build script — for example after
- *    inspecting `gradle.startParameter.taskNames` and calling
- *    `project.extensions.extraProperties.set` — before `afterEvaluate`. A non-string value logs
- *    an error and selects the non-flavored config.
- *
- * The resolved string is captured on the task input. Project properties are left unchanged.
+ * [Project.findProperty] comes last so that a flavor the build script sets through extra
+ * properties before `afterEvaluate` is still picked up.
  */
 internal fun Project.findFlavor(extension: BuildKonfigExtension): String {
     val externalFlavor = gradle.startParameter.projectProperties[FLAVOR_PROPERTY]
@@ -339,6 +325,7 @@ internal fun Project.findFlavor(extension: BuildKonfigExtension): String {
  */
 private fun Project.readFlavorFromPropertiesFile(file: RegularFile): String? {
     val contents = try {
+        // Read through fileContents so the configuration cache tracks edits, creation, and deletion.
         providers.fileContents(file).asBytes.orNull
     } catch (e: Exception) {
         throw flavorPropertiesFailure(file, e.message ?: e.javaClass.simpleName, e)
