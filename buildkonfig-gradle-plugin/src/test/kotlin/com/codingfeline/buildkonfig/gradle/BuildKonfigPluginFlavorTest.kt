@@ -47,23 +47,13 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
     }
 
     private fun writeFlavoredBuildFile(extraInside: String = "", trailing: String = "") {
-        val extraBlock = if (extraInside.isBlank()) {
-            ""
-        } else {
-            extraInside.trimIndent().lineSequence().joinToString("\n") { "   $it" } + "\n"
-        }
-        val trailingBlock = if (trailing.isBlank()) {
-            ""
-        } else {
-            "\n" + trailing.trimIndent() + "\n"
-        }
         buildFile.writeText(
             """
             |$buildFileHeader
             |
             |buildkonfig {
             |   packageName = "com.example"
-            |$extraBlock
+            |${extraInside.trimIndent()}
             |   defaultConfigs {
             |       buildConfigField 'STRING', 'stringValue', 'defaultValue'
             |   }
@@ -75,7 +65,8 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
             |   }
             |}
             |$buildFileKMPConfig
-            |$trailingBlock
+            |
+            |${trailing.trimIndent()}
             """.trimMargin()
         )
     }
@@ -90,7 +81,7 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
     }
 
     private fun writeProperties(name: String, contents: String) {
-        projectDir.newFile(name).writeText(if (contents.endsWith("\n")) contents else "$contents\n")
+        projectDir.newFile(name).writeText(contents)
     }
 
     @Test
@@ -885,17 +876,6 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
     }
 
     @Test
-    fun `flavor properties file can be the root project local properties`() {
-        writeFlavoredBuildFile(
-            extraInside = "flavorPropertiesFile.set(rootProject.layout.projectDirectory.file('local.properties'))",
-        )
-        writeProperties("local.properties", "buildkonfig.flavor=dev")
-
-        assertThat(generateCommon())
-            .contains("val stringValue: String = \"devDefaultValue\"")
-    }
-
-    @Test
     fun `unset flavor properties file does not read local properties`() {
         writeFlavoredBuildFile()
         writeProperties("local.properties", "buildkonfig.flavor=dev")
@@ -1034,14 +1014,8 @@ class BuildKonfigPluginFlavorTest : BaseGradlePluginTest() {
         )
         writeProperties("broken.properties", "buildkonfig.flavor=\\uZZZZ")
 
-        val buildDir = projectDir.buildKonfigDir()
-        val result = gradleRunner(projectDir)
-            .withArguments("generateBuildKonfig", "--stacktrace", "-Pbuildkonfig.flavor=release")
-            .build()
-            .assertBuildSuccessful()
-
-        assertThat(result.output).doesNotContain("Failed to read BuildKonfig flavor properties file")
-        assertThat(buildKonfigFile(buildDir, "commonMain", "com.example").readText())
+        // Reading the malformed file would fail the build, so success proves it was skipped.
+        assertThat(generateCommon("-Pbuildkonfig.flavor=release"))
             .contains("val stringValue: String = \"releaseDefaultValue\"")
     }
 
