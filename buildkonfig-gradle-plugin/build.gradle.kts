@@ -25,7 +25,7 @@ gradlePlugin {
             implementationClass = "com.codingfeline.buildkonfig.gradle.BuildKonfigPlugin"
             displayName = POM_NAME
             description = POM_DESCRIPTION
-            tags.set(listOf("BuildConfig", "Kotlin", "Kotlin Multiplatform"))
+            tags.set(listOf("BuildConfig", "Kotlin", "kotlin-multiplatform"))
         }
     }
 }
